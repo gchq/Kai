@@ -1,13 +1,11 @@
-.classpath.txt
-target
-.classpath
-.project
-.idea
-.settings
-.vscode
-*.iml
+*.js
+!jest.config.js
+*.d.ts
+node_modules
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
 
+# Add js exception for lambdas
+!lambdas/*.js
