@@ -39,6 +39,5 @@ export class GraphService extends core.Construct {
         api.root.addMethod('POST', addGraphIntegration);
         const graphEndpoint = api.root.addResource("{graphUrl}");
         graphEndpoint.addMethod('DELETE', deleteGraphIntegration);
-
     }
 }
