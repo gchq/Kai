@@ -18,6 +18,9 @@ package uk.gov.gchq.kai;
 import software.amazon.awscdk.core.Construct;
 import software.amazon.awscdk.core.Stack;
 import software.amazon.awscdk.core.StackProps;
+import software.amazon.awscdk.services.apigateway.Resource;
+import software.amazon.awscdk.services.apigateway.RestApi;
+import software.amazon.awscdk.services.s3.HttpMethods;
 
 public class KaiStack extends Stack {
 
@@ -27,5 +30,15 @@ public class KaiStack extends Stack {
 
     public KaiStack(final Construct parent, final String id, final StackProps props) {
         super(parent, id, props);
+
+        final RestApi kaiRestAPI = new RestApi(this, "KaiRestAPI");
+
+        final Resource graphs = kaiRestAPI.getRoot().addResource("graphs");
+        graphs.addMethod(HttpMethods.GET.name());
+        graphs.addMethod(HttpMethods.POST.name());
+
+        final Resource graph = graphs.addResource("{graph}");
+        graph.addMethod(HttpMethods.DELETE.name());
+
     }
 }
