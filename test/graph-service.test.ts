@@ -12,7 +12,7 @@ test('GraphService matches the snapshot', () => {
     expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
 });
 
-test('GraphService should have a GetAll enpoint', () => {
+test('GraphService should have a GetAll endpoint', () => {
     // Given
     const stack = new cdk.Stack();
     // When
