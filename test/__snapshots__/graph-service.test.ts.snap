@@ -1,0 +1,759 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GraphService matches the snapshot 1`] = `
+Object {
+  "Outputs": Object {
+    "GraphServicegraphapiEndpoint71D8AA38": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "GraphServicegraphapiB91541B3",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "GraphServicegraphapiDeploymentStageprod5D5652C9",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957ArtifactHashFE671783": Object {
+      "Description": "Artifact hash for asset \\"0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957\\"",
+      "Type": "String",
+    },
+    "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3Bucket1888D2DC": Object {
+      "Description": "S3 bucket for asset \\"0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957\\"",
+      "Type": "String",
+    },
+    "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2": Object {
+      "Description": "S3 key for asset version \\"0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957\\"",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "GraphServiceAddGraphHandlerBAAE48B6": Object {
+      "DependsOn": Array [
+        "GraphServiceAddGraphHandlerServiceRole2E960413",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3Bucket1888D2DC",
+          },
+          "S3Key": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                Object {
+                  "Fn::Select": Array [
+                    0,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Fn::Select": Array [
+                    1,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Handler": "graphs.add",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceAddGraphHandlerServiceRole2E960413",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs10.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GraphServiceAddGraphHandlerServiceRole2E960413": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GraphServiceDeleteGraphHandlerC7A51AF9": Object {
+      "DependsOn": Array [
+        "GraphServiceDeleteGraphHandlerServiceRole4F4B2F61",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3Bucket1888D2DC",
+          },
+          "S3Key": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                Object {
+                  "Fn::Select": Array [
+                    0,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Fn::Select": Array [
+                    1,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Handler": "graphs.delete",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceDeleteGraphHandlerServiceRole4F4B2F61",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs10.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GraphServiceDeleteGraphHandlerServiceRole4F4B2F61": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GraphServiceGetAllGraphsHandler520E16D1": Object {
+      "DependsOn": Array [
+        "GraphServiceGetAllGraphsHandlerServiceRoleC21D818A",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3Bucket1888D2DC",
+          },
+          "S3Key": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                Object {
+                  "Fn::Select": Array [
+                    0,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Fn::Select": Array [
+                    1,
+                    Object {
+                      "Fn::Split": Array [
+                        "||",
+                        Object {
+                          "Ref": "AssetParameters0186268f3ac97a795930ed7e9089409e8feb8a138043f95da96748560658d957S3VersionKey5BB03EF2",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Handler": "graphs.getAll",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceGetAllGraphsHandlerServiceRoleC21D818A",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs10.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "GraphServiceGetAllGraphsHandlerServiceRoleC21D818A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GraphServicegraphapiAccount943AB11A": Object {
+      "DependsOn": Array [
+        "GraphServicegraphapiB91541B3",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "GraphServicegraphapiCloudWatchRole06DF722A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "GraphServicegraphapiB91541B3": Object {
+      "Properties": Object {
+        "Description": "This service allows you to control graphs",
+        "Name": "Graph Service",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "GraphServicegraphapiCloudWatchRole06DF722A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "GraphServicegraphapiDeploymentEC5A93F2e298ae45995eae5b387d938113cdc74a": Object {
+      "DependsOn": Array [
+        "GraphServicegraphapigraphUrlDELETEB0D14381",
+        "GraphServicegraphapigraphUrl1F95B55B",
+        "GraphServicegraphapiGET9BB13121",
+        "GraphServicegraphapiPOST339B5C53",
+      ],
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "GraphServicegraphapiDeploymentStageprod5D5652C9": Object {
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "GraphServicegraphapiDeploymentEC5A93F2e298ae45995eae5b387d938113cdc74a",
+        },
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "GraphServicegraphapiGET9BB13121": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "GraphServiceGetAllGraphsHandler520E16D1",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Fn::GetAtt": Array [
+            "GraphServicegraphapiB91541B3",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "GraphServicegraphapiGETApiPermissionGraphServicegraphapi67232AF1GET64E97AA1": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceGetAllGraphsHandler520E16D1",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/",
+              Object {
+                "Ref": "GraphServicegraphapiDeploymentStageprod5D5652C9",
+              },
+              "/GET/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapiGETApiPermissionTestGraphServicegraphapi67232AF1GET8AE35598": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceGetAllGraphsHandler520E16D1",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/test-invoke-stage/GET/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapiPOST339B5C53": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "GraphServiceAddGraphHandlerBAAE48B6",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Fn::GetAtt": Array [
+            "GraphServicegraphapiB91541B3",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "GraphServicegraphapiPOSTApiPermissionGraphServicegraphapi67232AF1POST0D208D07": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceAddGraphHandlerBAAE48B6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/",
+              Object {
+                "Ref": "GraphServicegraphapiDeploymentStageprod5D5652C9",
+              },
+              "/POST/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapiPOSTApiPermissionTestGraphServicegraphapi67232AF1POSTA74BFCB4": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceAddGraphHandlerBAAE48B6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/test-invoke-stage/POST/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapigraphUrl1F95B55B": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Fn::GetAtt": Array [
+            "GraphServicegraphapiB91541B3",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{graphUrl}",
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "GraphServicegraphapigraphUrlDELETEApiPermissionGraphServicegraphapi67232AF1DELETEgraphUrl6C68A167": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceDeleteGraphHandlerC7A51AF9",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/",
+              Object {
+                "Ref": "GraphServicegraphapiDeploymentStageprod5D5652C9",
+              },
+              "/DELETE/{graphUrl}",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapigraphUrlDELETEApiPermissionTestGraphServicegraphapi67232AF1DELETEgraphUrlFFEBFC67": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "GraphServiceDeleteGraphHandlerC7A51AF9",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "GraphServicegraphapiB91541B3",
+              },
+              "/test-invoke-stage/DELETE/{graphUrl}",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "GraphServicegraphapigraphUrlDELETEB0D14381": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "DELETE",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "GraphServiceDeleteGraphHandlerC7A51AF9",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Ref": "GraphServicegraphapigraphUrl1F95B55B",
+        },
+        "RestApiId": Object {
+          "Ref": "GraphServicegraphapiB91541B3",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+  },
+}
+`;
