@@ -2,8 +2,7 @@ package uk.gov.gchq.kai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import software.amazon.awscdk.core.ConstructNode;
 import software.amazon.awscdk.core.IConstruct;
@@ -15,11 +14,13 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static uk.gov.gchq.kai.TestUtils.getApp;
+import static uk.gov.gchq.kai.TestUtils.getObjectMapper;
 
 
 public class GraphServiceTest {
 
-    private final static ObjectMapper JSON = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
+    private static JsonNode stackNode;
 
     @Test
     public void shouldBeAnApiGateway() {
@@ -34,7 +35,7 @@ public class GraphServiceTest {
     public void shouldHaveAGraphResource() throws JsonProcessingException {
         HashMap<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("PathPart", "graphs");
-        expectedProperties.put("RestApiId", JSON.readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
+        expectedProperties.put("RestApiId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
 
         testResourceExists("GraphsKaiAPIgraphsDDD68421", "AWS::ApiGateway::Resource", expectedProperties);
 
@@ -44,8 +45,8 @@ public class GraphServiceTest {
     public void shouldHaveAGetGraphsEndpoint() throws JsonProcessingException {
         HashMap<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("HttpMethod", "GET");
-        expectedProperties.put("ResourceId", JSON.readTree("{\"Ref\": \"GraphsKaiAPIgraphsDDD68421\"}"));
-        expectedProperties.put("RestApiId", JSON.readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
+        expectedProperties.put("ResourceId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPIgraphsDDD68421\"}"));
+        expectedProperties.put("RestApiId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
 
         testResourceExists("GraphsKaiAPIgraphsGET843E0FF4", "AWS::ApiGateway::Method", expectedProperties);
     }
@@ -62,8 +63,8 @@ public class GraphServiceTest {
     public void shouldHaveAnAddGraphEndpoint() throws JsonProcessingException {
         HashMap<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("HttpMethod", "POST");
-        expectedProperties.put("ResourceId", JSON.readTree("{\"Ref\": \"GraphsKaiAPIgraphsDDD68421\"}"));
-        expectedProperties.put("RestApiId", JSON.readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
+        expectedProperties.put("ResourceId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPIgraphsDDD68421\"}"));
+        expectedProperties.put("RestApiId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
 
         testResourceExists("GraphsKaiAPIgraphsPOSTB2C5BD9E", "AWS::ApiGateway::Method", expectedProperties);
     }
@@ -80,8 +81,8 @@ public class GraphServiceTest {
     public void shouldHaveADeleteGraphEndpoint() throws JsonProcessingException {
         HashMap<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("HttpMethod", "DELETE");
-        expectedProperties.put("ResourceId", JSON.readTree("{\"Ref\": \"GraphsKaiAPIgraphsDDD68421\"}"));
-        expectedProperties.put("RestApiId", JSON.readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
+        expectedProperties.put("ResourceId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPIgraphsgraphIdB6FBC71B\"}"));
+        expectedProperties.put("RestApiId", getObjectMapper().readTree("{\"Ref\": \"GraphsKaiAPI3D1ECBF8\"}"));
 
         testResourceExists("GraphsKaiAPIgraphsgraphIdDELETE0D44DD26", "AWS::ApiGateway::Method", expectedProperties);
     }
@@ -95,7 +96,7 @@ public class GraphServiceTest {
     }
 
     private void testResourceExists(final String name, final String type, final Map<String, Object> properties) {
-        JsonNode node = createStackNode().get("Resources").get(name);
+        JsonNode node = stackNode.get("Resources").get(name);
         assertNotNull("Resource formally known as " + name + " has been renamed or has been removed", node);
 
         assertEquals(type, node.get("Type").asText());
@@ -108,14 +109,15 @@ public class GraphServiceTest {
 
     }
 
-    private JsonNode createStackNode() {
-        Stack stack = new Stack(null, "test");
+    @BeforeClass
+    public static void createStackNode() {
+        Stack stack = new Stack(getApp(), "GraphServiceTest");
         GraphService service = new GraphService(stack, "Graphs");
 
-        return JSON.valueToTree(getTemplate(stack));
+        stackNode = getObjectMapper().valueToTree(getTemplate(stack));
     }
 
-    private Object getTemplate(final Stack stack) {
+    private static Object getTemplate(final Stack stack) {
         IConstruct root = stack.getNode().getRoot();
         CloudFormationStackArtifact stackArtifact =
                 ConstructNode.synth(root.getNode()).getStackArtifact(stack.getArtifactId());
