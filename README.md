@@ -1,11 +1,18 @@
-# Kai
+Kai
+====
 Kai is an experimental Graph-as-a-Service framework built with the Amazon CDK
 
-# Useful commands
+The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
+It is a [Maven](https://maven.apache.org/) based project, so you can open this project with any Maven compatible Java IDE to build and run tests.
+
+## Useful commands
+
+ * `mvn package`     compile and run tests
+ * `cdk ls`          list all stacks in the app
+ * `cdk synth`       emits the synthesized CloudFormation template
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+ * `cdk docs`        open CDK documentation
+
+Enjoy!
