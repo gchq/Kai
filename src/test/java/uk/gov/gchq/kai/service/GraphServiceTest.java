@@ -2,8 +2,8 @@ package uk.gov.gchq.kai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import software.amazon.awscdk.core.ConstructNode;
 import software.amazon.awscdk.core.IConstruct;
 import software.amazon.awscdk.core.Stack;
@@ -12,8 +12,8 @@ import software.amazon.awscdk.cxapi.CloudFormationStackArtifact;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.kai.TestUtils.getApp;
 import static uk.gov.gchq.kai.TestUtils.getObjectMapper;
 
@@ -97,7 +97,7 @@ public class GraphServiceTest {
 
     private void testResourceExists(final String name, final String type, final Map<String, Object> properties) {
         JsonNode node = stackNode.get("Resources").get(name);
-        assertNotNull("Resource formally known as " + name + " has been renamed or has been removed", node);
+        assertNotNull(node, "Resource formally known as " + name + " has been renamed or has been removed");
 
         assertEquals(type, node.get("Type").asText());
 
@@ -109,7 +109,7 @@ public class GraphServiceTest {
 
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void createStackNode() {
         Stack stack = new Stack(getApp(), "GraphServiceTest");
         GraphService service = new GraphService(stack, "Graphs");

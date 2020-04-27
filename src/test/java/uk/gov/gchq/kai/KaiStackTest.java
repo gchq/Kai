@@ -1,12 +1,12 @@
 package uk.gov.gchq.kai;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import software.amazon.awscdk.core.App;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.kai.TestUtils.getApp;
 import static uk.gov.gchq.kai.TestUtils.getObjectMapper;
 
