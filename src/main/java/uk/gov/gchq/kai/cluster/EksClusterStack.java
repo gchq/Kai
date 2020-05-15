@@ -33,7 +33,9 @@ import software.amazon.awssdk.services.ec2.model.Filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EksClusterStack extends Stack {
@@ -103,10 +105,48 @@ public class EksClusterStack extends Stack {
 
         // Add ingress
 
+        Map<String, Object> ingressValues = new HashMap<>();
+        ingressValues.put("clusterName", CLUSTER_NAME);
+        ingressValues.put("autoDiscoverAwsRegion", true);
+        ingressValues.put("autoDiscoverAwsVpcId", true);
+
+        eksCluster.addChart("AlbIngressChart", HelmChartOptions.builder()
+                .chart("aws-alb-ingress-controller")
+                .repository("http://storage.googleapis.com/kubernetes-charts-incubator")
+                .release("alb-ingress")
+                .values(ingressValues)
+                .namespace("kube-system")
+                .build());
+
+        // Add HDFS - just for test purposes
+
+        /*
+         * ingress:
+         *   annotations:
+         *     kubernetes.io/ingress.class: alb
+         *     alb.ingress.kubernetes.io/target-type: ip
+         *     alb.ingress.kubernetes.io/scheme: internet-facing
+         *   pathPrefix: /*
+         *
+         */
+        Map<String, Object> annotations = new HashMap<>();
+        annotations.put("kubernetes.io/ingress.class", "alb");
+        annotations.put("alb.ingress.kubernetes.io/target-type", "ip");
+        annotations.put("alb.ingress.kubernetes.io/scheme", "internet-facing");
+
+        Map<String, Object> hdfsIngress = new HashMap<>();
+        hdfsIngress.put("annotations", annotations);
+        hdfsIngress.put("pathPrefix", "/*");
+
+        Map<String, Object> hdfsIngressValues = new HashMap<>();
+        hdfsIngressValues.put("ingress", hdfsIngress);
+
+
         eksCluster.addChart("testChart", HelmChartOptions.builder()
                 .chart("hdfs")
                 .repository("https://gchq.github.io/gaffer-docker")
                 .release("hdfs-test")
+                .values(hdfsIngressValues)
                 .build());
     }
 
