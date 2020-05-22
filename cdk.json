@@ -1,3 +1,7 @@
 {
-  "app": "mvn -e -q exec:java"
+  "app": "mvn -e -pl :app -q exec:java",
+  "context": {
+    "vpcId": "DEFAULT",
+    "clusterName": "Kai"
+  }
 }
