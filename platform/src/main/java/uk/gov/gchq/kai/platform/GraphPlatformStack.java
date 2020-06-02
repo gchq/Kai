@@ -132,7 +132,6 @@ public class GraphPlatformStack extends Stack {
         }
 
         IManagedPolicy aLBIngressPolicy = new ManagedPolicy(this, "ALBIngressPolicy", ManagedPolicyProps.builder()
-                .managedPolicyName("ALBIngressControllerIAMPolicy")
                 .document(PolicyDocument.fromJson(policyDocumentJson))
                 .build());
 
@@ -143,7 +142,6 @@ public class GraphPlatformStack extends Stack {
         IRole aLBIngressRole = new Role(this, "ALBIngressRole", RoleProps.builder()
                 .assumedBy(new OpenIdConnectPrincipal(provider))
                 .managedPolicies(Collections.singletonList(aLBIngressPolicy))
-                .roleName("eks-alb-ingress-controller")
                 .build());
 
         Map<String, Object> ingressValues = new HashMap<>();
