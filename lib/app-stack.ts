@@ -8,6 +8,6 @@ export class AppStack extends cdk.Stack {
         super(scope, id, props);
 
         const platform = new GraphPlatForm(this, "GraphPlatform");
-        const restApi = new KaiRestApi(this, "RestApi", { cluster: platform.eksCluster });
+        new KaiRestApi(this, "RestApi", { cluster: platform.eksCluster });
     }
 }

@@ -3,6 +3,8 @@ import * as sam from "@aws-cdk/aws-sam";
 import * as api from "@aws-cdk/aws-apigateway";
 import * as iam from "@aws-cdk/aws-iam";
 import * as lamdba from "@aws-cdk/aws-lambda";
+import * as sqs from "@aws-cdk/aws-sqs";
+import * as les from "@aws-cdk/aws-lambda-event-sources"
 import * as path from 'path';
 import { Runtime, AssetCode } from "@aws-cdk/aws-lambda";
 import { LambdaIntegration } from "@aws-cdk/aws-apigateway";
@@ -32,26 +34,49 @@ export class KaiRestApi extends cdk.Construct {
         // REST API
         const restApi = new api.RestApi(this, "RestApi");
         const graphResource = restApi.root.addResource("graphs") // Could add a default 404 handler here
-        
-        // Add Graph handler
-        const addGraphLambda = new lamdba.Function(this, "AddGraphLambda", {
-            runtime: Runtime.NODEJS_12_X,
-            code: new AssetCode(path.join(__dirname, "lambdas")),
+
+        const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups")
+
+
+        // Add Graph Queue
+        const timeoutForGraphDeployment = cdk.Duration.minutes(5)
+        const addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { visibilityTimeout: timeoutForGraphDeployment });
+
+        // Add Graph Worker
+        const addGraphWorker = new lamdba.Function(this, "AddGraphWorker", {
+            runtime: Runtime.PYTHON_3_7,
+            code: new AssetCode(path.join(__dirname, "lambdas", "workers")),
             handler: "add_graph.handler",
             layers: [ kubectlLambdaLayer ],
+            timeout: timeoutForGraphDeployment,
             environment: {
-                clusterName: props.cluster.clusterName
+                cluster_name: props.cluster.clusterName,
+                extra_security_groups: extraSecurityGroups == "" ? null : extraSecurityGroups
             }
         });
 
+        addGraphWorker.addEventSource(new les.SqsEventSource(addGraphQueue));
+
         // Add permisssions to role
-        addGraphLambda.addToRolePolicy(new iam.PolicyStatement({
+        addGraphWorker.addToRolePolicy(new iam.PolicyStatement({
             actions: [ "eks:DescribeCluster" ],
             resources: [ props.cluster.clusterArn ]
         }));
 
-        props.cluster.awsAuth.addMastersRole(addGraphLambda.role!); // todo test that a role is actually created
+        props.cluster.awsAuth.addMastersRole(addGraphWorker.role!); // todo test that a role is actually created
         
+        // Add Graph request handler
+        const addGraphLambda = new lamdba.Function(this, "AddGraphHandler", {
+            runtime: Runtime.PYTHON_3_7,
+            code: new AssetCode(path.join(__dirname, "lambdas", "endpoints")),
+            handler: "add_graph_request.handler",
+            timeout: cdk.Duration.seconds(30),
+            environment: {
+                sqs_queue_url: addGraphQueue.queueUrl
+            }
+        });
+
+        addGraphQueue.grantSendMessages(addGraphLambda)
         graphResource.addMethod("POST", new LambdaIntegration(addGraphLambda))
     }
 }

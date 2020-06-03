@@ -5,7 +5,7 @@
     "aws-cdk:enableDiffNoFail": "true",
     "vpcId": "DEFAULT",
     "clusterName": "Kai",
-    "ingressSecurityGroups": "",
+    "extraIngressSecurityGroups": "",
     "globalTags": {}
   }
 }
