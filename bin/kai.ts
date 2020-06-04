@@ -12,16 +12,16 @@ const dev = {
 };
 
 // Main Stack
-new AppStack(app, "KaiStack", {
+new AppStack(app, 'KaiStack', {
     env: dev,
-    stackName: "KaiStack"
-})
+    stackName: 'KaiStack'
+});
 
 // Tags
-let tags: Map<string, string> = app.node.tryGetContext("globalTags");
+let tags: Map<string, string> = app.node.tryGetContext('globalTags');
 // CDK does not support json parsing when using the --context option so we must parse it ourselves here
 if (tags != null) {
-    if (typeof tags == "string") {
+    if (typeof tags == 'string') {
         tags = JSON.parse(tags);
     }
 

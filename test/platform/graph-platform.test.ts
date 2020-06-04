@@ -10,7 +10,7 @@ test('EKS cluster is created', () => {
     new platform.GraphPlatForm(stack, 'TestPlatform');
 
     // Then
-    expectCDK(stack).to(haveResource("Custom::AWSCDK-EKS-Cluster"))
+    expectCDK(stack).to(haveResource('Custom::AWSCDK-EKS-Cluster'));
 });
 
 test('Node group is created', () => {
@@ -21,16 +21,16 @@ test('Node group is created', () => {
     new platform.GraphPlatForm(stack, 'TestPlatform');
 
     // Then
-    expectCDK(stack).to(haveResource("AWS::EKS::Nodegroup", {
+    expectCDK(stack).to(haveResource('AWS::EKS::Nodegroup', {
         InstanceTypes: [ 
-            "t3.medium"
+            't3.medium'
         ],
         ScalingConfig: {
-            "DesiredSize": 2,
-            "MaxSize": 10,
-            "MinSize": 1
+            'DesiredSize': 2,
+            'MaxSize': 10,
+            'MinSize': 1
         }
-    }))
+    }));
 });
 
 test('The ALB ingress controller is deployed on the kube-system namespace', () => {

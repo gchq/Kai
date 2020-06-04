@@ -1,10 +1,10 @@
-import * as cdk from "@aws-cdk/core";
-import * as api from "@aws-cdk/aws-apigateway";
-import * as lamdba from "@aws-cdk/aws-lambda";
-import * as sqs from "@aws-cdk/aws-sqs";
+import * as cdk from '@aws-cdk/core';
+import * as api from '@aws-cdk/aws-apigateway';
+import * as lamdba from '@aws-cdk/aws-lambda';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as path from 'path';
-import { Runtime, AssetCode } from "@aws-cdk/aws-lambda";
-import { LambdaIntegration } from "@aws-cdk/aws-apigateway";
+import { Runtime, AssetCode } from '@aws-cdk/aws-lambda';
+import { LambdaIntegration } from '@aws-cdk/aws-apigateway';
 
 export class KaiRestApi extends cdk.Construct {
     private _addGraphQueue: sqs.Queue; 
@@ -12,28 +12,28 @@ export class KaiRestApi extends cdk.Construct {
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id);
         // REST API
-        const restApi = new api.RestApi(this, "KaiRestApi"); // Could add a default 404 handler here
-        const graphResource = restApi.root.addResource("graphs") ;
+        const restApi = new api.RestApi(this, 'KaiRestApi'); // Could add a default 404 handler here
+        const graphResource = restApi.root.addResource('graphs') ;
 
 
         // Add Graph Queue
-        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
+        this._addGraphQueue = new sqs.Queue(this, 'AddGraphQueue', { 
             visibilityTimeout: cdk.Duration.minutes(10)
         });
         
         // Add Graph request handler
-        const addGraphLambda = new lamdba.Function(this, "AddGraphHandler", {
+        const addGraphLambda = new lamdba.Function(this, 'AddGraphHandler', {
             runtime: Runtime.PYTHON_3_7,
-            code: new AssetCode(path.join(__dirname, "lambdas")),
-            handler: "add_graph_request.handler",
+            code: new AssetCode(path.join(__dirname, 'lambdas')),
+            handler: 'add_graph_request.handler',
             timeout: cdk.Duration.seconds(30),
             environment: {
                 sqs_queue_url: this.addGraphQueue.queueUrl
             }
         });
 
-        this.addGraphQueue.grantSendMessages(addGraphLambda)
-        graphResource.addMethod("POST", new LambdaIntegration(addGraphLambda))
+        this.addGraphQueue.grantSendMessages(addGraphLambda);
+        graphResource.addMethod('POST', new LambdaIntegration(addGraphLambda));
     }
 
     public get addGraphQueue(): sqs.Queue { 
