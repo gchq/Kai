@@ -1,5 +1,4 @@
-language: java
+language: nodejs
 dist: bionic
-jdk:
-  - openjdk11
-  - openjdk8
+node_js:
+  - lts
