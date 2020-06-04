@@ -2,9 +2,28 @@ import os
 import subprocess
 import json
 import boto3
+import logging
+import random
+import string
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 kubeconfig = "/tmp/kubeconfig"
+
+def generate_password(length=8):
+    printable = f'{string.ascii_letters}{string.digits}{string.punctuation}'
+
+    # randomize
+    printable = list(printable)
+    random.shuffle(printable)
+
+    # generate random password and convert to string
+    random_password = random.choices(printable, k=length)
+    random_password = ''.join(random_password)
+    return random_password
+
 
 def create_values(graph_id, schema, security_groups):
     ingress_values = {
@@ -33,13 +52,13 @@ def create_values(graph_id, schema, security_groups):
         "accumulo": {
             "config": {
                 "accumuloSite": {
-                    "instance.secret": "DEFAULT" # todo Make these random and store somewhere secure
+                    "instance.secret": generate_password() # todo store these somewhere secure in future ticket
                 },
                 "userManagement": {
-                    "rootPassword": "root",
+                    "rootPassword": generate_password(),
                     "users": {
                         "gaffer": {
-                            "password": "gaffer",
+                            "password": generate_password(),
                             "permissions": {
                                 "table": {
                                     graph_id: [
@@ -52,7 +71,7 @@ def create_values(graph_id, schema, security_groups):
                             }
                         },
                         "tracer": {
-                            "password": "tracer"
+                            "password": generate_password()
                         }
                     }
                 }
@@ -71,11 +90,6 @@ def add_graph(body, security_groups):
     # Extract values from body
     graph_id = body["graphId"]
     schema = body["schema"]
-    
-    # Create a Namespace
-    subprocess.run(["kubectl", "create", "namespace", graph_id, 
-        "--kubeconfig", kubeconfig
-    ])
 
     # Create values file
     values = create_values(graph_id, schema, security_groups)
@@ -86,21 +100,20 @@ def add_graph(body, security_groups):
         
     # Deploy Graph
     try:
-        subprocess.run([ "helm", "upgrade", "gaffer", "gaffer", 
+        subprocess.run([ "helm", "install", graph_id, "gaffer", 
             "--repo", "https://gchq.github.io/gaffer-docker",
-            "--install",
             "--kubeconfig", kubeconfig,
-            "--values", values_file,
-            "--namespace", graph_id
+            "--values", values_file
         ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, cwd="/tmp")
     except subprocess.CalledProcessError as err:
-        raise Exception(err.output)
+        logger.error("Failed to deploy " + graph_id)
+        logger.error(err.output)
 
-    print("Deployment of " + graph_id + " Succeeded")
+    logger.info("Deployment of " + graph_id + " Succeeded")
     
 
 def handler(event, context):
-    print(event)
+    logger.info(event)
 
     # Log in to the cluster
     cluster_name = os.getenv("cluster_name")
@@ -118,6 +131,7 @@ def handler(event, context):
     if extra_security_groups is not None:
         security_groups = security_groups + ", " + extra_security_groups
 
+    logger.info("Using security groups: " + security_groups)
     for record in event["Records"]:
         body = json.loads(record["body"])
         add_graph(body, security_groups)

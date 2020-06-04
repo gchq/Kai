@@ -39,8 +39,10 @@ export class KaiRestApi extends cdk.Construct {
 
 
         // Add Graph Queue
-        const timeoutForGraphDeployment = cdk.Duration.minutes(5)
-        const addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { visibilityTimeout: timeoutForGraphDeployment });
+        const timeoutForGraphDeployment = cdk.Duration.minutes(10)
+        const addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
+            visibilityTimeout: timeoutForGraphDeployment
+        });
 
         // Add Graph Worker
         const addGraphWorker = new lamdba.Function(this, "AddGraphWorker", {
