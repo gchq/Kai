@@ -1,6 +1,6 @@
 import { PolicyStatement } from "@aws-cdk/aws-iam";
 
-const albPolicyStatement: PolicyStatement = new PolicyStatement({
+export const albPolicyStatement: PolicyStatement = new PolicyStatement({
     resources: ['*'],
     actions: [
       "acm:DescribeCertificate",
@@ -69,5 +69,3 @@ const albPolicyStatement: PolicyStatement = new PolicyStatement({
       "tag:TagResources"
     ]
 });
-
-export { albPolicyStatement }
