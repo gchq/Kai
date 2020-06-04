@@ -7,7 +7,7 @@ test('EKS cluster is created', () => {
     const stack = new cdk.Stack();
 
     // When
-    const graphPlatform = new platform.GraphPlatForm(stack, 'TestPlatform');
+    new platform.GraphPlatForm(stack, 'TestPlatform');
 
     // Then
     expectCDK(stack).to(haveResource("Custom::AWSCDK-EKS-Cluster"))
@@ -18,7 +18,7 @@ test('Node group is created', () => {
     const stack = new cdk.Stack();
 
     // When
-    const graphPlatform = new platform.GraphPlatForm(stack, 'TestPlatform');
+    new platform.GraphPlatForm(stack, 'TestPlatform');
 
     // Then
     expectCDK(stack).to(haveResource("AWS::EKS::Nodegroup", {
@@ -38,7 +38,7 @@ test('The ALB ingress controller is deployed on the kube-system namespace', () =
     const stack = new cdk.Stack();
 
     // When
-    const graphPlatform = new platform.GraphPlatForm(stack, 'TestPlatform');
+    new platform.GraphPlatForm(stack, 'TestPlatform');
 
     // Then
     expectCDK(stack).to(haveResource('Custom::AWSCDK-EKS-HelmChart', {

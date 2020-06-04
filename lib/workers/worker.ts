@@ -35,8 +35,14 @@ export abstract class Worker extends Construct {
             actions: [ "eks:DescribeCluster" ],
             resources: [ props.cluster.clusterArn ]
         }));
+    
+        const workerRole = addGraphWorker.role;
 
-        props.cluster.awsAuth.addMastersRole(addGraphWorker.role!);
+        if (workerRole == undefined) {
+            throw new Error("Worker must have an associated IAM Role");
+        } else {
+            props.cluster.awsAuth.addMastersRole(workerRole);
+        }
 
     }
 

@@ -2,11 +2,11 @@ import { Worker } from "./worker";
 
 
 export class AddGraphWorker extends Worker {
-    get handler() {
+    get handler(): string {
         return "add_graph.handler"
     }
 
-    get workerId() {
+    get workerId(): string {
         return "AddGraphHandler"
     }
 }

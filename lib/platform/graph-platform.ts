@@ -13,7 +13,7 @@ export class GraphPlatForm extends cdk.Construct {
         super(scope, id);
 
         // Get contextual values
-        let vpcId: string = this.node.tryGetContext("vpcId");
+        const vpcId: string = this.node.tryGetContext("vpcId");
         const clusterName: string = this.node.tryGetContext("clusterName");
 
         // Master role
@@ -86,7 +86,7 @@ export class GraphPlatForm extends cdk.Construct {
         });
     }
 
-    public get eksCluster() {
+    public get eksCluster(): eks.Cluster {
         return this._eksCluster
     }
 }

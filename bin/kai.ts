@@ -25,7 +25,7 @@ if (tags != null) {
         tags = JSON.parse(tags);
     }
 
-    for (let [key, value] of Object.entries(tags)) {
+    for (const [key, value] of Object.entries(tags)) {
         cdk.Tag.add(app, key, value);
     }
 }           
