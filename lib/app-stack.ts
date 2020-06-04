@@ -35,7 +35,7 @@ export class AppStack extends cdk.Stack {
         new AddGraphWorker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
-            kubectl_layer: kubectlLambdaLayer
+            kubectlLayer: kubectlLambdaLayer
         })
     }
 }

@@ -1,14 +1,10 @@
 import * as cdk from "@aws-cdk/core";
-import * as sam from "@aws-cdk/aws-sam";
 import * as api from "@aws-cdk/aws-apigateway";
-import * as iam from "@aws-cdk/aws-iam";
 import * as lamdba from "@aws-cdk/aws-lambda";
 import * as sqs from "@aws-cdk/aws-sqs";
-import * as les from "@aws-cdk/aws-lambda-event-sources"
 import * as path from 'path';
 import { Runtime, AssetCode } from "@aws-cdk/aws-lambda";
 import { LambdaIntegration } from "@aws-cdk/aws-apigateway";
-import { KaiRestApiProps } from "./kai-rest-api-props";
 
 export class KaiRestApi extends cdk.Construct {
     private _addGraphQueue: sqs.Queue; 
@@ -28,7 +24,7 @@ export class KaiRestApi extends cdk.Construct {
         // Add Graph request handler
         const addGraphLambda = new lamdba.Function(this, "AddGraphHandler", {
             runtime: Runtime.PYTHON_3_7,
-            code: new AssetCode(path.join(__dirname, "lambdas", "endpoints")),
+            code: new AssetCode(path.join(__dirname, "lambdas")),
             handler: "add_graph_request.handler",
             timeout: cdk.Duration.seconds(30),
             environment: {

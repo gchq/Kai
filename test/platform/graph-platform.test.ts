@@ -13,17 +13,25 @@ test('EKS cluster is created', () => {
     expectCDK(stack).to(haveResource("Custom::AWSCDK-EKS-Cluster"))
 });
 
-test('Masters role is created', () => {
-
-});
-
 test('Node group is created', () => {
+    // Given
+    const stack = new cdk.Stack();
 
+    // When
+    const graphPlatform = new platform.GraphPlatForm(stack, 'TestPlatform');
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::EKS::Nodegroup", {
+        InstanceTypes: [ 
+            "t3.medium"
+        ],
+        ScalingConfig: {
+            "DesiredSize": 2,
+            "MaxSize": 10,
+            "MinSize": 1
+        }
+    }))
 });
-
-test('A service role is created', () => {
-
-})
 
 test('The ALB ingress controller is deployed on the kube-system namespace', () => {
     // Given
@@ -38,8 +46,4 @@ test('The ALB ingress controller is deployed on the kube-system namespace', () =
         'Namespace': 'kube-system',
         'Repository': 'http://storage.googleapis.com/kubernetes-charts-incubator'
     }));
-});
-
-test('The ingress controller uses the service role created', () => {
-
 });

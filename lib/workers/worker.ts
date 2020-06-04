@@ -20,7 +20,7 @@ export abstract class Worker extends Construct {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: new lambda.AssetCode(path.join(__dirname, "lambdas")),
             handler: this.handler,
-            layers: [ props.kubectl_layer ],
+            layers: [ props.kubectlLayer ],
             timeout: Duration.minutes(10),
             environment: {
                 cluster_name: props.cluster.clusterName,
@@ -36,7 +36,7 @@ export abstract class Worker extends Construct {
             resources: [ props.cluster.clusterArn ]
         }));
 
-        props.cluster.awsAuth.addMastersRole(addGraphWorker.role!); // todo test that a role is actually create
+        props.cluster.awsAuth.addMastersRole(addGraphWorker.role!);
 
     }
 

@@ -6,7 +6,7 @@ export class AddGraphWorker extends Worker {
         return "add_graph.handler"
     }
 
-    get workerId {
+    get workerId() {
         return "AddGraphHandler"
     }
 }
