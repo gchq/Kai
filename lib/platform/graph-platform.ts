@@ -7,7 +7,7 @@ import { albPolicyStatement } from './alb-policy-statement';
 export class GraphPlatForm extends cdk.Construct {
 
     private static readonly DEFAULT_VPC: string = 'DEFAULT'
-    private _eksCluster: eks.Cluster;
+    private readonly _eksCluster: eks.Cluster;
 
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id);

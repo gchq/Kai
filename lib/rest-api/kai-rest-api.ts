@@ -1,15 +1,13 @@
 import * as cdk from '@aws-cdk/core';
 import * as api from '@aws-cdk/aws-apigateway';
-import * as lamdba from '@aws-cdk/aws-lambda';
+import * as lambda from '@aws-cdk/aws-lambda';
 import * as sqs from '@aws-cdk/aws-sqs';
 import * as path from 'path';
-import { Runtime, AssetCode } from '@aws-cdk/aws-lambda';
-import { LambdaIntegration } from '@aws-cdk/aws-apigateway';
 
 export class KaiRestApi extends cdk.Construct {
-    private _addGraphQueue: sqs.Queue; 
+    private readonly _addGraphQueue: sqs.Queue; 
 
-    constructor(scope: cdk.Construct, id: string) {
+    constructor(scope: cdk.Construct, readonly id: string) {
         super(scope, id);
         // REST API
         const restApi = new api.RestApi(this, 'KaiRestApi'); // Could add a default 404 handler here
@@ -22,9 +20,9 @@ export class KaiRestApi extends cdk.Construct {
         });
         
         // Add Graph request handler
-        const addGraphLambda = new lamdba.Function(this, 'AddGraphHandler', {
-            runtime: Runtime.PYTHON_3_7,
-            code: new AssetCode(path.join(__dirname, 'lambdas')),
+        const addGraphLambda = new lambda.Function(this, 'AddGraphHandler', {
+            runtime: lambda.Runtime.PYTHON_3_7,
+            code: new lambda.AssetCode(path.join(__dirname, 'lambdas')),
             handler: 'add_graph_request.handler',
             timeout: cdk.Duration.seconds(30),
             environment: {
@@ -33,7 +31,7 @@ export class KaiRestApi extends cdk.Construct {
         });
 
         this.addGraphQueue.grantSendMessages(addGraphLambda);
-        graphResource.addMethod('POST', new LambdaIntegration(addGraphLambda));
+        graphResource.addMethod('POST', new api.LambdaIntegration(addGraphLambda));
     }
 
     public get addGraphQueue(): sqs.Queue { 
