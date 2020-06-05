@@ -5,7 +5,8 @@
         "project": "./tsconfig.json"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "notice"
     ],
     "extends": [
         "eslint:recommended",
@@ -23,6 +24,10 @@
         "@typescript-eslint/no-require-imports": 2,
         "@typescript-eslint/prefer-readonly": 1,
         "@typescript-eslint/array-type": 2,
-        "@typescript-eslint/consistent-type-definitions": [2, "interface"]
+        "@typescript-eslint/consistent-type-definitions": [2, "interface"],
+        "notice/notice": [2, {
+            "templateFile": "header.js",
+            "onNonMatchingHeader": "replace"
+        }]
     }
 }

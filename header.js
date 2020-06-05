@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright <%= YEAR %> Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,5 +14,3 @@
  * limitations under the License.
  */
 
- export const LAMBDA_LAYER_ARN = "arn:aws:serverlessrepo:us-east-1:903779448426:applications/lambda-layer-kubectl"; 
-export const LAMBDA_LAYER_VERSION = "2.0.0-beta3";
