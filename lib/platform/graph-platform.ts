@@ -1,25 +1,24 @@
-import * as cdk from '@aws-cdk/core';
-import * as eks from '@aws-cdk/aws-eks';
-import * as iam from '@aws-cdk/aws-iam';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import { albPolicyStatement } from './alb-policy-statement';
-import { NodegroupOptions } from '@aws-cdk/aws-eks';
-import { NodeGroupConfig } from './node-group-config';
+import * as cdk from "@aws-cdk/core";
+import * as eks from "@aws-cdk/aws-eks";
+import * as iam from "@aws-cdk/aws-iam";
+import * as ec2 from "@aws-cdk/aws-ec2";
+import { albPolicyStatement } from "./alb-policy-statement";
+import { NodeGroupConfig } from "./node-group-config";
 
 export class GraphPlatForm extends cdk.Construct {
 
-    private static readonly DEFAULT_VPC: string = 'DEFAULT'
+    private static readonly DEFAULT_VPC: string = "DEFAULT"
     private readonly _eksCluster: eks.Cluster;
 
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id);
 
         // Get contextual values
-        const vpcId: string = this.node.tryGetContext('vpcId');
-        const clusterName: string = this.node.tryGetContext('clusterName');
+        const vpcId: string = this.node.tryGetContext("vpcId");
+        const clusterName: string = this.node.tryGetContext("clusterName");
 
         // Master role
-        const mastersRole = new iam.Role(this, clusterName + 'MasterRole', {
+        const mastersRole = new iam.Role(this, clusterName + "MasterRole", {
             assumedBy: new iam.AccountRootPrincipal()
         });
 
@@ -28,22 +27,22 @@ export class GraphPlatForm extends cdk.Construct {
         if (vpcId != null) {
             // Use an existing vpc
             if (vpcId == GraphPlatForm.DEFAULT_VPC) {
-                vpc = ec2.Vpc.fromLookup(this, 'eksClusterVpc', {
+                vpc = ec2.Vpc.fromLookup(this, "eksClusterVpc", {
                     isDefault: true
                 });
             } else {
-                vpc = ec2.Vpc.fromLookup(this, 'eksClusterVpc', {
+                vpc = ec2.Vpc.fromLookup(this, "eksClusterVpc", {
                     vpcId: vpcId
                 });
             }
         } else {
             // Create one
             // todo allow user to specify vpc properties
-            vpc = new ec2.Vpc(this, clusterName + 'Vpc');
+            vpc = new ec2.Vpc(this, clusterName + "Vpc");
         }
 
         // Create cluster
-        this._eksCluster = new eks.Cluster(this, clusterName + 'EksCluster', {
+        this._eksCluster = new eks.Cluster(this, clusterName + "EksCluster", {
             clusterName: clusterName,
             kubectlEnabled: true,
             vpc: vpc,
@@ -54,38 +53,37 @@ export class GraphPlatForm extends cdk.Construct {
         // Create node group
         
         let unparsedRequestedNodeGroup = this.node.tryGetContext("clusterNodegroup");
-        let nodeGroup: NodegroupOptions;
+        let nodeGroup: eks.NodegroupOptions;
         if (unparsedRequestedNodeGroup != null) {
-            let requestedNodeGroup: NodeGroupConfig;
             // if it's a string (for example if passed from the command line), convert to object
             if (typeof unparsedRequestedNodeGroup == "string") {
-                unparsedRequestedNodeGroup = JSON.parse(unparsedRequestedNodeGroup)
+                unparsedRequestedNodeGroup = JSON.parse(unparsedRequestedNodeGroup);
             } 
 
-            requestedNodeGroup = NodeGroupConfig.fromConfig(unparsedRequestedNodeGroup);
+            const requestedNodeGroup = NodeGroupConfig.fromConfig(unparsedRequestedNodeGroup);
             nodeGroup = requestedNodeGroup.toNodeGroupOptions();
         } else {
             nodeGroup = NodeGroupConfig.DEFAULT_NODE_GROUP;
         }
 
 
-        this.eksCluster.addNodegroup('graphNodes', nodeGroup);
+        this.eksCluster.addNodegroup("graphNodes", nodeGroup);
 
         // Add Ingress Controller
-        const albServiceAccount = new eks.ServiceAccount(this, 'ALBIngressController', {
+        const albServiceAccount = new eks.ServiceAccount(this, "ALBIngressController", {
             cluster: this.eksCluster,
-            name: 'alb-ingress-controller',
-            namespace: 'kube-system'
+            name: "alb-ingress-controller",
+            namespace: "kube-system"
         });
         
         albServiceAccount.addToPolicy(albPolicyStatement);
 
 
-        this.eksCluster.addChart('ALBIngress', {
-            chart: 'aws-alb-ingress-controller',
-            repository: 'http://storage.googleapis.com/kubernetes-charts-incubator',
-            release: 'alb-ingress',
-            namespace: 'kube-system',
+        this.eksCluster.addChart("ALBIngress", {
+            chart: "aws-alb-ingress-controller",
+            repository: "http://storage.googleapis.com/kubernetes-charts-incubator",
+            release: "alb-ingress",
+            namespace: "kube-system",
             values: {
                 autoDiscoverAwsRegion: true,
                 autoDiscoverAwsVpcID: true,

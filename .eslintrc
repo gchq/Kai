@@ -15,7 +15,7 @@
     "rules": {
         "semi": 2,
         "semi-style": ["error", "last"],
-        "quotes": [2, "single"],
+        "quotes": [2, "double"],
         "default-case": 1,
         "no-duplicate-imports": 2,
         "space-before-blocks": [1, "always"],

@@ -1,7 +1,5 @@
 import { NodegroupOptions } from "@aws-cdk/aws-eks";
 import { InstanceType } from "@aws-cdk/aws-ec2";
-import { isNumber, isString } from "util";
-
 
 export interface INodeGroupConfig {
     instanceType?: string;
@@ -13,16 +11,16 @@ export interface INodeGroupConfig {
 export class NodeGroupConfig implements INodeGroupConfig {
     
     public static readonly DEFAULT_NODE_GROUP: NodegroupOptions = {
-        instanceType: new InstanceType('t3.medium'),
+        instanceType: new InstanceType("t3.medium"),
         minSize: 1,
         maxSize: 10,
         desiredSize: 2
     }
 
-    private _instanceType: string | undefined;
-    private _minSize: number | undefined;
-    private _maxSize: number | undefined;
-    private _desiredSize: number | undefined;
+    private readonly _instanceType: string | undefined;
+    private readonly _minSize: number | undefined;
+    private readonly _maxSize: number | undefined;
+    private readonly _desiredSize: number | undefined;
 
     constructor(
         instanceType?: string,
@@ -33,11 +31,11 @@ export class NodeGroupConfig implements INodeGroupConfig {
         this._instanceType = instanceType;
         this._minSize = minSize;
         this._maxSize = maxSize;
-        this._desiredSize = desiredSize
+        this._desiredSize = desiredSize;
     }
 
     public get instanceType(): string | undefined {
-        return this._instanceType
+        return this._instanceType;
     }
 
     public get minSize(): number | undefined {
@@ -64,7 +62,7 @@ export class NodeGroupConfig implements INodeGroupConfig {
         }
     }
 
-    private static isConfig(obj: any): obj is INodeGroupConfig {
+    private static isConfig(obj: INodeGroupConfig): obj is INodeGroupConfig {
         if (obj == null) {
             return false;
         }
