@@ -3,6 +3,8 @@ import * as eks from '@aws-cdk/aws-eks';
 import * as iam from '@aws-cdk/aws-iam';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import { albPolicyStatement } from './alb-policy-statement';
+import { NodegroupOptions } from '@aws-cdk/aws-eks';
+import { NodeGroupConfig } from './node-group-config';
 
 export class GraphPlatForm extends cdk.Construct {
 
@@ -50,12 +52,24 @@ export class GraphPlatForm extends cdk.Construct {
         });
 
         // Create node group
-        this.eksCluster.addNodegroup('graphNodes', {
-            instanceType: new ec2.InstanceType('t3.medium'), // todo refactor to variable
-            minSize: 1,
-            maxSize: 10,
-            desiredSize: 2
-        });
+        
+        let unparsedRequestedNodeGroup = this.node.tryGetContext("clusterNodegroup");
+        let nodeGroup: NodegroupOptions;
+        if (unparsedRequestedNodeGroup != null) {
+            let requestedNodeGroup: NodeGroupConfig;
+            // if it's a string (for example if passed from the command line), convert to object
+            if (typeof unparsedRequestedNodeGroup == "string") {
+                unparsedRequestedNodeGroup = JSON.parse(unparsedRequestedNodeGroup)
+            } 
+
+            requestedNodeGroup = NodeGroupConfig.fromConfig(unparsedRequestedNodeGroup);
+            nodeGroup = requestedNodeGroup.toNodeGroupOptions();
+        } else {
+            nodeGroup = NodeGroupConfig.DEFAULT_NODE_GROUP;
+        }
+
+
+        this.eksCluster.addNodegroup('graphNodes', nodeGroup);
 
         // Add Ingress Controller
         const albServiceAccount = new eks.ServiceAccount(this, 'ALBIngressController', {

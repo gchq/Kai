@@ -33,6 +33,92 @@ test('Node group is created', () => {
     }));
 });
 
+test('Node group is created with a desired instance type', () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("clusterNodegroup", { "instanceType": "m5.large" })
+
+    // When
+    new platform.GraphPlatForm(stack, 'TestPlatform');
+
+    // Then
+    expectCDK(stack).to(haveResource('AWS::EKS::Nodegroup', {
+        InstanceTypes: [ 
+            'm5.large'
+        ]
+    }));
+});
+
+test('Node group is created with a desired sizes', () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("clusterNodegroup", { "desiredSize": 5, "minSize": 3, "maxSize": 100 })
+
+    // When
+    new platform.GraphPlatForm(stack, 'TestPlatform');
+
+    // Then
+    expectCDK(stack).to(haveResource('AWS::EKS::Nodegroup', {
+        ScalingConfig: {
+            DesiredSize: 5,
+            MinSize: 3,
+            MaxSize: 100
+        }
+    }));
+});
+
+test('Node group is created when config is string', () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("clusterNodegroup", '{ "desiredSize": 4, "minSize": 2, "maxSize": 30, "instanceType": "m5.large" }')
+
+    // When
+    new platform.GraphPlatForm(stack, 'TestPlatform');
+
+    // Then
+    expectCDK(stack).to(haveResource('AWS::EKS::Nodegroup', {
+        InstanceTypes: [ 
+            'm5.large'
+        ],
+        ScalingConfig: {
+            DesiredSize: 4,
+            MinSize: 2,
+            MaxSize: 30
+        }
+    }));
+});
+
+test("Should throw error when cluster config is the wrong type", () => {
+    // Given
+    const stack = new cdk.Stack();
+    // When 
+    stack.node.setContext("clusterNodegroup", { "desiredSize": "5" })
+
+    // Then
+    expect(() => { new platform.GraphPlatForm(stack, 'TestPlatform')} ).toThrowError();
+});
+
+test("Should merge any configuration specified with the default configuration", () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("clusterNodegroup", { "desiredSize": 5, "minSize": 3 })
+
+    // When
+    new platform.GraphPlatForm(stack, 'TestPlatform');
+
+    // Then
+    expectCDK(stack).to(haveResource('AWS::EKS::Nodegroup', {
+        InstanceTypes: [
+            "t3.medium"
+        ],
+        ScalingConfig: {
+            DesiredSize: 5,
+            MinSize: 3,
+            MaxSize: 10
+        }
+    }));
+});
+
 test('The ALB ingress controller is deployed on the kube-system namespace', () => {
     // Given
     const stack = new cdk.Stack();
