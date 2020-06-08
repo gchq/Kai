@@ -1,13 +1,17 @@
-.classpath.txt
-target
-.classpath
-.project
-.idea
-.settings
-.vscode
-*.iml
+*.js
+!jest.config.js
+!**/lambdas/*.js
+!header.js
+*.d.ts
+node_modules
+
+# CDK temporary file
+cdk.context.json
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-cdk.context.json
+
+# Parcel build directories
+.cache
+.build
