@@ -21,6 +21,7 @@ import { KaiRestApi } from "./rest-api/kai-rest-api";
 import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { AddGraphWorker } from "./workers/add-graph-worker";
+import { GraphDatabase } from "./database/graph-database";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
@@ -29,6 +30,9 @@ export class AppStack extends cdk.Stack {
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");
+
+        // Graph Table
+        const database = new GraphDatabase(this, "GraphDatabase");
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi");
@@ -51,7 +55,8 @@ export class AppStack extends cdk.Stack {
         new AddGraphWorker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
-            kubectlLayer: kubectlLambdaLayer
+            kubectlLayer: kubectlLambdaLayer,
+            tableName: database.tableName
         });
     }
 }
