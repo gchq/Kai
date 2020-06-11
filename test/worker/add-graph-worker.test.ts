@@ -25,6 +25,8 @@ import { AddGraphWorker } from "../../lib/workers/add-graph-worker";
 test("Should create a Lambda Function", () => {
     // Given
     const stack = new cdk.Stack();
+    const extraSecurityGroups = "sg-extraSecurityGroup";
+    stack.node.setContext("extraIngressSecurityGroups", extraSecurityGroups);
     const donorCluster = new Cluster(stack, "testCluster");
     const donorQueue = new Queue(stack, "testQueue");
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
@@ -37,9 +39,65 @@ test("Should create a Lambda Function", () => {
     });
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "add_graph.handler"
+        Handler: "add_graph.handler",
+        Environment:  {
+            "Variables": {
+                 "cluster_name": {
+                      "Ref": "testClusterFF806018"
+                 },
+                 "extra_security_groups": extraSecurityGroups
+            }
+        }
     }));
 });
+
+test("Should not populate Environment with extra_security_groups when none supplied", () => {
+    // Given
+    const stack = new cdk.Stack();
+    const donorCluster = new Cluster(stack, "testCluster");
+    const donorQueue = new Queue(stack, "testQueue");
+    const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
+
+    // When
+    new AddGraphWorker(stack, "testWorker", {
+        queue: donorQueue,
+        cluster: donorCluster,
+        kubectlLayer: layer
+    });
+    // Then
+    expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
+});
+
+test("Should not populate Environment with extra_security_groups when empty string supplied", () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("extraIngressSecurityGroups", "");
+    const donorCluster = new Cluster(stack, "testCluster");
+    const donorQueue = new Queue(stack, "testQueue");
+    const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
+
+    // When
+    new AddGraphWorker(stack, "testWorker", {
+        queue: donorQueue,
+        cluster: donorCluster,
+        kubectlLayer: layer
+    });
+    // Then
+    expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
+});
+
+function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) {
+    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
+        Handler: "add_graph.handler",
+        Environment:  {
+            "Variables": {
+                 "cluster_name": {
+                      "Ref": "testClusterFF806018"
+                 }
+            }
+        }
+    }));
+}
 
 test("should allow lambda to consume messages from queue and describe cluster", () => {
     // Given
