@@ -31,6 +31,13 @@ export abstract class Worker extends Construct {
     private createConstructs(props: WorkerProps) {
         const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups");
 
+        // Build environment for Lambda
+        const environment: { [id: string] : string; } = {};
+        environment["cluster_name"] = props.cluster.clusterName;
+        if (extraSecurityGroups) {
+            environment["extra_security_groups"] = extraSecurityGroups;
+        }
+
         // Create worker from Lambda
         const addGraphWorker = new lambda.Function(this, this.workerId, {
             runtime: lambda.Runtime.PYTHON_3_7,
@@ -38,10 +45,7 @@ export abstract class Worker extends Construct {
             handler: this.handler,
             layers: [ props.kubectlLayer ],
             timeout: Duration.minutes(10),
-            environment: {
-                cluster_name: props.cluster.clusterName,
-                extra_security_groups: extraSecurityGroups == "" ? null : extraSecurityGroups
-            }
+            environment: environment
         });
 
         addGraphWorker.addEventSource(new SqsEventSource(props.queue));
