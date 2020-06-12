@@ -40,6 +40,7 @@ export abstract class Worker extends Construct {
             timeout: Duration.minutes(10),
             environment: {
                 cluster_name: props.cluster.clusterName,
+                graph_table_name: props.graphTableName,
                 extra_security_groups: extraSecurityGroups == "" ? null : extraSecurityGroups
             }
         });

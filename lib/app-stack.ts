@@ -35,7 +35,9 @@ export class AppStack extends cdk.Stack {
         const database = new GraphDatabase(this, "GraphDatabase");
 
         // REST API
-        const kaiRest = new KaiRestApi(this, "KaiRestApi");
+        const kaiRest = new KaiRestApi(this, "KaiRestApi", {
+            graphTableName: database.tableName
+        });
 
         // Kubectl Lambda layer
         const samApp = new sam.CfnApplication(this, "SamLayer", {
@@ -56,7 +58,7 @@ export class AppStack extends cdk.Stack {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            tableName: database.tableName
+            graphTableName: database.tableName
         });
     }
 }

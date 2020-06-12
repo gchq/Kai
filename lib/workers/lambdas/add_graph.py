@@ -1,5 +1,6 @@
 import os
-import subprocess
+import kubernetes
+from graph import Graph
 import json
 import boto3
 import logging
@@ -10,9 +11,14 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
-kubeconfig = "/tmp/kubeconfig"
+
+cluster_name = os.getenv("cluster_name")
+graph_table_name = os.getenv("graph_table_name")
 
 def generate_password(length=8):
+    """
+    Generates a random password of a given length
+    """
     printable = f'{string.ascii_letters}{string.digits}{string.punctuation}'
 
     # randomize
@@ -26,6 +32,9 @@ def generate_password(length=8):
 
 
 def create_values(graph_id, schema, security_groups):
+    """
+    Generates the Json required to deploy the Gaffer Helm Chart
+    """
     ingress_values = {
         "annotations": {
             "kubernetes.io/ingress.class": "alb",
@@ -86,10 +95,25 @@ def create_values(graph_id, schema, security_groups):
     }
 
 
-def add_graph(body, security_groups):
+def deploy_graph(helm_client, body, security_groups):
+    """
+    Deploys a Gaffer graph onto a Kubernetes cluster using the Gaffer
+    Helm Chart.
+    """
     # Extract values from body
     graph_id = body["graphId"]
     schema = body["schema"]
+    expected_status = body["expectedStatus"]
+
+    # Create Graph to log progress of deployment
+    graph = Graph(graph_table_name, graph_id)
+
+    if not graph.check_status(expected_status):
+        logger.warn("Deployment of %s abandoned as graph had unexpected status", graph_id)
+        return
+
+    # Update Status to DEPLOYMENT_IN_PROGRESS
+    graph.update_status("DEPLOYMENT_IN_PROGRESS")
 
     # Create values file
     values = create_values(graph_id, schema, security_groups)
@@ -99,28 +123,22 @@ def add_graph(body, security_groups):
         f.write(json.dumps(values, indent=2))
         
     # Deploy Graph
-    try:
-        subprocess.run([ "helm", "install", graph_id, "gaffer", 
-            "--repo", "https://gchq.github.io/gaffer-docker",
-            "--kubeconfig", kubeconfig,
-            "--values", values_file
-        ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, cwd="/tmp")
-    except subprocess.CalledProcessError as err:
-        logger.error("Failed to deploy " + graph_id)
-        logger.error(err.output)
+    success = helm_client.install_chart(graph_id, values=values_file)
 
-    logger.info("Deployment of " + graph_id + " Succeeded")
-    
+    if success:
+        logger.info("Deployment of " + graph_id + " Succeeded")
+        graph.update_status(graph_id, "DEPLOYED")
+    else:
+        graph.update_status(graph_id, "DEPLOYMENT_FAILED")
+
 
 def handler(event, context):
+    """
+    Entrypoint for the Lambda
+    """
     logger.info(event)
 
-    # Log in to the cluster
-    cluster_name = os.getenv("cluster_name")
-    subprocess.check_call([ 'aws', 'eks', 'update-kubeconfig',
-        '--name', cluster_name,
-        '--kubeconfig', kubeconfig
-    ])
+    helm_client = kubernetes.HelmClient(cluster_name)
 
     # Get Security Groups
     eks = boto3.client("eks")
@@ -132,8 +150,10 @@ def handler(event, context):
         security_groups = security_groups + ", " + extra_security_groups
 
     logger.info("Using security groups: " + security_groups)
+
+    # Run Deployments
     for record in event["Records"]:
         body = json.loads(record["body"])
-        add_graph(body, security_groups)
-        
+        deploy_graph(helm_client, body, security_groups)
+
     return

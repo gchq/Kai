@@ -8,13 +8,13 @@ import { read } from "fs";
 export class GraphDatabase extends cdk.Construct {
     private readonly _tableName: string;
 
-    constructor(scope: cdk.Construct, id: string) {
+    constructor(scope: cdk.Construct, id: string) { // todo add tests
         super(scope, id);
         
         // Table
 
         const table = new dynamo.Table(this, "GraphDynamoTable", {
-            partitionKey: { name: "id", type: dynamo.AttributeType.STRING },
+            partitionKey: { name: "graphId", type: dynamo.AttributeType.STRING },
             billingMode: dynamo.BillingMode.PROVISIONED,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
         });

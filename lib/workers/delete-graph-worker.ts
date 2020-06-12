@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
- import { Queue } from "@aws-cdk/aws-sqs";
-import { ILayerVersion } from "@aws-cdk/aws-lambda";
-import { Cluster } from "@aws-cdk/aws-eks";
+import { Worker } from "./worker";
 
-export interface WorkerProps {
-    queue: Queue;
-    kubectlLayer: ILayerVersion;
-    cluster: Cluster;
-    graphTableName: string;
-}
+ export class DeleteGraphWorker extends Worker {
+     public get handler(): string {
+         return "delete_graph.handler";
+     }
+
+     public get workerId(): string {
+         return "DeleteGraphWorker";
+     }
+ }
