@@ -15,17 +15,22 @@
  */
 
  import * as cdk from "@aws-cdk/core";
+import * as cognito from "@aws-cdk/aws-cognito";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
 import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { AddGraphWorker } from "./workers/add-graph-worker";
+import { KaiUserPool } from "./authentication/kai-user-pool";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
         super(scope, id, props);
+
+        // User Pool
+        const userPool = new KaiUserPool(this, "KaiUserPool");
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");
