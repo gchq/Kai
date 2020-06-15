@@ -27,4 +27,38 @@ test("Kai User Pool is created", () => {
 
     // Then
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPool"));
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient"));
+
+    console.log("stack ::::: ", stack);
 });
+
+
+test("Kai User Pool is configured with JSON String", () => {
+    // Given
+    const stack = new cdk.Stack();
+    stack.node.setContext("userPoolConfiguration", "{\"autoVerifiedAttributes\":[\"email\"]}");
+
+    // When
+    new userPool.KaiUserPool(stack, "TestUserPool");
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPool"));
+});
+
+
+test("Kai User Pool is configured with JSON Object", () => {
+    // Given
+    const json: { [id: string] : object; } = {};
+    json["AutoVerifiedAttributes"] = ["email"];
+    json["EmailConfiguration"] = { "EmailSendingAccount": "COGNITO_DEFAULT" };
+
+    const stack = new cdk.Stack();
+    stack.node.setContext("userPoolConfiguration", json);
+
+    // When
+    new userPool.KaiUserPool(stack, "TestUserPool");
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPool"));
+});
+

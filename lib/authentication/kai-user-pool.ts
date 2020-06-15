@@ -17,16 +17,60 @@
  import * as cdk from "@aws-cdk/core";
 import * as cognito from "@aws-cdk/aws-cognito";
 
-
-
-// aws cognito-idp describe-user-pool --user-pool-id eu-west-1_IVt9mrg6V
-
 export class KaiUserPool extends cdk.Construct {
 
-    constructor(scope: cdk.Construct, readonly id: string, props?: cognito.UserPoolProps) {
+    private static readonly _userPoolId = "KaiUserPool";
+    private static readonly _userPoolClientId = "KaiUserPoolClient";
+
+    private readonly _userPool: cognito.IUserPool;
+    private readonly _userPoolClient: cognito.IUserPoolClient;
+
+    constructor(scope: cdk.Construct, readonly id: string) {
         super(scope, id);
 
-        // USER POOL
-        const userPool = new cognito.UserPool(this, "KaiUserPool");
+        let externalUserPool = this.node.tryGetContext("externalUserPool");
+
+        if (externalUserPool) {
+
+            if (typeof externalUserPool == "string") {
+                externalUserPool = JSON.parse(externalUserPool);
+            }
+
+            this._userPool = cognito.UserPool.fromUserPoolId(this, KaiUserPool._userPoolId, externalUserPool.userPoolId);
+            this._userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(this, KaiUserPool._userPoolClientId, externalUserPool.userPoolClientId);
+
+        } else {
+
+            this._userPool = new cognito.UserPool(this, KaiUserPool._userPoolId);
+
+            let userPoolConfiguration = this.node.tryGetContext("userPoolConfiguration");
+
+            if (userPoolConfiguration) {
+                if (typeof userPoolConfiguration == "string") {
+                    userPoolConfiguration = JSON.parse(userPoolConfiguration);
+                }
+
+                const cfnUserPool = this._userPool.node.defaultChild as cognito.CfnUserPool;
+                for (const [key, value] of Object.entries(userPoolConfiguration)) {
+                    cfnUserPool.addPropertyOverride(key, value);
+                }
+            }
+
+            this._userPoolClient = this._userPool.addClient(KaiUserPool._userPoolClientId, {
+                "userPoolClientName": KaiUserPool._userPoolClientId,
+                "generateSecret": false,
+                "supportedIdentityProviders": [
+                    cognito.UserPoolClientIdentityProvider.COGNITO
+                ]
+            });
+        }
+    }
+
+    public get userPoolId(): string {
+        return this._userPool.userPoolId;
+    }
+
+    public get userPoolClientId(): string {
+        return this._userPoolClient.userPoolClientId;
     }
 }
