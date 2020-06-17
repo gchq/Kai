@@ -11,10 +11,10 @@ dynamo = boto3.resource("dynamodb")
 table = dynamo.Table(graph_table_name)
 
 def handler(event, context):
-    request_body = json.loads(event["body"])
+    params = json.loads(event["pathParameters"])
 
     # Check request is valid
-    graph_id = request_body["graphId"]
+    graph_id = params["graphId"]
 
     if graph_id is None:
         raise Exception("graphId is a required field")

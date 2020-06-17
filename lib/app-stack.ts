@@ -18,10 +18,10 @@
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
-import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION } from "./constants";
+import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
-import { AddGraphWorker } from "./workers/add-graph-worker";
 import { GraphDatabase } from "./database/graph-database";
+import { Worker } from "./workers/worker";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
@@ -54,11 +54,22 @@ export class AppStack extends cdk.Stack {
         const kubectlLambdaLayer = LayerVersion.fromLayerVersionArn(this, "KubectlLambdaLayer", layerVersionArn);
 
         // Workers
-        new AddGraphWorker(this, "AddGraphWorker", {
+        new Worker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            graphTableName: database.tableName
+            graphTableName: database.tableName,
+            handler: "add_graph.handler",
+            timeout: ADD_GRAPH_TIMEOUT
+        });
+
+        new Worker(this, "DeleteGraphWorker", {
+            cluster: platform.eksCluster,
+            queue: kaiRest.deleteGraphQueue,
+            kubectlLayer: kubectlLambdaLayer,
+            graphTableName: database.tableName,
+            handler: "delete_graph.handler",
+            timeout: DELETE_GRAPH_TIMEOUT
         });
     }
 }

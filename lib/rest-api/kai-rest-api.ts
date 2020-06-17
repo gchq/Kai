@@ -20,9 +20,11 @@ import * as lambda from "@aws-cdk/aws-lambda";
 import * as sqs from "@aws-cdk/aws-sqs";
 import * as path from "path";
 import { KaiRestApiProps } from "./kai-rest-api-props";
+import { DELETE_GRAPH_TIMEOUT, WORKER_BATCH_SIZE, ADD_GRAPH_TIMEOUT } from "../constants";
 
 export class KaiRestApi extends cdk.Construct {
     private readonly _addGraphQueue: sqs.Queue;
+    private readonly _deleteGraphQueue: sqs.Queue;
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
@@ -30,37 +32,16 @@ export class KaiRestApi extends cdk.Construct {
         const restApi = new api.RestApi(this, "KaiRestApi"); // Could add a default 404 handler here
         const graphResource = restApi.root.addResource("graphs");
 
-
-        // Add Graph Queue
-        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
-            visibilityTimeout: cdk.Duration.minutes(10)
-        });
-
-        /**
-         * Ideas for next week.
-         * 
-         * Instead of continually adding Queues to be exposed by this object, Encapsulate the three
-         * Constructs into one:
-         * 
-         * 1. The Service Lambda which recieves http request and quickly responds
-         * 2. An sqs queue which delivers messages to the worker from the service lambda
-         * 3. A Worker which manages deployments onto Kubernetes.
-         * 
-         * Think of it like a Job in Gaffer - an Asynchronous Request
-         * It can probably live in the RestAPI section
-         * 
-         * We're going to need lots of these in the future for things like:
-         * Creating and tearing down graphs
-         * Updating schemas
-         * (future possible) configuring ingest 
-         * 
-         */
-
         // Lambda asset
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
 
         // Standard timeout
         const lambdaTimeout = cdk.Duration.seconds(30)
+
+        // Add Graph Queue
+        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
+            visibilityTimeout: ADD_GRAPH_TIMEOUT
+        });
         
         // Add Graph request handler
         const addGraphLambda = new lambda.Function(this, "AddGraphHandler", {
@@ -77,9 +58,35 @@ export class KaiRestApi extends cdk.Construct {
         this.addGraphQueue.grantSendMessages(addGraphLambda);
         graphResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda));
 
+        // Delete graph queue
+        this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", { 
+            visibilityTimeout: DELETE_GRAPH_TIMEOUT
+        });
+
+        // Delete graph request handler
+        const deleteGraphLambda = new lambda.Function(this, "DeleteGraphHandler", {
+            runtime: lambda.Runtime.PYTHON_3_7,
+            code: lambdas,
+            handler: "delete_graph_request.handler",
+            timeout: lambdaTimeout,
+            environment: {
+                sqs_queue_url: this.deleteGraphQueue.queueUrl,
+                graph_table_name: props.graphTableName
+            }
+        });
+
+        this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
+        // Will also be used for GET graph
+        const graph = graphResource.addResource("{graphId}");
+        graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
+
     }
 
     public get addGraphQueue(): sqs.Queue { 
         return this._addGraphQueue;
+    }
+
+    public get deleteGraphQueue(): sqs.Queue {
+        return this._deleteGraphQueue;
     }
 }
