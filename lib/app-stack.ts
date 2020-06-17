@@ -22,7 +22,7 @@ import { KaiRestApi } from "./rest-api/kai-rest-api";
 import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { AddGraphWorker } from "./workers/add-graph-worker";
-import { KaiUserPool } from "./authentication/kai-user-pool";
+import { KaiUserPool } from "./authentication/user-pool";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
