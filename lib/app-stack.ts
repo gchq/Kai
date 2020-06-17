@@ -15,7 +15,6 @@
  */
 
  import * as cdk from "@aws-cdk/core";
-import * as cognito from "@aws-cdk/aws-cognito";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { KaiRestApi } from "./rest-api/kai-rest-api";

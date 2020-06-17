@@ -44,12 +44,12 @@ const userPoolConfigOverrides = {
     "AdminCreateUserConfig": {
       "AllowAdminCreateUserOnly": false
     }
-}
+};
 
 const userPoolClientConfigOverrides = {
     "GenerateSecret": true,
     "ClientName": "TestClientName"
-}
+};
 
 const userPoolConfigurationWithUserPoolConfigOverrides = {
     "defaultPoolConfigOverrides": {
@@ -72,7 +72,7 @@ test("Should apply Object User Pool configuration overrides to default User Pool
     expectUserPoolConfigOverridesToBeApplied(userPoolConfigurationWithUserPoolConfigOverrides);
 });
 
-function expectUserPoolConfigOverridesToBeApplied(userPoolConfiguration: object | string) {
+function expectUserPoolConfigOverridesToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
 
     // Given
     const stack = new cdk.Stack();
@@ -94,7 +94,7 @@ test("Should apply Object User Pool Client configuration overrides to default Us
     expectUserPoolClientConfigOverridesToBeApplied(userPoolConfigurationWithUserPoolClientConfigOverrides);
 });
 
-function expectUserPoolClientConfigOverridesToBeApplied(userPoolConfiguration: object | string) {
+function expectUserPoolClientConfigOverridesToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
 
     // Given
     const stack = new cdk.Stack();
@@ -110,11 +110,11 @@ function expectUserPoolClientConfigOverridesToBeApplied(userPoolConfiguration: o
 const externalPool = {
     "userPoolId": "testUserPoolId",
     "userPoolClientId": "testUserPoolClientId"
-}
+};
 
 const userPoolConfigurationForExternalPool = {
     "externalPool": externalPool
-}
+};
 
 test("Should apply Object external pool configuration", () => {
     expectExternalPoolConfigToBeApplied(userPoolConfigurationForExternalPool);
@@ -124,7 +124,7 @@ test("Should apply String external pool configuration", () => {
     expectExternalPoolConfigToBeApplied(JSON.stringify(userPoolConfigurationForExternalPool));
 });
 
-function expectExternalPoolConfigToBeApplied(userPoolConfiguration: object | string) {
+function expectExternalPoolConfigToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
 
     // Given
     const stack = new cdk.Stack();

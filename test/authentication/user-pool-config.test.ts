@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-import * as cdk from "@aws-cdk/core";
 import { IExternalPool, IDefaultPoolConfigOverrides, IUserPoolConfig, UserPoolConfig } from "../../lib/authentication/user-pool-config";
 
-const ERROR_MESSAGE_REGEXP: RegExp = /is not a valid User Pool config/
+const ERROR_MESSAGE_REGEXP = /is not a valid User Pool config/;
 
 const VALID_EXTERNAL_POOL: IExternalPool = {
     "userPoolId": "x",
     "userPoolClientId": "y"
-}
+};
 
 const VALID_DEFAULT_OVERRIDES: IDefaultPoolConfigOverrides = {
     "userPoolConfigOverrides": {},
     "userPoolClientConfigOverrides": {}
-}
+};
 
 const VALID_EXTERNAL_POOL_CONFIG: IUserPoolConfig = {
     "externalPool": VALID_EXTERNAL_POOL
-}
+};
 
 const VALID_DEFAULT_POOL_CONFIG: IUserPoolConfig = {
     "defaultPoolConfigOverrides": VALID_DEFAULT_OVERRIDES
-}
+};
 
 test("Should throw Error when supplying undefined config", () => {
     expect(() => UserPoolConfig.fromConfig()).toThrowError(ERROR_MESSAGE_REGEXP);
@@ -53,7 +52,7 @@ test("Should throw Error when supplying both external and default config.", () =
                 "userPoolClientId": "y"
             },
             "defaultPoolConfigOverrides": {}
-        })
+        });
     }).toThrowError(ERROR_MESSAGE_REGEXP);
 });
 

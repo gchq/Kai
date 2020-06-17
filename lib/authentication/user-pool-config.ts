@@ -25,8 +25,8 @@ export interface IExternalPool {
 }
 
 export interface IDefaultPoolConfigOverrides {
-    userPoolConfigOverrides?: object;
-    userPoolClientConfigOverrides?: object;
+    userPoolConfigOverrides?: Record<string, unknown>;
+    userPoolClientConfigOverrides?: Record<string, unknown>;
 }
 
 export class UserPoolConfig implements IUserPoolConfig {
@@ -53,11 +53,11 @@ export class UserPoolConfig implements IUserPoolConfig {
     }
 
     public get externalPool(): IExternalPool | undefined {
-        return this._externalPool
+        return this._externalPool;
     }
 
     public get defaultPoolConfigOverrides(): IDefaultPoolConfigOverrides | undefined {
-        return this._defaultPoolConfigOverrides
+        return this._defaultPoolConfigOverrides;
     }
 
     public static fromConfig(config?: IUserPoolConfig): UserPoolConfig {
