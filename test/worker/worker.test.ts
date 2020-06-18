@@ -20,7 +20,7 @@ import { Cluster } from "@aws-cdk/aws-eks";
 import { Queue } from "@aws-cdk/aws-sqs";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { LAMBDA_LAYER_ARN } from "../../lib/constants";
-import { AddGraphWorker } from "../../lib/workers/add-graph-worker";
+import { Worker } from "../../lib/workers/worker";
 
 test("Should create a Lambda Function", () => {
     // Given
@@ -30,14 +30,17 @@ test("Should create a Lambda Function", () => {
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
 
     // When
-    new AddGraphWorker(stack, "testWorker", {
+    new Worker(stack, "testWorker", {
         queue: donorQueue,
         cluster: donorCluster,
-        kubectlLayer: layer
+        kubectlLayer: layer,
+        graphTableName: "test", // TODO add test
+        handler: "testHandler",
+        timeout: cdk.Duration.minutes(10) // TODO add test
     });
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "add_graph.handler"
+        Handler: "testHandler"
     }));
 });
 
@@ -49,10 +52,13 @@ test("should allow lambda to consume messages from queue and describe cluster", 
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
 
     // When
-    new AddGraphWorker(stack, "testWorker", {
+    new Worker(stack, "testWorker", {
         queue: donorQueue,
         cluster: donorCluster,
-        kubectlLayer: layer
+        kubectlLayer: layer,
+        graphTableName: "test",
+        handler: "testHandler",
+        timeout: cdk.Duration.minutes(10)
     });
 
     // Then

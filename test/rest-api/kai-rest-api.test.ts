@@ -23,7 +23,9 @@ test("should create new new REST API", () => {
     const stack = new cdk.Stack();
 
     // When
-    new rest.KaiRestApi(stack, "Test");
+    new rest.KaiRestApi(stack, "Test", {
+      "graphTableName": "test"
+    });
 
     // Then
     expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi", {
@@ -36,7 +38,10 @@ test("The Rest API should have a graph resource which can be POSTed to", () => {
      const stack = new cdk.Stack();
 
      // When
-     new rest.KaiRestApi(stack, "Test");
+     new rest.KaiRestApi(stack, "Test", {
+      "graphTableName": "test"
+    });
+
  
      // Then
      expectCDK(stack).to(haveResource("AWS::ApiGateway::Resource", {
@@ -59,7 +64,10 @@ test("should create a queue for messages to be sent to workers", () => {
      const stack = new cdk.Stack();
 
      // When
-     new rest.KaiRestApi(stack, "Test");
+     new rest.KaiRestApi(stack, "Test", {
+      "graphTableName": "test"
+    });
+
 
      // Then
      expectCDK(stack).to(haveResource("AWS::SQS::Queue", {
@@ -72,7 +80,10 @@ test("should create lambda to write messages to the Queue", () => {
     const stack = new cdk.Stack();
 
     // When
-    new rest.KaiRestApi(stack, "Test");
+    new rest.KaiRestApi(stack, "Test", {
+      "graphTableName": "test"
+    });
+
 
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
@@ -85,7 +96,10 @@ test("should allow Lambda to write messages to queue", () => {
     const stack = new cdk.Stack();
 
     // When
-    new rest.KaiRestApi(stack, "Test");
+    new rest.KaiRestApi(stack, "Test", {
+      "graphTableName": "test"
+    });
+
 
     // Then
     expectCDK(stack).to(haveResourceLike("AWS::IAM::Policy", {

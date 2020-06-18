@@ -1,6 +1,5 @@
 import * as cdk from "@aws-cdk/core";
 import * as dynamo from "@aws-cdk/aws-dynamodb"
-import { read } from "fs";
 
 /**
  * The underlying database for Graphs.

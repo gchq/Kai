@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
- import * as cdk from "@aws-cdk/core";
+import * as cdk from "@aws-cdk/core";
 import * as api from "@aws-cdk/aws-apigateway";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as sqs from "@aws-cdk/aws-sqs";
 import * as path from "path";
 import { KaiRestApiProps } from "./kai-rest-api-props";
-import { DELETE_GRAPH_TIMEOUT, WORKER_BATCH_SIZE, ADD_GRAPH_TIMEOUT } from "../constants";
+import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
 
 export class KaiRestApi extends cdk.Construct {
     private readonly _addGraphQueue: sqs.Queue;
@@ -33,10 +33,8 @@ export class KaiRestApi extends cdk.Construct {
         const graphsResource = restApi.root.addResource("graphs");
         const graph = graphsResource.addResource("{graphId}");
 
-        // Lambda asset
+        // Service Functions all share the same code and timeout 
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
-
-        // Standard timeout
         const lambdaTimeout = cdk.Duration.seconds(30)
 
         // POST handlers
