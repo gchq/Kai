@@ -30,7 +30,8 @@ export class KaiRestApi extends cdk.Construct {
         super(scope, id);
         // REST API
         const restApi = new api.RestApi(this, "KaiRestApi"); // Could add a default 404 handler here
-        const graphResource = restApi.root.addResource("graphs");
+        const graphsResource = restApi.root.addResource("graphs");
+        const graph = graphsResource.addResource("{graphId}");
 
         // Lambda asset
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
@@ -38,12 +39,11 @@ export class KaiRestApi extends cdk.Construct {
         // Standard timeout
         const lambdaTimeout = cdk.Duration.seconds(30)
 
-        // Add Graph Queue
+        // POST handlers
         this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
             visibilityTimeout: ADD_GRAPH_TIMEOUT
         });
-        
-        // Add Graph request handler
+
         const addGraphLambda = new lambda.Function(this, "AddGraphHandler", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: lambdas,
@@ -56,14 +56,13 @@ export class KaiRestApi extends cdk.Construct {
         });
 
         this.addGraphQueue.grantSendMessages(addGraphLambda);
-        graphResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda));
+        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda));
 
-        // Delete graph queue
+        // DELETE handlers
         this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", { 
             visibilityTimeout: DELETE_GRAPH_TIMEOUT
         });
 
-        // Delete graph request handler
         const deleteGraphLambda = new lambda.Function(this, "DeleteGraphHandler", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: lambdas,
@@ -76,9 +75,23 @@ export class KaiRestApi extends cdk.Construct {
         });
 
         this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
-        // Will also be used for GET graph
-        const graph = graphResource.addResource("{graphId}");
         graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
+
+        // GET handlers
+        const getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
+            runtime: lambda.Runtime.PYTHON_3_7,
+            code: lambdas,
+            handler: "get_graph_request.handler",
+            timeout: lambdaTimeout,
+            environment: {
+                graph_table_name: props.graphTableName
+            }
+        });
+
+        // Both GET and GET all are served by the same lambda
+        const getGraphIntegration = new api.LambdaIntegration(getGraphsLambda);
+        graphsResource.addMethod("GET", getGraphIntegration)
+        graph.addMethod("GET", getGraphIntegration);
 
     }
 

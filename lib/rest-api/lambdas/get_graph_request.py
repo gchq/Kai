@@ -12,13 +12,19 @@ def get_all_graphs():
     """
     Gets all graphs from Dynamodb table
     """
-    
+    return table.scan()["Items"]
 
 
 def get_graph(graph_id):
     """
     Gets a specific graph from Dynamodb table
     """
+    return table.get_item(
+        Key={
+            "graphId": graph_id
+        }
+    )["Item"]
+
 
 def handler(event, context):
     """
@@ -35,17 +41,14 @@ def handler(event, context):
     else:
         graph_id = path_params["graphId"]
 
-    try:
-        if return_all:
-            return {
-                statusCode: 200,
-                message: json.dumps(get_all_graphs())
-            }
-        else:
-            return {
-                statusCode: 200
-                message: json.dumps(get_graph(graph_id))
-            }
-    # Do exception handling
-    
+    if return_all:
+        return {
+            statusCode: 200,
+            message: json.dumps(get_all_graphs())
+        }
+    else:
+        return {
+            statusCode: 200
+            message: json.dumps(get_graph(graph_id))
+        }
 
