@@ -40,7 +40,7 @@ By default, Kai ships with a nodegroup with the following parameters:
 }
 ```
 
-These properties are changable through the context variable: "clusterNodeGroup". 
+These properties are changeable through the context variable: "clusterNodeGroup".
 
 ## Cognito UserPool configuration
 
@@ -49,7 +49,7 @@ The default UserPool and UserPoolClient settings can be overridden by supplying 
 ```json
 {
     "defaultPoolConfig": {
-        "userPoolConfigOverrides": {
+        "userPoolProps": {
             <@aws-cdk/aws-cognito.UserPoolProps>
         },
         "userPoolClientOptions": {
