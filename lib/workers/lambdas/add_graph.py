@@ -13,7 +13,7 @@ os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 kubeconfig = "/tmp/kubeconfig"
 
 def generate_password(length=8):
-    printable = f'{string.ascii_letters}{string.digits}{string.punctuation}'
+    printable = f'{string.ascii_letters}{string.digits}'
 
     # randomize
     printable = list(printable)
