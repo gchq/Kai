@@ -16,7 +16,7 @@
 
  import * as cdk from "@aws-cdk/core";
 import * as cognito from "@aws-cdk/aws-cognito";
-import { UserPoolConfig, IExternalPool, IDefaultPoolConfigOverrides } from "./user-pool-config";
+import { UserPoolConfig, IExternalPool, IDefaultPoolConfig } from "./user-pool-config";
 
 export class KaiUserPool extends cdk.Construct {
 
@@ -50,28 +50,20 @@ export class KaiUserPool extends cdk.Construct {
 
         } else {
 
-            this._userPool = new cognito.UserPool(this, KaiUserPool._userPoolId);
-
-            this._userPoolClient = this._userPool.addClient(KaiUserPool._userPoolClientId, {
-                "userPoolClientName": KaiUserPool._userPoolClientId,
-                "generateSecret": false
-            });
-
-            const defaultPoolConfigOverrides: IDefaultPoolConfigOverrides = userPoolConfig.defaultPoolConfigOverrides!;
-
-            if (defaultPoolConfigOverrides.userPoolConfigOverrides) {
-                const cfnUserPool = this._userPool.node.defaultChild as cognito.CfnUserPool;
-                for (const [key, value] of Object.entries(defaultPoolConfigOverrides.userPoolConfigOverrides!)) {
-                    cfnUserPool.addPropertyOverride(key, value);
-                }
+            const defaultPoolConfig: IDefaultPoolConfig = userPoolConfig.defaultPoolConfig!;
+            let userPoolProps: cognito.UserPoolProps = {};
+            if (defaultPoolConfig.userPoolProps) {
+                userPoolProps = defaultPoolConfig.userPoolProps!;
             }
 
-            if (defaultPoolConfigOverrides.userPoolClientConfigOverrides) {
-                const cfnUserPoolClient = this._userPoolClient.node.defaultChild as cognito.CfnUserPoolClient;
-                for (const [key, value] of Object.entries(defaultPoolConfigOverrides.userPoolClientConfigOverrides!)) {
-                    cfnUserPoolClient.addPropertyOverride(key, value);
-                }
+            this._userPool = new cognito.UserPool(this, KaiUserPool._userPoolId, userPoolProps);
+
+            const userPoolClientProps: cognito.UserPoolClientProps = { "userPool": this._userPool };
+            if (defaultPoolConfig.userPoolClientOptions) {
+                Object.assign(userPoolClientProps, defaultPoolConfig.userPoolClientOptions!);
             }
+
+            this._userPoolClient = this._userPool.addClient(KaiUserPool._userPoolClientId, userPoolClientProps);
         }
     }
 

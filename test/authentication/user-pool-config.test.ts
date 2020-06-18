@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { IExternalPool, IDefaultPoolConfigOverrides, IUserPoolConfig, UserPoolConfig } from "../../lib/authentication/user-pool-config";
+import * as cdk from "@aws-cdk/core";
+import * as cognito from "@aws-cdk/aws-cognito";
+import { IExternalPool, IDefaultPoolConfig, IUserPoolConfig, UserPoolConfig } from "../../lib/authentication/user-pool-config";
 
 const ERROR_MESSAGE_REGEXP = /is not a valid User Pool config/;
 
@@ -23,9 +25,9 @@ const VALID_EXTERNAL_POOL: IExternalPool = {
     "userPoolClientId": "y"
 };
 
-const VALID_DEFAULT_OVERRIDES: IDefaultPoolConfigOverrides = {
-    "userPoolConfigOverrides": {},
-    "userPoolClientConfigOverrides": {}
+const VALID_DEFAULT_CONFIG: IDefaultPoolConfig = {
+    "userPoolProps": {},
+    "userPoolClientOptions": {}
 };
 
 const VALID_EXTERNAL_POOL_CONFIG: IUserPoolConfig = {
@@ -33,7 +35,7 @@ const VALID_EXTERNAL_POOL_CONFIG: IUserPoolConfig = {
 };
 
 const VALID_DEFAULT_POOL_CONFIG: IUserPoolConfig = {
-    "defaultPoolConfigOverrides": VALID_DEFAULT_OVERRIDES
+    "defaultPoolConfig": VALID_DEFAULT_CONFIG
 };
 
 test("Should throw Error when supplying undefined config", () => {
@@ -51,7 +53,7 @@ test("Should throw Error when supplying both external and default config.", () =
                 "userPoolId": "x",
                 "userPoolClientId": "y"
             },
-            "defaultPoolConfigOverrides": {}
+            "defaultPoolConfig": {}
         });
     }).toThrowError(ERROR_MESSAGE_REGEXP);
 });
@@ -61,7 +63,7 @@ test("Should configure external user pool when supplying valid external config",
     expect(pool.useExternalPool).toBe(true);
     expect(pool.useDefaultPool).toBe(false);
     expect(pool.externalPool).toStrictEqual(VALID_EXTERNAL_POOL);
-    expect(pool.defaultPoolConfigOverrides).toBeUndefined();
+    expect(pool.defaultPoolConfig).toBeUndefined();
 });
 
 test("Should configure default user pool when supplying valid default config", () => {
@@ -69,5 +71,5 @@ test("Should configure default user pool when supplying valid default config", (
     expect(pool.useExternalPool).toBe(false);
     expect(pool.useDefaultPool).toBe(true);
     expect(pool.externalPool).toBeUndefined();
-    expect(pool.defaultPoolConfigOverrides).toStrictEqual(VALID_DEFAULT_OVERRIDES);
+    expect(pool.defaultPoolConfig).toStrictEqual(VALID_DEFAULT_CONFIG);
 });

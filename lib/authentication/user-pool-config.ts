@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import * as cognito from "@aws-cdk/aws-cognito";
+
 export interface IUserPoolConfig {
     externalPool?: IExternalPool;
-    defaultPoolConfigOverrides?: IDefaultPoolConfigOverrides;
+    defaultPoolConfig?: IDefaultPoolConfig;
 }
 
 export interface IExternalPool {
@@ -24,9 +26,9 @@ export interface IExternalPool {
     userPoolClientId: string;
 }
 
-export interface IDefaultPoolConfigOverrides {
-    userPoolConfigOverrides?: Record<string, unknown>;
-    userPoolClientConfigOverrides?: Record<string, unknown>;
+export interface IDefaultPoolConfig {
+    userPoolProps?: cognito.UserPoolProps;
+    userPoolClientOptions?: cognito.UserPoolClientOptions;
 }
 
 export class UserPoolConfig implements IUserPoolConfig {
@@ -34,14 +36,14 @@ export class UserPoolConfig implements IUserPoolConfig {
     public static readonly DEFAULT: UserPoolConfig = new UserPoolConfig(undefined, {});
 
     private readonly _externalPool: IExternalPool | undefined;
-    private readonly _defaultPoolConfigOverrides: IDefaultPoolConfigOverrides | undefined;
+    private readonly _defaultPoolConfig: IDefaultPoolConfig | undefined;
 
     constructor(
         externalPool?: IExternalPool,
-        defaultPoolConfigOverrides?: IDefaultPoolConfigOverrides
+        defaultPoolConfig?: IDefaultPoolConfig
     ) {
         this._externalPool = externalPool;
-        this._defaultPoolConfigOverrides = defaultPoolConfigOverrides;
+        this._defaultPoolConfig = defaultPoolConfig;
     }
 
     public get useExternalPool(): boolean {
@@ -49,20 +51,20 @@ export class UserPoolConfig implements IUserPoolConfig {
     }
 
     public get useDefaultPool(): boolean {
-        return this._defaultPoolConfigOverrides ? true : false;
+        return this._defaultPoolConfig ? true : false;
     }
 
     public get externalPool(): IExternalPool | undefined {
         return this._externalPool;
     }
 
-    public get defaultPoolConfigOverrides(): IDefaultPoolConfigOverrides | undefined {
-        return this._defaultPoolConfigOverrides;
+    public get defaultPoolConfig(): IDefaultPoolConfig | undefined {
+        return this._defaultPoolConfig;
     }
 
     public static fromConfig(config?: IUserPoolConfig): UserPoolConfig {
         if (UserPoolConfig.isValidConfig(config)) {
-            return new UserPoolConfig(config.externalPool, config.defaultPoolConfigOverrides);
+            return new UserPoolConfig(config.externalPool, config.defaultPoolConfig);
         } else {
             throw new Error(config + " is not a valid User Pool config");
         }
@@ -72,10 +74,10 @@ export class UserPoolConfig implements IUserPoolConfig {
         if (!config) {
             return false;
         }
-        if (!config.externalPool && !config.defaultPoolConfigOverrides) {
+        if (!config.externalPool && !config.defaultPoolConfig) {
             return false;
         }
-        if (config.externalPool && config.defaultPoolConfigOverrides) {
+        if (config.externalPool && config.defaultPoolConfig) {
             return false;
         }
         if (!config.externalPool) {

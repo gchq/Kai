@@ -16,6 +16,7 @@
 
  import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
+import * as cognito from "@aws-cdk/aws-cognito";
 import { KaiUserPool} from "../../lib/authentication/user-pool";
 
 test("Should create default UserPool and UserPoolClient", () => {
@@ -32,47 +33,49 @@ test("Should create default UserPool and UserPoolClient", () => {
         }
     }));
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient", {
-        "GenerateSecret": false
+        "UserPoolId": {
+          "Ref": "TestUserPoolKaiUserPool8F9565E7"
+        },
+        "SupportedIdentityProviders": [
+          "COGNITO"
+        ]
     }));
 });
 
-const userPoolConfigOverrides = {
-    "AutoVerifiedAttributes": ["email"],
-    "EmailConfiguration": {
-        "EmailSendingAccount": "COGNITO_DEFAULT"
+const userPoolProps = {
+    "autoVerify": {
+        "email": true
     },
-    "AdminCreateUserConfig": {
-      "AllowAdminCreateUserOnly": false
+    "selfSignUpEnabled": true
+};
+
+const userPoolClientOptions = {
+    "generateSecret": true,
+    "userPoolClientName": "TestClientName"
+};
+
+const userPoolConfigurationWithUserPoolProps = {
+    "defaultPoolConfig": {
+        "userPoolProps": userPoolProps
     }
 };
 
-const userPoolClientConfigOverrides = {
-    "GenerateSecret": true,
-    "ClientName": "TestClientName"
-};
-
-const userPoolConfigurationWithUserPoolConfigOverrides = {
-    "defaultPoolConfigOverrides": {
-        "userPoolConfigOverrides": userPoolConfigOverrides
+const userPoolConfigurationWithUserPoolClientOptions = {
+    "defaultPoolConfig": {
+        "userPoolClientOptions": userPoolClientOptions
     }
 };
 
-const userPoolConfigurationWithUserPoolClientConfigOverrides = {
-    "defaultPoolConfigOverrides": {
-        "userPoolClientConfigOverrides": userPoolClientConfigOverrides
-    }
-};
-
-test("Should apply String User Pool configuration overrides to default User Pool", () => {
-    expectUserPoolConfigOverridesToBeApplied(JSON.stringify(userPoolConfigurationWithUserPoolConfigOverrides));
+test("Should apply String UserPoolProps configuration to default User Pool", () => {
+    expectUserPoolPropsToBeApplied(JSON.stringify(userPoolConfigurationWithUserPoolProps));
 });
 
 
-test("Should apply Object User Pool configuration overrides to default User Pool", () => {
-    expectUserPoolConfigOverridesToBeApplied(userPoolConfigurationWithUserPoolConfigOverrides);
+test("Should apply Object UserPoolProps configuration to default User Pool", () => {
+    expectUserPoolPropsToBeApplied(userPoolConfigurationWithUserPoolProps);
 });
 
-function expectUserPoolConfigOverridesToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
+function expectUserPoolPropsToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
 
     // Given
     const stack = new cdk.Stack();
@@ -82,19 +85,26 @@ function expectUserPoolConfigOverridesToBeApplied(userPoolConfiguration: Record<
     new KaiUserPool(stack, "TestUserPool");
 
     // Then
-    expectCDK(stack).to(haveResource("AWS::Cognito::UserPool", userPoolConfigOverrides));
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPool", {
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": false
+        },
+        "AutoVerifiedAttributes": [
+          "email"
+        ]
+    }));
 }
 
-test("Should apply String User Pool Client configuration overrides to default User Pool Client", () => {
-    expectUserPoolClientConfigOverridesToBeApplied(JSON.stringify(userPoolConfigurationWithUserPoolClientConfigOverrides));
+test("Should apply String UserPoolClientOptions to default User Pool Client", () => {
+    expectUserPoolClientOptionsToBeApplied(JSON.stringify(userPoolConfigurationWithUserPoolClientOptions));
 });
 
 
-test("Should apply Object User Pool Client configuration overrides to default User Pool Client", () => {
-    expectUserPoolClientConfigOverridesToBeApplied(userPoolConfigurationWithUserPoolClientConfigOverrides);
+test("Should apply Object UserPoolClientOptions to default User Pool Client", () => {
+    expectUserPoolClientOptionsToBeApplied(userPoolConfigurationWithUserPoolClientOptions);
 });
 
-function expectUserPoolClientConfigOverridesToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
+function expectUserPoolClientOptionsToBeApplied(userPoolConfiguration: Record<string, unknown> | string) {
 
     // Given
     const stack = new cdk.Stack();
@@ -104,7 +114,10 @@ function expectUserPoolClientConfigOverridesToBeApplied(userPoolConfiguration: R
     new KaiUserPool(stack, "TestUserPool");
 
     // Then
-    expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient", userPoolClientConfigOverrides));
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient", {
+        "ClientName": "TestClientName",
+        "GenerateSecret": true
+    }));
 }
 
 const externalPool = {

@@ -45,20 +45,20 @@ These properties are changable through the context variable: "clusterNodeGroup".
 ## Cognito UserPool configuration
 
 By default Kai uses a vanilla AWS Cognito UserPool to manage authentication with the application.
-The default UserPool and UserPoolClient settings can be overridden by supplying a `userPoolConfiguration` context option populated as shown:
+The default UserPool and UserPoolClient settings can be overridden by supplying a `userPoolConfiguration` context option populated as shown here:
 ```json
 {
-    "defaultPoolConfigOverrides": {
+    "defaultPoolConfig": {
         "userPoolConfigOverrides": {
-            <...property overrides...>
+            <@aws-cdk/aws-cognito.UserPoolProps>
         },
-        "userPoolClientConfigOverrides": {
-            <...property overrides...>
+        "userPoolClientOptions": {
+            <@aws-cdk/aws-cognito.UserPoolClientOptions>
         }
     }
 }
 ```
-Alternatively a pre-configured external pool can be referenced using the following structure:
+Alternatively a pre-configured external pool can be referenced using the following example:
 ```json
 {
     "externalPool": {
