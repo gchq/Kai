@@ -22,11 +22,15 @@ import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
+import { KaiUserPool } from "./authentication/user-pool";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
         super(scope, id, props);
+
+        // User Pool
+        const userPool = new KaiUserPool(this, "KaiUserPool");
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");

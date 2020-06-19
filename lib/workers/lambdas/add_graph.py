@@ -19,7 +19,7 @@ def generate_password(length=8):
     """
     Generates a random password of a given length
     """
-    printable = f'{string.ascii_letters}{string.digits}{string.punctuation}'
+    printable = f'{string.ascii_letters}{string.digits}'
 
     # randomize
     printable = list(printable)
