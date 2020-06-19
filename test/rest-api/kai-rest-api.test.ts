@@ -18,8 +18,10 @@ import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/as
 import * as cdk from "@aws-cdk/core";
 import * as rest from "../../lib/rest-api/kai-rest-api";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
+import { constants } from "buffer";
+import { ADD_GRAPH_TIMEOUT } from "../../lib/constants";
 
-test("should create new new REST API", () => {
+test("should create new REST API", () => {
     // Given
     const stack = new cdk.Stack();
     const table = new Table(stack, "test", {
@@ -32,10 +34,10 @@ test("should create new new REST API", () => {
     });
 
     // Then
-    expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi", {
-        Name: "KaiRestApi"
-    }));
+    expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi"));
 });
+
+// todo test the rest api's name is derived from Id
 
 test("The Rest API should have a graph resource which can be POSTed to", () => {
      // Given
@@ -58,18 +60,18 @@ test("The Rest API should have a graph resource which can be POSTed to", () => {
      expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
          HttpMethod: "POST",
          ResourceId: {
-             Ref: "TestKaiRestApigraphsD9CE785A"
+             Ref: "TestTestRestApigraphs6F3DCBD4"
          },
          RestApiId: {
-             Ref: "TestKaiRestApi8B15993F"
+             Ref: "TestTestRestApiF3AB3CBC"
          }
      }));
 });
-
-test("should create a queue for messages to be sent to workers", () => {
-     // Given
-     const stack = new cdk.Stack();
-     const table = new Table(stack, "test", {
+// todo same for delete queue
+test("should create a queue for AddGraph messages to be sent to workers", () => {
+    // Given
+    const stack = new cdk.Stack();
+    const table = new Table(stack, "test", {
       partitionKey: {name: "test", type: AttributeType.STRING}
     });
 
@@ -79,10 +81,10 @@ test("should create a queue for messages to be sent to workers", () => {
     });
 
 
-     // Then
-     expectCDK(stack).to(haveResource("AWS::SQS::Queue", {
-         VisibilityTimeout: 600
-     }));
+    // Then
+    expectCDK(stack).to(haveResource("AWS::SQS::Queue", {
+      VisibilityTimeout: ADD_GRAPH_TIMEOUT.toSeconds()
+    }));
 });
 
 test("should create lambda to write messages to the Queue", () => {
@@ -100,11 +102,11 @@ test("should create lambda to write messages to the Queue", () => {
 
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "add_graph_request.handler"
+      Handler: "add_graph_request.handler"
     }));
 });
 
-test("should allow Lambda to write messages to queue", () => {
+test("should allow AddGraphLambda to write messages to queue and write to Dynamodb", () => {
     // Given
     const stack = new cdk.Stack();
     const table = new Table(stack, "test", {
@@ -118,29 +120,51 @@ test("should allow Lambda to write messages to queue", () => {
 
 
     // Then
-    expectCDK(stack).to(haveResourceLike("AWS::IAM::Policy", {
-        "PolicyDocument": {
-            "Statement": [
+    expectCDK(stack).to(haveResource("AWS::IAM::Policy", {
+      "PolicyDocument": {
+        "Statement": [
+          {
+            "Action": [
+              "dynamodb:BatchWriteItem",
+              "dynamodb:PutItem",
+              "dynamodb:UpdateItem",
+              "dynamodb:DeleteItem"
+            ],
+            "Effect": "Allow",
+            "Resource": [
               {
-                "Action": [
-                  "sqs:SendMessage",
-                  "sqs:GetQueueAttributes",
-                  "sqs:GetQueueUrl"
-                ],
-                "Effect": "Allow",
-                "Resource": {
-                  "Fn::GetAtt": [
-                    "TestAddGraphQueue2C2BD89D",
-                    "Arn"
-                  ]
-                }
+                "Fn::GetAtt": [
+                  "testAF53AC38",
+                  "Arn"
+                ]
+              },
+              {
+                "Ref": "AWS::NoValue"
               }
             ]
           },
-          "Roles": [
-            {
-              "Ref": "TestAddGraphHandlerServiceRole6EB73DAD"
+          {
+            "Action": [
+              "sqs:SendMessage",
+              "sqs:GetQueueAttributes",
+              "sqs:GetQueueUrl"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::GetAtt": [
+                "TestAddGraphQueue2C2BD89D",
+                "Arn"
+              ]
             }
-          ]
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "PolicyName": "TestAddGraphHandlerServiceRoleDefaultPolicyA73C8E7F",
+      "Roles": [
+        {
+          "Ref": "TestAddGraphHandlerServiceRole6EB73DAD"
+        }
+      ] 
     }));
 });

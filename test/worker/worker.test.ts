@@ -23,11 +23,10 @@ import { LAMBDA_LAYER_ARN } from "../../lib/constants";
 import { Worker } from "../../lib/workers/worker";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
 
-test("Should create a Lambda Function", () => {
-    // Given
-    const stack = new cdk.Stack();
-    const extraSecurityGroups = "sg-extraSecurityGroup";
-    stack.node.setContext("extraIngressSecurityGroups", extraSecurityGroups);
+function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandler", timeout = cdk.Duration.minutes(10), batchSize = 3): Worker {
+    if (extraSGs !== undefined) {
+        stack.node.setContext("extraIngressSecurityGroups", extraSGs);
+    }
     const donorCluster = new Cluster(stack, "testCluster");
     const donorQueue = new Queue(stack, "testQueue");
     const table = new Table(stack, "test", {
@@ -35,8 +34,7 @@ test("Should create a Lambda Function", () => {
     });
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
 
-    // When
-    new Worker(stack, "testWorker", { // todo test all these
+    return new Worker(stack, "testWorker", {
         queue: donorQueue,
         cluster: donorCluster,
         kubectlLayer: layer,
@@ -46,65 +44,36 @@ test("Should create a Lambda Function", () => {
         batchSize: 1
     });
 
+}
+
+test("Should create a Lambda Function", () => {
+    // Given
+    const stack = new cdk.Stack()
+
+    // When
+    const worker = createWorker(stack);
+
     // Then
-    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "testHandler",
-        Environment:  {
-            "Variables": {
-                 "cluster_name": {
-                      "Ref": "testClusterFF806018"
-                 },
-                 "extra_security_groups": extraSecurityGroups
-            }
-        }
-    }));
+    expectCDK(stack).to(haveResource("AWS::Lambda::Function"));
 });
 
 test("Should not populate Environment with extra_security_groups when none supplied", () => {
     // Given
-    const stack = new cdk.Stack();
-    const donorCluster = new Cluster(stack, "testCluster");
-    const donorQueue = new Queue(stack, "testQueue");
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
-    const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
+    const stack = new cdk.Stack()
 
     // When
-    new Worker(stack, "testWorker", {
-        handler: "testHandler",
-        batchSize: 3,
-        queue: donorQueue,
-        cluster: donorCluster,
-        kubectlLayer: layer,
-        timeout: cdk.Duration.minutes(10),
-        graphTable: table
-    });
+    const worker = createWorker(stack) // second argument is security groups
+
     // Then
     expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
 });
 
 test("Should not populate Environment with extra_security_groups when empty string supplied", () => {
     // Given
-    const stack = new cdk.Stack();
-    stack.node.setContext("extraIngressSecurityGroups", "");
-    const donorCluster = new Cluster(stack, "testCluster");
-    const donorQueue = new Queue(stack, "testQueue");
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
-    const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
+    const stack = new cdk.Stack()
 
     // When
-    new Worker(stack, "testWorker", {
-        handler: "testHandler",
-        batchSize: 3,
-        queue: donorQueue,
-        cluster: donorCluster,
-        kubectlLayer: layer,
-        timeout: cdk.Duration.minutes(10),
-        graphTable: table
-    });
+    const worker = createWorker(stack, "") // second argument is security groups
 
     // Then
     expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
@@ -112,12 +81,14 @@ test("Should not populate Environment with extra_security_groups when empty stri
 
 function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) {
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "testHandler",
         Environment:  {
             "Variables": {
-                 "cluster_name": {
-                      "Ref": "testClusterFF806018"
-                 }
+                "cluster_name": {
+                    "Ref": "testClusterFF806018"
+                },
+                "graph_table_name": {
+                    "Ref": "testAF53AC38"
+                }
             }
         }
     }));
@@ -125,24 +96,10 @@ function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) 
 
 test("should allow lambda to consume messages from queue and describe cluster", () => {
     // Given
-    const stack = new cdk.Stack();
-    const donorCluster = new Cluster(stack, "testCluster");
-    const donorQueue = new Queue(stack, "testQueue");
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
-    const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
+    const stack = new cdk.Stack()
 
     // When
-    new Worker(stack, "testWorker", {
-        queue: donorQueue,
-        cluster: donorCluster,
-        kubectlLayer: layer,
-        graphTable: table,
-        handler: "testHandler",
-        timeout: cdk.Duration.minutes(10),
-        batchSize: 1
-    });
+    const worker = createWorker(stack);
 
     // Then
     expectCDK(stack).to(haveResourceLike("AWS::IAM::Policy", {
