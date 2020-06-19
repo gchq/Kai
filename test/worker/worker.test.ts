@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import { Cluster } from "@aws-cdk/aws-eks";
 import { Queue } from "@aws-cdk/aws-sqs";

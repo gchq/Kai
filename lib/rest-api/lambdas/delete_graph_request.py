@@ -1,7 +1,7 @@
 import boto3
 import json
 import os
-from botocore.exceptions import ClientError
+from botocore.exceptionsimport ClientError
 
 # Get variables from env
 queue_url = os.getenv("sqs_queue_url")

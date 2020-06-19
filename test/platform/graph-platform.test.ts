@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as platform from "../../lib/platform/graph-platform";
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { PolicyStatement } from "@aws-cdk/aws-iam";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
 export const albPolicyStatement: PolicyStatement = new PolicyStatement({
     resources: ["*"],

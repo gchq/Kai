@@ -3,8 +3,8 @@ import subprocess
 import boto3
 import json
 import logging
-from graph import Graph
-from kubernetes import HelmClient
+from graphimport Graph
+from kubernetesimport HelmClient
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

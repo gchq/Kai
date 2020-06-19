@@ -55,7 +55,7 @@ export class Worker extends Construct {
             resources: [ props.cluster.clusterArn ]
         }));
 
-        props.graphTable.grantReadWriteData(worker)
+        props.graphTable.grantReadWriteData(worker);
     
         const workerRole = worker.role;
 

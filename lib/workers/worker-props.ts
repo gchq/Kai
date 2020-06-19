@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { Queue } from "@aws-cdk/aws-sqs";
+import { Queue } from "@aws-cdk/aws-sqs";
 import { ILayerVersion } from "@aws-cdk/aws-lambda";
 import { Cluster } from "@aws-cdk/aws-eks";
 import { Duration } from "@aws-cdk/core";

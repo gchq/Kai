@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as rest from "../../lib/rest-api/kai-rest-api";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";

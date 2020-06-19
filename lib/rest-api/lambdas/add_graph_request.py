@@ -1,5 +1,5 @@
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptionsimport ClientError
 import json
 import os
 

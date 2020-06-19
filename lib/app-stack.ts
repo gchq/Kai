@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import * as cdk from "@aws-cdk/core";
+import * as cdk from "@aws-cdk/core";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { KaiRestApi } from "./rest-api/kai-rest-api";

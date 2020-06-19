@@ -35,7 +35,7 @@ export class KaiRestApi extends cdk.Construct {
 
         // Service Functions all share the same code and timeout 
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
-        const lambdaTimeout = cdk.Duration.seconds(30)
+        const lambdaTimeout = cdk.Duration.seconds(30);
 
         // POST handlers
         this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
@@ -73,7 +73,7 @@ export class KaiRestApi extends cdk.Construct {
             }
         });
 
-        props.graphTable.grantWriteData(deleteGraphLambda)
+        props.graphTable.grantWriteData(deleteGraphLambda);
         this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
         graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
 
@@ -91,7 +91,7 @@ export class KaiRestApi extends cdk.Construct {
         props.graphTable.grantReadData(getGraphsLambda);
         // Both GET and GET all are served by the same lambda
         const getGraphIntegration = new api.LambdaIntegration(getGraphsLambda);
-        graphsResource.addMethod("GET", getGraphIntegration)
+        graphsResource.addMethod("GET", getGraphIntegration);
         graph.addMethod("GET", getGraphIntegration);
 
     }
