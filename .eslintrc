@@ -17,6 +17,7 @@
         "semi": 2,
         "semi-style": ["error", "last"],
         "quotes": [2, "double"],
+        "indent": 2,
         "default-case": 1,
         "no-duplicate-imports": 2,
         "space-before-blocks": [1, "always"],

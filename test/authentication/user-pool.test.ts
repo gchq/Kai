@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as cognito from "@aws-cdk/aws-cognito";
 import { KaiUserPool} from "../../lib/authentication/user-pool";
@@ -29,15 +29,15 @@ test("Should create default UserPool and UserPoolClient", () => {
     // Then
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPool", {
         "AdminCreateUserConfig": {
-          "AllowAdminCreateUserOnly": true
+            "AllowAdminCreateUserOnly": true
         }
     }));
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient", {
         "UserPoolId": {
-          "Ref": "TestUserPoolKaiUserPool8F9565E7"
+            "Ref": "TestUserPoolKaiUserPool8F9565E7"
         },
         "SupportedIdentityProviders": [
-          "COGNITO"
+            "COGNITO"
         ]
     }));
 });
@@ -87,10 +87,10 @@ function expectUserPoolPropsToBeApplied(userPoolConfiguration: Record<string, un
     // Then
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPool", {
         "AdminCreateUserConfig": {
-          "AllowAdminCreateUserOnly": false
+            "AllowAdminCreateUserOnly": false
         },
         "AutoVerifiedAttributes": [
-          "email"
+            "email"
         ]
     }));
 }

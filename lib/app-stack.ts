@@ -30,7 +30,7 @@ export class AppStack extends cdk.Stack {
         super(scope, id, props);
 
         // User Pool
-        const userPool = new KaiUserPool(this, "KaiUserPool");
+        new KaiUserPool(this, "KaiUserPool");
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");
@@ -46,11 +46,11 @@ export class AppStack extends cdk.Stack {
         // Kubectl Lambda layer
         const samApp = new sam.CfnApplication(this, "SamLayer", {
             location: {
-            applicationId: LAMBDA_LAYER_ARN,
-            semanticVersion: LAMBDA_LAYER_VERSION
+                applicationId: LAMBDA_LAYER_ARN,
+                semanticVersion: LAMBDA_LAYER_VERSION
             },
             parameters: {
-            LayerName: `${this.node.uniqueId}-kubectl-layer`
+                LayerName: `${this.node.uniqueId}-kubectl-layer`
             }
         });
 

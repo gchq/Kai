@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import * as cdk from "@aws-cdk/core";
+import * as cdk from "@aws-cdk/core";
 import * as cognito from "@aws-cdk/aws-cognito";
 import { UserPoolConfig, IExternalPool, IDefaultPoolConfig } from "./user-pool-config";
 

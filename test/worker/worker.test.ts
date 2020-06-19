@@ -39,30 +39,68 @@ function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandle
         cluster: donorCluster,
         kubectlLayer: layer,
         graphTable: table,
-        handler: "testHandler",
-        timeout: cdk.Duration.minutes(10),
-        batchSize: 1
+        handler: handler,
+        timeout: timeout,
+        batchSize: batchSize
     });
-
 }
 
 test("Should create a Lambda Function", () => {
     // Given
-    const stack = new cdk.Stack()
+    const stack = new cdk.Stack();
 
     // When
-    const worker = createWorker(stack);
+    createWorker(stack);
 
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function"));
 });
 
-test("Should not populate Environment with extra_security_groups when none supplied", () => {
+test("Should use handler name in properties", () => {
     // Given
-    const stack = new cdk.Stack()
+    const stack = new cdk.Stack();
 
     // When
-    const worker = createWorker(stack) // second argument is security groups
+    createWorker(stack, undefined, "MyHandlerTest");
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
+        Handler: "MyHandlerTest"
+    }));
+});
+
+test("Should use timeout supplied in properties", ()  => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    createWorker(stack, undefined, undefined, cdk.Duration.minutes(5));
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
+        Timeout: 300
+    }));
+});
+
+test("Should use batchSize supplied in properties for SQS Queue", ()  => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    createWorker(stack, undefined, undefined, undefined, 7);
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::Lambda::EventSourceMapping", {
+        BatchSize: 7
+    }));
+});
+
+test("Should not populate Environment with extra_security_groups when none supplied", () => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    createWorker(stack); // second argument is security groups
 
     // Then
     expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
@@ -70,10 +108,10 @@ test("Should not populate Environment with extra_security_groups when none suppl
 
 test("Should not populate Environment with extra_security_groups when empty string supplied", () => {
     // Given
-    const stack = new cdk.Stack()
+    const stack = new cdk.Stack();
 
     // When
-    const worker = createWorker(stack, "") // second argument is security groups
+    createWorker(stack, ""); // second argument is security groups
 
     // Then
     expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack);
@@ -96,41 +134,41 @@ function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) 
 
 test("should allow lambda to consume messages from queue and describe cluster", () => {
     // Given
-    const stack = new cdk.Stack()
+    const stack = new cdk.Stack();
 
     // When
-    const worker = createWorker(stack);
+    createWorker(stack);
 
     // Then
     expectCDK(stack).to(haveResourceLike("AWS::IAM::Policy", {
         "PolicyDocument": {
             "Statement": [
-            {
-                "Action": [
-                "sqs:ReceiveMessage",
-                "sqs:ChangeMessageVisibility",
-                "sqs:GetQueueUrl",
-                "sqs:DeleteMessage",
-                "sqs:GetQueueAttributes"
-                ],
-                "Effect": "Allow",
-                "Resource": {
-                "Fn::GetAtt": [
-                    "testQueue601B0FCD",
-                    "Arn"
-                ]
+                {
+                    "Action": [
+                        "sqs:ReceiveMessage",
+                        "sqs:ChangeMessageVisibility",
+                        "sqs:GetQueueUrl",
+                        "sqs:DeleteMessage",
+                        "sqs:GetQueueAttributes"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": {
+                        "Fn::GetAtt": [
+                            "testQueue601B0FCD",
+                            "Arn"
+                        ]
+                    }
+                },
+                {
+                    "Action": "eks:DescribeCluster",
+                    "Effect": "Allow",
+                    "Resource": {
+                        "Fn::GetAtt": [
+                            "testClusterFF806018",
+                            "Arn"
+                        ]
+                    }
                 }
-            },
-            {
-                "Action": "eks:DescribeCluster",
-                "Effect": "Allow",
-                "Resource": {
-                "Fn::GetAtt": [
-                    "testClusterFF806018",
-                    "Arn"
-                ]
-                }
-            }
             ]
         }
     }));
