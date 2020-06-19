@@ -29,7 +29,7 @@ export class KaiRestApi extends cdk.Construct {
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
         // REST API
-        const restApi = new api.RestApi(this, "KaiRestApi"); // Could add a default 404 handler here
+        const restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
         const graphsResource = restApi.root.addResource("graphs");
         const graph = graphsResource.addResource("{graphId}");
 
@@ -49,10 +49,11 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.addGraphQueue.queueUrl,
-                graph_table_name: props.graphTableName
+                graph_table_name: props.graphTable.tableName
             }
         });
 
+        props.graphTable.grantWriteData(addGraphLambda);
         this.addGraphQueue.grantSendMessages(addGraphLambda);
         graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda));
 
@@ -68,10 +69,11 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.deleteGraphQueue.queueUrl,
-                graph_table_name: props.graphTableName
+                graph_table_name: props.graphTable.tableName
             }
         });
 
+        props.graphTable.grantWriteData(deleteGraphLambda)
         this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
         graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
 
@@ -82,10 +84,11 @@ export class KaiRestApi extends cdk.Construct {
             handler: "get_graph_request.handler",
             timeout: lambdaTimeout,
             environment: {
-                graph_table_name: props.graphTableName
+                graph_table_name: props.graphTable.tableName
             }
         });
 
+        props.graphTable.grantReadData(getGraphsLambda);
         // Both GET and GET all are served by the same lambda
         const getGraphIntegration = new api.LambdaIntegration(getGraphsLambda);
         graphsResource.addMethod("GET", getGraphIntegration)

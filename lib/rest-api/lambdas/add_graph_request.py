@@ -1,4 +1,5 @@
 import boto3
+from botocore.exceptions import ClientError
 import json
 import os
 
@@ -28,17 +29,22 @@ def handler(event, context):
     try:
         table.put_item(
             Item={
-                "graphId": graph_id
-                "status": initial_status
+                "graphId": graph_id,
+                "currentState": initial_status
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("graphId").not_exists()
         )
-    except ConditionalCheckFailedException:
-        return {
-            "statusCode": 400,
-            "errorMessage": "Graph " + graph_id + " already exists. Graph names must be unique"
-        }
-    # todo send status with message body to reduce duplication
+    except ClientError as e:
+        if e.response['Error']['Code']=='ConditionalCheckFailedException': 
+            return {
+                "statusCode": 400,
+                "body": "Graph " + graph_id + " already exists. Graph names must be unique"
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps(e.response["Error"])
+            }
 
     # Create message to send to worker. This also filters out anything else in the body
     message = {

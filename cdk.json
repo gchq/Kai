@@ -4,7 +4,6 @@
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",
     "vpcId": "DEFAULT",
-    "clusterName": "Kai",
     "extraIngressSecurityGroups": "",
     "globalTags": {}
   }

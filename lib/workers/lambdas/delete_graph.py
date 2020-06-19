@@ -1,6 +1,7 @@
 import os
 import subprocess
 import boto3
+import json
 import logging
 from graph import Graph
 from kubernetes import HelmClient
@@ -24,8 +25,8 @@ def uninstall_release(helm_client, body):
     # Create a Graph object to track the deletion
     graph = Graph(graph_table_name, graph_id)
 
-    if graph.check_status(expected_status):
-        logger.warn("Graph %s had unexpected status. Abandoning delete")
+    if not graph.check_status(expected_status):
+        logger.warn("Graph %s had unexpected status. Abandoning delete", graph_id)
         return
 
     graph.update_status("DELETE_IN_PROGRESS")

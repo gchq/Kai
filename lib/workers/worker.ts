@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Construct, Duration } from "@aws-cdk/core";
+import { Construct } from "@aws-cdk/core";
 import { WorkerProps } from "./worker-props";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as path from "path";
@@ -32,7 +32,7 @@ export class Worker extends Construct {
         const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups");
 
         // Create worker from Lambda
-        const addGraphWorker = new lambda.Function(this, id + "Lambda", {
+        const worker = new lambda.Function(this, id + "Lambda", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: new lambda.AssetCode(path.join(__dirname, "lambdas")),
             handler: props.handler,
@@ -40,20 +40,24 @@ export class Worker extends Construct {
             timeout: props.timeout,
             environment: {
                 cluster_name: props.cluster.clusterName,
-                graph_table_name: props.graphTableName,
+                graph_table_name: props.graphTable.tableName,
                 extra_security_groups: extraSecurityGroups == "" ? null : extraSecurityGroups
             }
         });
 
-        addGraphWorker.addEventSource(new SqsEventSource(props.queue));
+        worker.addEventSource(new SqsEventSource(props.queue, {
+            batchSize: props.batchSize
+        }));
 
         // Add permisssions to role
-        addGraphWorker.addToRolePolicy(new PolicyStatement({
+        worker.addToRolePolicy(new PolicyStatement({
             actions: [ "eks:DescribeCluster" ],
             resources: [ props.cluster.clusterArn ]
         }));
+
+        props.graphTable.grantReadWriteData(worker)
     
-        const workerRole = addGraphWorker.role;
+        const workerRole = worker.role;
 
         if (workerRole == undefined) {
             throw new Error("Worker must have an associated IAM Role");

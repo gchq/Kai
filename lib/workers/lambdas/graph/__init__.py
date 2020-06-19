@@ -16,8 +16,7 @@ class Graph:
         response = self.table.get_item(
             Key={
                 'graphId': self.graph_id
-            },
-            ProjectionExpression="status"
+            }
         )
 
         # If the graph does not exist, it cannot have the expected status
@@ -25,7 +24,7 @@ class Graph:
         if graph is None:
             return False
         
-        status = graph["status"]
+        status = graph["currentState"]
 
         return status == expected_status
 
@@ -37,9 +36,9 @@ class Graph:
             Key={
                 "graphId": self.graph_id
             },
-            UpdateExpression="SET status = :status",
+            UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
-                ":status": {"S": status }
+                ":state": status
             }
         )
 
@@ -49,6 +48,6 @@ class Graph:
         """
         self.table.delete_item(
         Key={
-            "graphId": graph_id
+            "graphId": self.graph_id
         }
     )

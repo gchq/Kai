@@ -18,7 +18,7 @@
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
-import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT } from "./constants";
+import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
@@ -36,7 +36,7 @@ export class AppStack extends cdk.Stack {
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
-            graphTableName: database.tableName
+            graphTable: database.table
         });
 
         // Kubectl Lambda layer
@@ -58,18 +58,20 @@ export class AppStack extends cdk.Stack {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            graphTableName: database.tableName,
+            graphTable: database.table,
             handler: "add_graph.handler",
-            timeout: ADD_GRAPH_TIMEOUT
+            timeout: ADD_GRAPH_TIMEOUT,
+            batchSize: ADD_GRAPH_WORKER_BATCH_SIZE
         });
 
         new Worker(this, "DeleteGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.deleteGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            graphTableName: database.tableName,
+            graphTable: database.table,
             handler: "delete_graph.handler",
-            timeout: DELETE_GRAPH_TIMEOUT
+            timeout: DELETE_GRAPH_TIMEOUT,
+            batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE
         });
     }
 }

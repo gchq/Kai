@@ -17,14 +17,18 @@
  import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as rest from "../../lib/rest-api/kai-rest-api";
+import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
 
 test("should create new new REST API", () => {
     // Given
     const stack = new cdk.Stack();
+    const table = new Table(stack, "test", {
+      partitionKey: {name: "test", type: AttributeType.STRING}
+    });
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-      "graphTableName": "test"
+      "graphTable": table
     });
 
     // Then
@@ -36,10 +40,13 @@ test("should create new new REST API", () => {
 test("The Rest API should have a graph resource which can be POSTed to", () => {
      // Given
      const stack = new cdk.Stack();
+     const table = new Table(stack, "test", {
+      partitionKey: {name: "test", type: AttributeType.STRING}
+    });
 
-     // When
-     new rest.KaiRestApi(stack, "Test", {
-      "graphTableName": "test"
+    // When
+    new rest.KaiRestApi(stack, "Test", {
+      "graphTable": table
     });
 
  
@@ -62,10 +69,13 @@ test("The Rest API should have a graph resource which can be POSTed to", () => {
 test("should create a queue for messages to be sent to workers", () => {
      // Given
      const stack = new cdk.Stack();
+     const table = new Table(stack, "test", {
+      partitionKey: {name: "test", type: AttributeType.STRING}
+    });
 
-     // When
-     new rest.KaiRestApi(stack, "Test", {
-      "graphTableName": "test"
+    // When
+    new rest.KaiRestApi(stack, "Test", {
+      "graphTable": table
     });
 
 
@@ -78,10 +88,13 @@ test("should create a queue for messages to be sent to workers", () => {
 test("should create lambda to write messages to the Queue", () => {
     // Given
     const stack = new cdk.Stack();
+    const table = new Table(stack, "test", {
+      partitionKey: {name: "test", type: AttributeType.STRING}
+    });
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-      "graphTableName": "test"
+      "graphTable": table
     });
 
 
@@ -94,10 +107,13 @@ test("should create lambda to write messages to the Queue", () => {
 test("should allow Lambda to write messages to queue", () => {
     // Given
     const stack = new cdk.Stack();
+    const table = new Table(stack, "test", {
+      partitionKey: {name: "test", type: AttributeType.STRING}
+    });
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-      "graphTableName": "test"
+      "graphTable": table
     });
 
 

@@ -127,9 +127,9 @@ def deploy_graph(helm_client, body, security_groups):
 
     if success:
         logger.info("Deployment of " + graph_id + " Succeeded")
-        graph.update_status(graph_id, "DEPLOYED")
+        graph.update_status("DEPLOYED")
     else:
-        graph.update_status(graph_id, "DEPLOYMENT_FAILED")
+        graph.update_status("DEPLOYMENT_FAILED")
 
 
 def handler(event, context):

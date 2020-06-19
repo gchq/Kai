@@ -1,6 +1,7 @@
 import boto3
 import json
 import os
+from botocore.exceptions import ClientError
 
 # Get variables from env
 queue_url = os.getenv("sqs_queue_url")
@@ -11,13 +12,16 @@ dynamo = boto3.resource("dynamodb")
 table = dynamo.Table(graph_table_name)
 
 def handler(event, context):
-    params = json.loads(event["pathParameters"])
+    params = event["pathParameters"]
 
     # Check request is valid
     graph_id = params["graphId"]
 
     if graph_id is None:
-        raise Exception("graphId is a required field")
+        return {
+            statusCode: 400,
+            body: "graphId is a required field"
+        }
 
     initial_status = "DELETION_QUEUED"
 
@@ -27,17 +31,23 @@ def handler(event, context):
             Key={
                 "graphId": graph_id
             },
-            UpdateExpression="SET status = :status",
+            UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
-                ":status": {"S": initial_status }
+                ":state": initial_status
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("graphId").exists()
         )
-    except ConditionalCheckFailedException:
-        return {
-            "statusCode": 400,
-            "errorMessage": "Graph " + graph_id + " does not exist. It may have already been deleted"
-        }
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            return {
+                "statusCode": 400,
+                "body": "Graph " + graph_id + " does not exist. It may have already been deleted"
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps(e.response["Error"])
+            }
 
     # Set the status so the worker knows what to expect. This also filters out anything else in the body
     message = {

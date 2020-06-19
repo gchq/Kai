@@ -1,3 +1,5 @@
+import { Table } from "@aws-cdk/aws-dynamodb";
+
 export interface KaiRestApiProps {
-    graphTableName: string
+    graphTable: Table
 }

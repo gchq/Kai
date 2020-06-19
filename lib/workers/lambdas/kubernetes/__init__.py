@@ -8,7 +8,7 @@ standard_kubeconfig="/tmp/kubeconfig"
 
 
 class HelmClient:
-    HELM_CMD="helm"
+    __HELM_CMD="helm"
 
     def __init__(self, cluster_name, kubeconfig=standard_kubeconfig):
         subprocess.check_call([ 'aws', 'eks', 'update-kubeconfig',
@@ -22,14 +22,14 @@ class HelmClient:
         """
         Runs a Helm command and returns True if it succeeds and False if it fails
         """
-        cmd = [ HELM_CMD, instruction, release ]
+        cmd = [ self.__HELM_CMD, instruction, release ]
         if chart is not None:
             cmd.append(chart)
         if repo is not None:
             cmd.extend(["--repo", repo])
         if values is not None:
             cmd.extend(["--values", values])
-        cmd.extend("--kubeconfig", self.kubeconfig)
+        cmd.extend(["--kubeconfig", self.kubeconfig])
 
         succeeded=False
         try:

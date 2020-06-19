@@ -21,23 +21,29 @@ import { Queue } from "@aws-cdk/aws-sqs";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { LAMBDA_LAYER_ARN } from "../../lib/constants";
 import { Worker } from "../../lib/workers/worker";
+import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
 
 test("Should create a Lambda Function", () => {
     // Given
     const stack = new cdk.Stack();
     const donorCluster = new Cluster(stack, "testCluster");
     const donorQueue = new Queue(stack, "testQueue");
+    const table = new Table(stack, "test", {
+        partitionKey: {name: "test", type: AttributeType.STRING}
+    });
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
 
     // When
-    new Worker(stack, "testWorker", {
+    new Worker(stack, "testWorker", { // todo test all these
         queue: donorQueue,
         cluster: donorCluster,
         kubectlLayer: layer,
-        graphTableName: "test", // TODO add test
+        graphTable: table,
         handler: "testHandler",
-        timeout: cdk.Duration.minutes(10) // TODO add test
+        timeout: cdk.Duration.minutes(10),
+        batchSize: 1
     });
+
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
         Handler: "testHandler"
@@ -49,6 +55,9 @@ test("should allow lambda to consume messages from queue and describe cluster", 
     const stack = new cdk.Stack();
     const donorCluster = new Cluster(stack, "testCluster");
     const donorQueue = new Queue(stack, "testQueue");
+    const table = new Table(stack, "test", {
+        partitionKey: {name: "test", type: AttributeType.STRING}
+    });
     const layer = LayerVersion.fromLayerVersionArn(stack, "testLayer", LAMBDA_LAYER_ARN);
 
     // When
@@ -56,9 +65,10 @@ test("should allow lambda to consume messages from queue and describe cluster", 
         queue: donorQueue,
         cluster: donorCluster,
         kubectlLayer: layer,
-        graphTableName: "test",
+        graphTable: table,
         handler: "testHandler",
-        timeout: cdk.Duration.minutes(10)
+        timeout: cdk.Duration.minutes(10),
+        batchSize: 1
     });
 
     // Then
