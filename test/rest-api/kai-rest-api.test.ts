@@ -96,7 +96,7 @@ test("The Graph resource should handle GET requests on it's root", () => {
     }));
 });
 
-test("The REST API should have a resource which can GET specific grapphs", () => {
+test("The REST API should have a resource which can GET specific graphs", () => {
     // Given
     const stack = new cdk.Stack();
    
