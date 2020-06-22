@@ -24,7 +24,7 @@ def handler(event, context):
     dynamo = boto3.resource("dynamodb")
     table = dynamo.Table(graph_table_name)
 
-    initial_status = "CREATION_QUEUED"
+    initial_status = "DEPLOYMENT_QUEUED"
 
     try:
         table.put_item(

@@ -29,13 +29,13 @@ def uninstall_release(helm_client, body):
         logger.warn("Graph %s had unexpected status. Abandoning delete", graph_id)
         return
 
-    graph.update_status("DELETE_IN_PROGRESS")
+    graph.update_status("DELETION_IN_PROGRESS")
 
     uninstalled = helm_client.uninstall_chart(graph_id)
     if uninstalled:
         graph.delete()
     else:
-        graph.update_status("DELETE_FAILED")
+        graph.update_status("DELETION_FAILED")
 
     
 def handler(event, context):
