@@ -16,6 +16,7 @@
 
 import * as cdk from "@aws-cdk/core";
 import * as dynamo from "@aws-cdk/aws-dynamodb";
+import { GraphDatabaseProps } from "./graph-database-props";
 
 /**
  * The underlying database for Graphs.
@@ -23,7 +24,7 @@ import * as dynamo from "@aws-cdk/aws-dynamodb";
 export class GraphDatabase extends cdk.Construct {
     private readonly _table: dynamo.Table;
 
-    constructor(scope: cdk.Construct, id: string) { // todo add tests
+    constructor(scope: cdk.Construct, id: string, props: GraphDatabaseProps) {
         super(scope, id);
         
         // Table
@@ -31,18 +32,18 @@ export class GraphDatabase extends cdk.Construct {
         this._table = new dynamo.Table(this, "GraphDynamoTable", {
             partitionKey: { name: "graphId", type: dynamo.AttributeType.STRING },
             billingMode: dynamo.BillingMode.PROVISIONED,
-            removalPolicy: cdk.RemovalPolicy.DESTROY,
+            removalPolicy: cdk.RemovalPolicy.DESTROY
         });
 
         // Autoscaling
 
         const scalingProps: dynamo.EnableScalingProps = {
-            minCapacity: 1,
-            maxCapacity: 25 // todo move these values into variables 
+            minCapacity: props.minCapacity,
+            maxCapacity: props.maxCapacity
         };
 
         const utilisationProps: dynamo.UtilizationScalingProps = {
-            targetUtilizationPercent: 80
+            targetUtilizationPercent: props.targetUtilizationPercent
         };
 
         const readScaling  = this._table.autoScaleReadCapacity(scalingProps);

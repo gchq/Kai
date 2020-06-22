@@ -23,6 +23,7 @@ import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
 import { KaiUserPool } from "./authentication/user-pool";
+import { GraphDatabaseProps } from "./database/graph-database-props";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
@@ -36,7 +37,8 @@ export class AppStack extends cdk.Stack {
         const platform = new GraphPlatForm(this, "GraphPlatform");
 
         // Graph Table
-        const database = new GraphDatabase(this, "GraphDatabase");
+        const graphDBProps: GraphDatabaseProps = this.node.tryGetContext("graphDatabaseProps");
+        const database = new GraphDatabase(this, "GraphDatabase", graphDBProps);
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
