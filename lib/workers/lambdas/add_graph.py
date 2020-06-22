@@ -1,6 +1,6 @@
 import os
 import kubernetes
-from graphimport Graph
+from graph import Graph
 import json
 import boto3
 import logging

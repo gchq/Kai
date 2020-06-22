@@ -22,7 +22,6 @@ in context objects through the --context option
 Name                       | Type          | Default value | Description
 ---------------------------|---------------|---------------|----------------
 vpcId                      | string        | "DEFAULT"     | The Vpc that the eks cluster will use. By default it uses the default VPC for the account you're deploying with. If this is removed, a VPC will be created. If a VPC id is specified it will use that VPC.
-clusterName                | string        | "Kai"         | The Name of the EKS cluster that will be created
 extraIngressSecurityGroups | string        | ""            | Additional vpcs that will be added to every application load balancer that comes with a gaffer deployment. To Add multiple ones, use a comma seperated list eg "sg-xxxxxxxxx, sg-yyyyyyyyyy". The security group of the EKS cluster is automatically added.
 globalTags                 | object        | {}            | Tags that get added to every taggable resource.
 clusterNodeGroup           | object        | null          | Configuration for the eks cluster nodegroup. See below for details.

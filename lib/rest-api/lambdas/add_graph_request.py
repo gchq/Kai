@@ -1,7 +1,14 @@
 import boto3
-from botocore.exceptionsimport ClientError
+from botocore.exceptions import ClientError
 import json
 import os
+import re
+
+def is_graph_id_valid(graph_id):
+    if graph_id is None:
+        return False
+    
+    return re.match("^[a-z0-9]+$", graph_id) # At present Graph ids have to be lowercase alphanumerics
 
 def handler(event, context):
     request_body = json.loads(event["body"])
@@ -10,11 +17,16 @@ def handler(event, context):
     graph_id = request_body["graphId"]
     schema = request_body["schema"]
 
-    # Todo refactor common request code into common module
-    if graph_id is None:
-        raise Exception("graphId is a required field")
+    if not is_graph_id_valid(graph_id):
+        return {
+            "statusCode": 400,
+            "body": "graphId is a required field which must made up of lowercase alphanumeric characters"
+        }
     if schema is None:
-        raise Exception("schema is a required field")
+        return {
+            "statusCode": 400,
+            "body": "schema is a required field"
+        }
 
     # Get variables from env
     queue_url = os.getenv("sqs_queue_url")

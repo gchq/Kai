@@ -16,7 +16,7 @@
 
 import { Stack } from "@aws-cdk/core";
 import { GraphDatabase } from "../../lib/database/graph-database";
-import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 
 function createDB(stack: Stack, minCapacity = 1, maxCapacity=25, targetUtilization = 80) {
     return new GraphDatabase(stack, "TestDB", {

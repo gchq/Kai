@@ -45,12 +45,12 @@ Example response:
 ```
 
 ### POST /graphs
-Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph wich takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphId wich must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message.
+Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph wich takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphId wich must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message. There is a constraint in gaffer-docker that graph ids have to be lowercase alphanumerics. We hope to address this in a bugfix to allow uppercase alphanumerics too.
 
 Example request body:
 ```json
 {
-  "graphId": "BasicGraph",
+  "graphId": "basic",
   "schema": {
     "elements": {
       "edges": {
