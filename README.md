@@ -27,6 +27,7 @@ extraIngressSecurityGroups | string        | ""            | Additional vpcs tha
 globalTags                 | object        | {}            | Tags that get added to every taggable resource.
 clusterNodeGroup           | object        | null          | Configuration for the eks cluster nodegroup. See below for details.
 userPoolConfiguration      | object        | null          | Cognito UserPool configuration. See below for details.
+graphDatabaseProps         | object        | see cdk.json  | Configuration for the Dynamodb graph database's autoscaling. 
 
 ## Changing the nodegroup properties
 
@@ -42,6 +43,21 @@ By default, Kai ships with a nodegroup with the following parameters:
 
 These properties are changeable through the context variable: "clusterNodeGroup".
 
+## Graph Database Autoscaling
+Depending on your needs, you may want to change the autoscaling properties of the Graph Database. The default properties in the cdk.json file are as follows:
+```json
+{
+    "graphDatabaseProps": {
+      "minCapacity": 1,
+      "maxCapacity": 25,
+      "targetUtilizationPercent": 80
+    }
+}
+```
+The min and max capacity relate to amazon's [read and write capacity units](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html#ProvisionedThroughput.CapacityUnits.Read)
+
+These settings haven't yet been tested at production scale so may change when we do.
+
 ## Cognito UserPool configuration
 
 By default Kai uses a vanilla AWS Cognito UserPool to manage authentication with the application.
@@ -50,20 +66,22 @@ The default UserPool and UserPoolClient settings can be overridden by supplying 
 {
     "defaultPoolConfig": {
         "userPoolProps": {
-            <@aws-cdk/aws-cognito.UserPoolProps> // todo make these not show up red
+            "selfSignUpEnabled": false // See below for full options
         },
         "userPoolClientOptions": {
-            <@aws-cdk/aws-cognito.UserPoolClientOptions>
+            "disableOAuth": true // See below for full options
         }
     }
 }
 ```
+The full list of [userPoolProps](https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-cognito.UserPoolProps.html) and [userPoolClientOptions](https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-cognito.UserPoolClientOptions.html) can be found on Amazon's docs
+
 Alternatively a pre-configured external pool can be referenced using the following example:
 ```json
 {
     "externalPool": {
-        "userPoolId": <external-user-pool-id>,
-        "userPoolClientId": <external-user-pool-client-id>
+        "userPoolId": "myRegion_userPoolId",
+        "userPoolClientId": "randomString"
     }
 }
 ```
