@@ -105,11 +105,12 @@ def add_graph(body, security_groups):
             "--kubeconfig", kubeconfig,
             "--values", values_file
         ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, cwd="/tmp")
+        logger.info("Deployment of " + graph_id + " Succeeded")
     except subprocess.CalledProcessError as err:
         logger.error("Failed to deploy " + graph_id)
         logger.error(err.output)
 
-    logger.info("Deployment of " + graph_id + " Succeeded")
+    
     
 
 def handler(event, context):
