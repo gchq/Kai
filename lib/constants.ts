@@ -14,5 +14,17 @@
  * limitations under the License.
  */
 
- export const LAMBDA_LAYER_ARN = "arn:aws:serverlessrepo:us-east-1:903779448426:applications/lambda-layer-kubectl"; 
+import { Duration } from "@aws-cdk/core";
+
+export const LAMBDA_LAYER_ARN = "arn:aws:serverlessrepo:us-east-1:903779448426:applications/lambda-layer-kubectl"; 
 export const LAMBDA_LAYER_VERSION = "2.0.0-beta3";
+
+// worker batch size
+export const ADD_GRAPH_WORKER_BATCH_SIZE = 3; // can only be one of 3, 2, or 1 as Max timeout for visibility is 15 minutes
+export const DELETE_GRAPH_WORKER_BATCH_SIZE = 5; // can go up to 7
+// timeouts
+const TIMEOUT_FOR_ADDING_GRAPH_IN_MINUTES = 5; // how long it should take for one graph to be added
+const TIMEOUT_FOR_DELETING_GRAPH_IN_MINUTES = 2; // how long it should take for one graph to be deleted
+
+export const DELETE_GRAPH_TIMEOUT = Duration.minutes(TIMEOUT_FOR_DELETING_GRAPH_IN_MINUTES * DELETE_GRAPH_WORKER_BATCH_SIZE);
+export const ADD_GRAPH_TIMEOUT = Duration.minutes(TIMEOUT_FOR_ADDING_GRAPH_IN_MINUTES * ADD_GRAPH_WORKER_BATCH_SIZE);
