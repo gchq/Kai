@@ -6,7 +6,7 @@ The Kai REST API had a variety of endpoints. This will grow over time and this d
 The Graphs resource enables creation, deletion and retrieval of Graphs managed by Kai.
 
 ### GET /graphs
-Retrieves all graphs objects from the backend database. At present this only includes the graphId and it's current state but this is likely to change as the project grows.
+Retrieves all graphs objects from the backend database. At present this only includes the graphId and its current state but this is likely to change as the project grows.
 
 A graph can be in different states. At present these states can be:
 * DEPLOYMENT_QUEUED
