@@ -4,6 +4,9 @@ Kai is an experimental Graph as a Service application built on AWS. It uses the 
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+NOTE: As Kai is currently early in development and likely subject to breaking changes, we do not advise this product be used in any production capacity.
+If you have an interest in using Kai in production, please watch this repository to stay updated.
+
 ## Useful commands
 
  * `npm run build`   compile typescript to js
