@@ -16,7 +16,7 @@
 
 import * as cdk from "@aws-cdk/core";
 import * as cognito from "@aws-cdk/aws-cognito";
-import { UserPoolConfig, IExternalPool, IDefaultPoolConfig } from "./user-pool-config";
+import { UserPoolConfig } from "./user-pool-config";
 
 export class KaiUserPool extends cdk.Construct {
 
@@ -41,26 +41,23 @@ export class KaiUserPool extends cdk.Construct {
             userPoolConfig = UserPoolConfig.DEFAULT;
         }
 
-        if (userPoolConfig.useExternalPool) {
+        if (userPoolConfig.useExternalPool && userPoolConfig.externalPool) {
 
-            const externalPool: IExternalPool = userPoolConfig.externalPool!;
-
-            this._userPool = cognito.UserPool.fromUserPoolId(this, KaiUserPool._userPoolId, externalPool.userPoolId);
-            this._userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(this, KaiUserPool._userPoolClientId, externalPool.userPoolClientId);
+            this._userPool = cognito.UserPool.fromUserPoolId(this, KaiUserPool._userPoolId, userPoolConfig.externalPool.userPoolId);
+            this._userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(this, KaiUserPool._userPoolClientId, userPoolConfig.externalPool.userPoolClientId);
 
         } else {
 
-            const defaultPoolConfig: IDefaultPoolConfig = userPoolConfig.defaultPoolConfig!;
             let userPoolProps: cognito.UserPoolProps = {};
-            if (defaultPoolConfig.userPoolProps) {
-                userPoolProps = defaultPoolConfig.userPoolProps!;
+            if (userPoolConfig.defaultPoolConfig && userPoolConfig.defaultPoolConfig.userPoolProps) {
+                userPoolProps = userPoolConfig.defaultPoolConfig.userPoolProps;
             }
 
             this._userPool = new cognito.UserPool(this, KaiUserPool._userPoolId, userPoolProps);
 
             const userPoolClientProps: cognito.UserPoolClientProps = { "userPool": this._userPool };
-            if (defaultPoolConfig.userPoolClientOptions) {
-                Object.assign(userPoolClientProps, defaultPoolConfig.userPoolClientOptions!);
+            if (userPoolConfig.defaultPoolConfig && userPoolConfig.defaultPoolConfig.userPoolClientOptions) {
+                Object.assign(userPoolClientProps, userPoolConfig.defaultPoolConfig.userPoolClientOptions);
             }
 
             this._userPoolClient = this._userPool.addClient(KaiUserPool._userPoolClientId, userPoolClientProps);
