@@ -67,7 +67,7 @@ export class GraphPlatForm extends cdk.Construct {
         // Create node group
         
         let unparsedRequestedNodeGroup = this.node.tryGetContext("clusterNodegroup");
-        let nodeGroup: eks.NodegroupOptions;
+        let nodeGroupOptions: eks.NodegroupOptions;
         if (unparsedRequestedNodeGroup != null) {
             // if it's a string (for example if passed from the command line), convert to object
             if (typeof unparsedRequestedNodeGroup == "string") {
@@ -75,13 +75,12 @@ export class GraphPlatForm extends cdk.Construct {
             } 
 
             const requestedNodeGroup = NodeGroupConfig.fromConfig(unparsedRequestedNodeGroup);
-            nodeGroup = requestedNodeGroup.toNodeGroupOptions();
+            nodeGroupOptions = requestedNodeGroup.toNodeGroupOptions();
         } else {
-            nodeGroup = NodeGroupConfig.DEFAULT_NODE_GROUP;
+            nodeGroupOptions = NodeGroupConfig.DEFAULT_NODE_GROUP;
         }
 
-
-        this.eksCluster.addNodegroup("graphNodes", nodeGroup);
+        this.eksCluster.addNodegroup("graphNodes", nodeGroupOptions).role.addToPolicy(albPolicyStatement);
 
         // Add Ingress Controller
         const albServiceAccount = new eks.ServiceAccount(this, "ALBIngressController", {
