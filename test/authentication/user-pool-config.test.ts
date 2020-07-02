@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import * as cdk from "@aws-cdk/core";
-import * as cognito from "@aws-cdk/aws-cognito";
 import { IExternalPool, IDefaultPoolConfig, IUserPoolConfig, UserPoolConfig } from "../../lib/authentication/user-pool-config";
 
 const ERROR_MESSAGE_REGEXP = /is not a valid User Pool config/;

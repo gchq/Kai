@@ -16,7 +16,6 @@
 
 import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
-import * as cognito from "@aws-cdk/aws-cognito";
 import { KaiUserPool} from "../../lib/authentication/user-pool";
 
 test("Should create default UserPool and UserPoolClient", () => {
