@@ -118,7 +118,7 @@ test("Should not populate Environment with extra_security_groups when empty stri
 });
 
 function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) {
-    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
+    expectCDK(stack).to(haveResourceLike("AWS::Lambda::Function", {
         Environment:  {
             "Variables": {
                 "cluster_name": {

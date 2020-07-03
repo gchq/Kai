@@ -25,6 +25,7 @@ import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
 export class KaiRestApi extends cdk.Construct {
     private readonly _addGraphQueue: sqs.Queue;
     private readonly _deleteGraphQueue: sqs.Queue;
+    private readonly _getGraphsLambda: lambda.Function
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
@@ -78,7 +79,7 @@ export class KaiRestApi extends cdk.Construct {
         graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
 
         // GET handlers
-        const getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
+        this._getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: lambdas,
             handler: "get_graph_request.handler",
@@ -88,9 +89,9 @@ export class KaiRestApi extends cdk.Construct {
             }
         });
 
-        props.graphTable.grantReadData(getGraphsLambda);
+        props.graphTable.grantReadData(this._getGraphsLambda);
         // Both GET and GET all are served by the same lambda
-        const getGraphIntegration = new api.LambdaIntegration(getGraphsLambda);
+        const getGraphIntegration = new api.LambdaIntegration(this._getGraphsLambda);
         graphsResource.addMethod("GET", getGraphIntegration);
         graph.addMethod("GET", getGraphIntegration);
 
@@ -102,5 +103,9 @@ export class KaiRestApi extends cdk.Construct {
 
     public get deleteGraphQueue(): sqs.Queue {
         return this._deleteGraphQueue;
+    }
+
+    public get getGraphsLambda(): lambda.Function {
+        return this._getGraphsLambda;
     }
 }
