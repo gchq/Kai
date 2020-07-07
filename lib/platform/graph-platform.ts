@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import * as cdk from "@aws-cdk/core";
+import * as cdk from "@aws-cdk/core";
 import * as eks from "@aws-cdk/aws-eks";
 import * as iam from "@aws-cdk/aws-iam";
 import * as ec2 from "@aws-cdk/aws-ec2";
@@ -31,10 +31,9 @@ export class GraphPlatForm extends cdk.Construct {
 
         // Get contextual values
         const vpcId: string = this.node.tryGetContext("vpcId");
-        const clusterName: string = this.node.tryGetContext("clusterName");
 
         // Master role
-        const mastersRole = new iam.Role(this, clusterName + "MasterRole", {
+        const mastersRole = new iam.Role(this, "MasterRole", {
             assumedBy: new iam.AccountRootPrincipal()
         });
 
@@ -54,12 +53,11 @@ export class GraphPlatForm extends cdk.Construct {
         } else {
             // Create one
             // todo allow user to specify vpc properties
-            vpc = new ec2.Vpc(this, clusterName + "Vpc");
+            vpc = new ec2.Vpc(this, "KaiVpc");
         }
 
         // Create cluster
-        this._eksCluster = new eks.Cluster(this, clusterName + "EksCluster", {
-            clusterName: clusterName,
+        this._eksCluster = new eks.Cluster(this, "EksCluster", {
             kubectlEnabled: true,
             vpc: vpc,
             mastersRole: mastersRole,
@@ -69,7 +67,7 @@ export class GraphPlatForm extends cdk.Construct {
         // Create node group
         
         let unparsedRequestedNodeGroup = this.node.tryGetContext("clusterNodegroup");
-        let nodeGroup: eks.NodegroupOptions;
+        let nodeGroupOptions: eks.NodegroupOptions;
         if (unparsedRequestedNodeGroup != null) {
             // if it's a string (for example if passed from the command line), convert to object
             if (typeof unparsedRequestedNodeGroup == "string") {
@@ -77,13 +75,12 @@ export class GraphPlatForm extends cdk.Construct {
             } 
 
             const requestedNodeGroup = NodeGroupConfig.fromConfig(unparsedRequestedNodeGroup);
-            nodeGroup = requestedNodeGroup.toNodeGroupOptions();
+            nodeGroupOptions = requestedNodeGroup.toNodeGroupOptions();
         } else {
-            nodeGroup = NodeGroupConfig.DEFAULT_NODE_GROUP;
+            nodeGroupOptions = NodeGroupConfig.DEFAULT_NODE_GROUP;
         }
 
-
-        this.eksCluster.addNodegroup("graphNodes", nodeGroup);
+        this.eksCluster.addNodegroup("graphNodes", nodeGroupOptions).role.addToPolicy(albPolicyStatement);
 
         // Add Ingress Controller
         const albServiceAccount = new eks.ServiceAccount(this, "ALBIngressController", {
@@ -99,6 +96,7 @@ export class GraphPlatForm extends cdk.Construct {
             chart: "aws-alb-ingress-controller",
             repository: "http://storage.googleapis.com/kubernetes-charts-incubator",
             release: "alb-ingress",
+            version: "0.1.14",
             namespace: "kube-system",
             values: {
                 autoDiscoverAwsRegion: true,

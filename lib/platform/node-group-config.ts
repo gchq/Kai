@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- import { NodegroupOptions } from "@aws-cdk/aws-eks";
+import { NodegroupOptions } from "@aws-cdk/aws-eks";
 import { InstanceType } from "@aws-cdk/aws-ec2";
 
 export interface INodeGroupConfig {

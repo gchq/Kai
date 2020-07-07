@@ -14,58 +14,60 @@
  * limitations under the License.
  */
 
- import { Construct, Duration } from "@aws-cdk/core";
+import { Construct } from "@aws-cdk/core";
 import { WorkerProps } from "./worker-props";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as path from "path";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { SqsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 
-export abstract class Worker extends Construct {
+export class Worker extends Construct {
 
     constructor(scope: Construct, id: string, props: WorkerProps) {
         super(scope, id);
-        this.createConstructs(props);
+        this.createConstructs(id, props);
     }
 
-    private createConstructs(props: WorkerProps) {
+    private createConstructs(id: string, props: WorkerProps) {
         const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups");
 
         // Build environment for Lambda
-        const environment: { [id: string] : string; } = {};
-        environment["cluster_name"] = props.cluster.clusterName;
+        const environment: { [id: string] : string; } = {
+            "cluster_name": props.cluster.clusterName,
+            "graph_table_name": props.graphTable.tableName
+        };
         if (extraSecurityGroups) {
             environment["extra_security_groups"] = extraSecurityGroups;
         }
 
         // Create worker from Lambda
-        const addGraphWorker = new lambda.Function(this, this.workerId, {
+        const worker = new lambda.Function(this, id + "Lambda", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: new lambda.AssetCode(path.join(__dirname, "lambdas")),
-            handler: this.handler,
+            handler: props.handler,
             layers: [ props.kubectlLayer ],
-            timeout: Duration.minutes(10),
+            timeout: props.timeout,
             environment: environment
         });
 
-        addGraphWorker.addEventSource(new SqsEventSource(props.queue));
+        worker.addEventSource(new SqsEventSource(props.queue, {
+            batchSize: props.batchSize
+        }));
 
         // Add permisssions to role
-        addGraphWorker.addToRolePolicy(new PolicyStatement({
+        worker.addToRolePolicy(new PolicyStatement({
             actions: [ "eks:DescribeCluster" ],
             resources: [ props.cluster.clusterArn ]
         }));
+
+        props.graphTable.grantReadWriteData(worker);
     
-        const workerRole = addGraphWorker.role;
+        const workerRole = worker.role;
 
         if (workerRole == undefined) {
             throw new Error("Worker must have an associated IAM Role");
         } else {
             props.cluster.awsAuth.addMastersRole(workerRole);
         }
-
     }
-
-    abstract get workerId(): string;
-    abstract get handler(): string;
 }

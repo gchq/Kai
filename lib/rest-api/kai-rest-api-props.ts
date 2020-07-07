@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
- import { Worker } from "./worker";
+import { Table } from "@aws-cdk/aws-dynamodb";
 
-
-export class AddGraphWorker extends Worker {
-    get handler(): string {
-        return "add_graph.handler";
-    }
-
-    get workerId(): string {
-        return "AddGraphHandler";
-    }
+export interface KaiRestApiProps {
+    graphTable: Table
 }
