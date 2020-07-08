@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d80556f4-d83b-4d4b-8233-6b2fd1aabbf5" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/kai.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cdk.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app-stack.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/authentication/user-pool-config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/authentication/user-pool.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/constants.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/database/graph-database-props.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/database/graph-database.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/platform/alb-policy-statement.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/platform/graph-platform.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/platform/node-group-config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/kai-rest-api-props.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/kai-rest-api.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/lambdas/add_graph_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/lambdas/delete_graph_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest-api/lambdas/get_graph_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/lambdas/add_graph.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/lambdas/delete_graph.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/lambdas/graph/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/lambdas/kubernetes/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/worker-props.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/workers/worker.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/authentication/user-pool-config.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/authentication/user-pool.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/database/graph-database.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/platform/graph-platform.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/rest-api/kai-rest-api.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/worker/worker.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1eJKF0cLT2ed7UznPB5ZP6X3eub" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d80556f4-d83b-4d4b-8233-6b2fd1aabbf5" name="Default Changelist" comment="" />
+      <created>1594034147792</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1594034147792</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="494" y="251" width="683" height="486" key="find.popup" timestamp="1594049794705">
+      <screen x="0" y="23" width="1680" height="982" />
+    </state>
+    <state x="494" y="251" width="683" height="486" key="find.popup/-119.-1057.1920.1057/0.23.1680.982@0.23.1680.982" timestamp="1594049794705" />
+  </component>
+</project>
