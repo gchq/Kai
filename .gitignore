@@ -4,6 +4,8 @@
 !header.js
 *.d.ts
 node_modules
+__pycache__/
+*.pyc
 
 # CDK temporary file
 cdk.context.json
