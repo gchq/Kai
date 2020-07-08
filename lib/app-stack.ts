@@ -18,8 +18,9 @@ import * as cdk from "@aws-cdk/core";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { GraphUninstaller } from "./platform/graph-uninstaller";
+import { VolumeRemover } from "./platform/volume-remover";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
-import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE } from "./constants";
+import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE, DELETE_VOLUMES_TIMEOUT } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
@@ -81,6 +82,13 @@ export class AppStack extends cdk.Stack {
             batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE
         });
 
+        // Volume remover
+        const volumeRemover = new VolumeRemover(this, "VolumeRemover", {
+            clusterName: platform.eksCluster.clusterName,
+            kubectlLayer: kubectlLambdaLayer,
+            timeout: DELETE_VOLUMES_TIMEOUT
+        });
+
         // Graph uninstaller
         new GraphUninstaller(this, "GraphUninstaller", {
             getGraphsFunctionArn: kaiRest.getGraphsLambda.functionArn,
@@ -88,7 +96,7 @@ export class AppStack extends cdk.Stack {
             kubectlLayer: kubectlLambdaLayer,
             timeout: DELETE_GRAPH_TIMEOUT,
             dependencies: [
-                platform, database, deleteGraphWorker, kaiRest.getGraphsLambda
+                platform, database, deleteGraphWorker, kaiRest.getGraphsLambda, volumeRemover
             ]
         });
     }
