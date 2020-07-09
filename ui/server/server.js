@@ -10,6 +10,13 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 // create a GET route
 app.get('/graph', (req, res) => {
   res.send([
-    {graphId: 'KORAT', status: 'Feeling cute'}
+    {
+      "graphId": "roadTraffic",
+      "currentState": "DEPLOYED"
+    },
+    {
+      "graphId": "basicGraph",
+      "currentState": "DELETION_QUEUED"
+    }
   ]);
 });
