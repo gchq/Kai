@@ -48,6 +48,7 @@ def handler(event, context):
     try:
         table.put_item(
             Item={
+                "graphName": graph_Name,
                 "releaseName": release_Name,
                 "currentState": initial_status
             },
@@ -57,7 +58,7 @@ def handler(event, context):
         if e.response['Error']['Code']=='ConditionalCheckFailedException': 
             return {
                 "statusCode": 400,
-                "body": "Graph " + release_Name + " already exists. Graph names must be unique"
+                "body": "Graph release name " + release_Name + " already exists as the lowercase conversion of " + graph_Name + ". Graph names must be unique"
             }
         else:
             return {
@@ -67,6 +68,7 @@ def handler(event, context):
 
     # Create message to send to worker. This also filters out anything else in the body
     message = {
+        "graphName": graph_Name,
         "releaseName": release_Name,
         "schema": schema,
         "expectedStatus": initial_status

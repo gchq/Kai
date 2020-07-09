@@ -33,7 +33,7 @@ def generate_password(length=8):
     return random_password
 
 
-def create_values(release_Name, schema, security_groups):
+def create_values(graph_Name, schema, security_groups):
     """
     Generates the Json required to deploy the Gaffer Helm Chart
     """
@@ -50,7 +50,7 @@ def create_values(release_Name, schema, security_groups):
     return {
         "graph": {
             "config": {
-                "releaseName": release_Name
+                "graphName": graph_Name
             },
             "schema": {
                 "elements.json": json.dumps(schema["elements"]),
@@ -72,7 +72,7 @@ def create_values(release_Name, schema, security_groups):
                             "password": generate_password(),
                             "permissions": {
                                 "table": {
-                                    release_Name: [
+                                    graph_Name: [
                                         "READ",
                                         "WRITE",
                                         "BULK_IMPORT",
@@ -103,12 +103,13 @@ def deploy_graph(helm_client, body, security_groups):
     Helm Chart.
     """
     # Extract values from body
+    graph_Name = body["graphName"]
     release_Name = body["releaseName"]
     schema = body["schema"]
     expected_status = body["expectedStatus"]
 
     # Create Graph to log progress of deployment
-    graph = Graph(graph_table_name, release_Name)
+    graph = Graph(graph_table_name, graph_Name)
 
     if not graph.check_status(expected_status):
         logger.warn("Deployment of %s abandoned as graph had unexpected status", release_Name)
@@ -118,9 +119,9 @@ def deploy_graph(helm_client, body, security_groups):
     graph.update_status("DEPLOYMENT_IN_PROGRESS")
 
     # Create values file
-    values = create_values(release_Name, schema, security_groups)
+    values = create_values(graph_Name, schema, security_groups)
     
-    values_file = "/tmp/" + release_Name + ".json"
+    values_file = "/tmp/" + graph_Name + ".json"
     with open(values_file, "w") as f:
         f.write(json.dumps(values, indent=2))
         
