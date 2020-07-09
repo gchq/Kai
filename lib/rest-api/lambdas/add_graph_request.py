@@ -67,7 +67,7 @@ def handler(event, context):
 
     # Create message to send to worker. This also filters out anything else in the body
     message = {
-        "id": release_Name,
+        "releaseName": release_Name,
         "schema": schema,
         "expectedStatus": initial_status
     }
