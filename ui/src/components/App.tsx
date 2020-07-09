@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { RestClient } from '../rest/rest-client';
 
 interface IState {
@@ -25,7 +26,6 @@ class App extends React.Component<{},IState> {
       </div>
     );
   }
-
 }
 
 export default App;
