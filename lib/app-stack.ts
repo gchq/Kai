@@ -84,11 +84,16 @@ export class AppStack extends cdk.Stack {
         // Graph uninstaller
         new GraphUninstaller(this, "GraphUninstaller", {
             getGraphsFunctionArn: kaiRest.getGraphsLambda.functionArn,
-            deleteGraphFunctionArn: deleteGraphWorker.functionArn,
+            deleteGraphFunctionArn: kaiRest.deleteGraphLambda.functionArn,
             kubectlLayer: kubectlLambdaLayer,
-            timeout: DELETE_GRAPH_TIMEOUT,
+            timeout: cdk.Duration.seconds(30),
             dependencies: [
-                platform, database, deleteGraphWorker, kaiRest.getGraphsLambda
+                platform,
+                database,
+                deleteGraphWorker,
+                kaiRest.getGraphsLambda,
+                kaiRest.deleteGraphLambda,
+                kaiRest.deleteGraphQueue
             ]
         });
     }

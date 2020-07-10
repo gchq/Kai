@@ -31,6 +31,40 @@ def update(event, context):
 @helper.delete
 def delete(event, context):
     logger.info("Got Delete")
+    graphs = getGraphs()
+
+    logger.info("Deleting graphs: {}".format(graphs))
+
+    for graph in graphs:
+        logger.info("Deleting graph: {}".format(graph))
+        response = client.invoke(
+            FunctionName = delete_graph_function_arn,
+            InvocationType = "RequestResponse",
+            Payload = json.dumps({
+                "pathParameters": {
+                    "graphId": graph["graphId"]
+                }
+            })
+        )
+        responsePayloadJson = json.loads(response["Payload"].read().decode("utf-8"))
+        logger.info("Received responsePayloadJson: {}".format(responsePayloadJson))
+        if responsePayloadJson["statusCode"] != 202:
+            logger.error("Unable to delete graph: {}, received status code: {}, message: {}".format(
+                graph["graphId"],
+                responsePayloadJson["statusCode"],
+                responsePayloadJson["body"]
+            )
+        )
+
+
+@helper.poll_delete
+def poll_delete(event, context):
+    logger.info("Got Poll Delete")
+    return True if (len(getGraphs()) == 0) else None
+
+
+def getGraphs():
+    logger.info("Getting graphs")
     response = client.invoke(
         FunctionName = get_graphs_function_arn,
         InvocationType = "RequestResponse",
@@ -42,31 +76,7 @@ def delete(event, context):
     if responsePayloadJson["statusCode"] != 200:
         raise Exception("Unable to obtain listing of graphs received response code: {}".format(responsePayloadJson["statusCode"]))
 
-    graphs = json.loads(responsePayloadJson["body"])
-
-    logger.info("Deleting graphs: {}".format(graphs))
-
-    payload = {
-        "Records": list(map(graphToDeleteFormat, graphs))
-    }
-
-    logger.info("Payload for Deleting graphs: {}".format(payload))
-
-    response = client.invoke(
-        FunctionName = delete_graph_function_arn,
-        InvocationType = "RequestResponse",
-        Payload = json.dumps(payload)
-    )
-    logger.info("Received response: {}".format(response["Payload"].read().decode("utf-8")))
-
-
-def graphToDeleteFormat(graph):
-    return {
-        "body": json.dumps({
-            "graphId": graph["graphId"],
-            "expectedStatus": graph["currentState"]
-        })
-    }
+    return json.loads(responsePayloadJson["body"])
 
 
 def handler(event, context):

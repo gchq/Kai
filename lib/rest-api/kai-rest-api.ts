@@ -25,7 +25,8 @@ import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
 export class KaiRestApi extends cdk.Construct {
     private readonly _addGraphQueue: sqs.Queue;
     private readonly _deleteGraphQueue: sqs.Queue;
-    private readonly _getGraphsLambda: lambda.Function
+    private readonly _getGraphsLambda: lambda.Function;
+    private readonly _deleteGraphLambda: lambda.Function;
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
@@ -63,7 +64,7 @@ export class KaiRestApi extends cdk.Construct {
             visibilityTimeout: DELETE_GRAPH_TIMEOUT
         });
 
-        const deleteGraphLambda = new lambda.Function(this, "DeleteGraphHandler", {
+        this._deleteGraphLambda = new lambda.Function(this, "DeleteGraphHandler", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: lambdas,
             handler: "delete_graph_request.handler",
@@ -74,9 +75,9 @@ export class KaiRestApi extends cdk.Construct {
             }
         });
 
-        props.graphTable.grantWriteData(deleteGraphLambda);
-        this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
-        graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
+        props.graphTable.grantWriteData(this._deleteGraphLambda);
+        this.deleteGraphQueue.grantSendMessages(this._deleteGraphLambda);
+        graph.addMethod("DELETE", new api.LambdaIntegration(this._deleteGraphLambda));
 
         // GET handlers
         this._getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
@@ -107,5 +108,9 @@ export class KaiRestApi extends cdk.Construct {
 
     public get getGraphsLambda(): lambda.Function {
         return this._getGraphsLambda;
+    }
+
+    public get deleteGraphLambda(): lambda.Function {
+        return this._deleteGraphLambda;
     }
 }
