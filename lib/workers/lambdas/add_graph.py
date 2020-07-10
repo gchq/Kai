@@ -65,10 +65,10 @@ def create_values(graph_id, schema, security_groups):
                     "instance.secret": accumuloPassword # todo store these somewhere secure in future ticket
                 },
                 "userManagement": {
-                    "rootPassword": accumuloPassword,
+                    "rootPassword": generate_password(),
                     "users": {
                         "gaffer": {
-                            "password": accumuloPassword,
+                            "password": generate_password(),
                             "permissions": {
                                 "table": {
                                     graph_id: [
@@ -81,7 +81,7 @@ def create_values(graph_id, schema, security_groups):
                             }
                         },
                         "tracer": {
-                            "password": accumuloPassword
+                            "password": generate_password()
                         }
                     }
                 }

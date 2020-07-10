@@ -32,13 +32,11 @@ export class Worker extends Construct {
 
     private createConstructs(id: string, props: WorkerProps) {
         const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups");
-        const accumuloPassword = Math.random().toString(36).substr(2, 8);
 
         // Build environment for Lambda
         const environment: { [id: string] : string; } = {
             "cluster_name": props.cluster.clusterName,
-            "graph_table_name": props.graphTable.tableName,
-            "accumuloPassword": accumuloPassword
+            "graph_table_name": props.graphTable.tableName
         };
         if (extraSecurityGroups) {
             environment["extra_security_groups"] = extraSecurityGroups;
