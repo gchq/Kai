@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="d80556f4-d83b-4d4b-8233-6b2fd1aabbf5" name="Default Changelist" comment="" />
+=======
+    <list default="true" id="d80556f4-d83b-4d4b-8233-6b2fd1aabbf5" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,31 +51,61 @@
       <option name="project" value="LOCAL" />
       <updated>1594722302582</updated>
     </task>
+<<<<<<< Updated upstream
     <option name="localTasksCounter" value="2" />
+=======
+    <task id="LOCAL-00002" summary="Created a table in the UI that displays the response from the API. Also added in basic navigation">
+      <created>1594722532913</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1594722532913</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+>>>>>>> Stashed changes
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created a table in the UI that displays the response from the API. Also added in basic nnavigation" />
+<<<<<<< Updated upstream
     <option name="LAST_COMMIT_MESSAGE" value="Created a table in the UI that displays the response from the API. Also added in basic nnavigation" />
+=======
+    <MESSAGE value="Created a table in the UI that displays the response from the API. Also added in basic navigation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Created a table in the UI that displays the response from the API. Also added in basic navigation" />
+>>>>>>> Stashed changes
   </component>
   <component name="WindowStateProjectService">
     <state x="457" y="326" key="#com.intellij.ide.actions.ChooseComponentsToExportDialog" timestamp="1594304255045">
       <screen x="41" y="23" width="1399" height="877" />
     </state>
     <state x="457" y="326" key="#com.intellij.ide.actions.ChooseComponentsToExportDialog/41.23.1399.877@41.23.1399.877" timestamp="1594304255045" />
+<<<<<<< Updated upstream
     <state x="342" y="0" key="CommitChangelistDialog2" timestamp="1594722301683">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="342" y="0" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1594722301683" />
+=======
+    <state x="342" y="0" key="CommitChangelistDialog2" timestamp="1594722532415">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="342" y="0" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1594722532415" />
+>>>>>>> Stashed changes
     <state x="256" y="110" key="SettingsEditor" timestamp="1594305737203">
       <screen x="41" y="23" width="1399" height="877" />
     </state>
     <state x="221" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1594305031010" />
     <state x="256" y="110" key="SettingsEditor/41.23.1399.877@41.23.1399.877" timestamp="1594305737203" />
+<<<<<<< Updated upstream
     <state x="320" y="171" key="Vcs.Push.Dialog.v2" timestamp="1594722311416">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="320" y="171" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1594722311416" />
+=======
+    <state x="320" y="171" key="Vcs.Push.Dialog.v2" timestamp="1594722534938">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="320" y="171" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1594722534938" />
+>>>>>>> Stashed changes
     <state x="494" y="251" width="683" height="486" key="find.popup" timestamp="1594049794705">
       <screen x="0" y="23" width="1680" height="982" />
     </state>

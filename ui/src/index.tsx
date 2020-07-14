@@ -3,7 +3,11 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom';
+<<<<<<< Updated upstream
 import './global.scss';
+=======
+//import './global.scss';
+>>>>>>> Stashed changes
 ReactDOM.render(
   <React.StrictMode>
   <BrowserRouter>
