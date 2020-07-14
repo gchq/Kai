@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { Table } from "@aws-cdk/aws-dynamodb";
 
-export interface KaiRestApiProps {
-    graphTable: Table;
+export interface KaiRestAuthorizerProps {
+    restApiId: string;
     userPoolArn: string;
 }

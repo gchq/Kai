@@ -26,7 +26,8 @@ function createRestAPI(stack: cdk.Stack, id = "Test"): rest.KaiRestApi {
     });
 
     return new rest.KaiRestApi(stack, id, {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn"
     });
 }
 
@@ -291,7 +292,8 @@ test("should create a queue for AddGraph messages to be sent to workers", () => 
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn"
     });
 
     // Then
@@ -309,7 +311,8 @@ test("should create lambda to write messages to the Add Graph Queue", () => {
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn"
     });
 
     // Then
@@ -327,7 +330,8 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn"
     });
 
     // Then
