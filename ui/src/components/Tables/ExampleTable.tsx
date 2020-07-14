@@ -1,21 +1,16 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-<<<<<<< Updated upstream
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@material-ui/core'
-=======
+
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Container, Box} from '@material-ui/core'
 import { purple } from '@material-ui/core/colors';
->>>>>>> Stashed changes
+
 
 
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
   },
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 });
 
 function getData(){
@@ -27,8 +22,7 @@ function getData(){
         return JSON.parse(request.responseText);
       }
 }
-<<<<<<< Updated upstream
-=======
+
 
 function deleteData (graphId: any){
   var request = new XMLHttpRequest();
@@ -40,7 +34,7 @@ function deleteData (graphId: any){
       }
 
 }
->>>>>>> Stashed changes
+
 function createData(graphId: any, currentState: any) {
   return { graphId, currentState};
 }
@@ -58,16 +52,7 @@ function generateData(){
 }
 const rows = generateData();
 
-<<<<<<< Updated upstream
-export default function ExampleTable() {
-  const classes = useStyles();
 
-  return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-=======
 
 
 
@@ -86,23 +71,18 @@ export default function ExampleTable() {
       <Table className={classes.table} aria-label="simple table" >
         <TableHead>
           <TableRow >
->>>>>>> Stashed changes
+
             <TableCell>Graph ID</TableCell>
             <TableCell align="right">Current State</TableCell>
 
           </TableRow>
         </TableHead>
-<<<<<<< Updated upstream
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.graphId}>
-=======
         <TableBody >
           {rows.map((row) => (
             <TableRow key={row.graphId} hover role="checkbox" 
             onClick={() => selectedRow=row.graphId
             } >
->>>>>>> Stashed changes
+
               <TableCell component="th" scope="row">
                 {row.graphId}
               </TableCell>
@@ -111,9 +91,7 @@ export default function ExampleTable() {
           ))}
         </TableBody>
       </Table>
-<<<<<<< Updated upstream
-    </TableContainer>
-=======
+
       
     </TableContainer>
     <Box display="flex" justifyContent="center" style={{marginTop: 20}}>
@@ -122,6 +100,6 @@ export default function ExampleTable() {
     </Button>
     </Box>
     </Box>
->>>>>>> Stashed changes
+
   );
 }
