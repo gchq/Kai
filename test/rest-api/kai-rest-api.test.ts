@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource, haveResourceLike, countResourcesLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
+import * as api from "@aws-cdk/aws-apigateway";
 import * as rest from "../../lib/rest-api/kai-rest-api";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
 import { ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT } from "../../lib/constants";
@@ -383,3 +384,25 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
         ] 
     }));
 });
+
+test("All Rest API Methods should be configured with the KaiRestAuthorizer", () => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    createRestAPI(stack);
+
+    // Then
+    const apiGatewayMethodCount = stack.node.findAll().filter(isApiGatewayMethod).length;
+
+    expectCDK(stack).to(countResourcesLike("AWS::ApiGateway::Method", apiGatewayMethodCount, {
+        AuthorizationType: "COGNITO_USER_POOLS",
+        AuthorizerId: {
+            Ref: "TestKaiRestApiAuthorizerB0CFBC9B"
+        }
+    }));
+});
+
+function isApiGatewayMethod(construct: cdk.IConstruct): boolean {
+    return (construct instanceof api.Method);
+}
