@@ -4,25 +4,25 @@ import json
 import os
 import re
 
-def is_graph_name_valid(graph_Name):
-    if graph_Name  is None:
+def is_graph_name_valid(graph_name):
+    if graph_name  is None:
         return False
     
-    return re.match("^[a-zA-Z0-9]+$", graph_Name) # Graph names have to be alphanumerics
+    return re.match("^[a-zA-Z0-9]+$", graph_name) # Graph names have to be alphanumerics
 
 
-def lowercase_graph_name(graph_Name):
-    return graph_Name.lower()
+def format_graph_name(graph_name):
+    return graph_name.lower()
     
 
 def handler(event, context):
     request_body = json.loads(event["body"])
 
     # Check request is valid
-    graph_Name = request_body["graphName"]
+    graph_name = request_body["graphName"]
     schema = request_body["schema"]
 
-    if not is_graph_name_valid(graph_Name):
+    if not is_graph_name_valid(graph_name):
         return {
             "statusCode": 400,
             "body": "graphName is a required field which must made up of alphanumeric characters"
@@ -33,7 +33,7 @@ def handler(event, context):
             "body": "schema is a required field"
         }
     # Convert graph name to lowercase
-    release_Name = lowercase_graph_name(graph_Name)
+    release_name = format_graph_name(graph_name)
 
     # Get variables from env
     queue_url = os.getenv("sqs_queue_url")
@@ -48,8 +48,8 @@ def handler(event, context):
     try:
         table.put_item(
             Item={
-                "graphName": graph_Name,
-                "releaseName": release_Name,
+                "graphName": graph_name,
+                "releaseName": release_name,
                 "currentState": initial_status
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
@@ -58,7 +58,7 @@ def handler(event, context):
         if e.response['Error']['Code']=='ConditionalCheckFailedException': 
             return {
                 "statusCode": 400,
-                "body": "Graph release name " + release_Name + " already exists as the lowercase conversion of " + graph_Name + ". Graph names must be unique"
+                "body": "Graph release name " + release_name + " already exists as the lowercase conversion of " + graph_name + ". Graph names must be unique"
             }
         else:
             return {
@@ -68,8 +68,8 @@ def handler(event, context):
 
     # Create message to send to worker. This also filters out anything else in the body
     message = {
-        "graphName": graph_Name,
-        "releaseName": release_Name,
+        "graphName": graph_name,
+        "releaseName": release_name,
         "schema": schema,
         "expectedStatus": initial_status
     }

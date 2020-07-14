@@ -33,7 +33,7 @@ def generate_password(length=8):
     return random_password
 
 
-def create_values(graph_Name, schema, security_groups):
+def create_values(graph_name, schema, security_groups):
     """
     Generates the Json required to deploy the Gaffer Helm Chart
     """
@@ -50,7 +50,7 @@ def create_values(graph_Name, schema, security_groups):
     return {
         "graph": {
             "config": {
-                "graphName": graph_Name
+                "graphName": graph_name
             },
             "schema": {
                 "elements.json": json.dumps(schema["elements"]),
@@ -72,7 +72,7 @@ def create_values(graph_Name, schema, security_groups):
                             "password": generate_password(),
                             "permissions": {
                                 "table": {
-                                    graph_Name: [
+                                    graph_name: [
                                         "READ",
                                         "WRITE",
                                         "BULK_IMPORT",
@@ -103,33 +103,33 @@ def deploy_graph(helm_client, body, security_groups):
     Helm Chart.
     """
     # Extract values from body
-    graph_Name = body["graphName"]
-    release_Name = body["releaseName"]
+    graph_name = body["graphName"]
+    release_name = body["releaseName"]
     schema = body["schema"]
     expected_status = body["expectedStatus"]
 
     # Create Graph to log progress of deployment
-    graph = Graph(graph_table_name, graph_Name)
+    graph = Graph(graph_table_name, graph_name)
 
     if not graph.check_status(expected_status):
-        logger.warn("Deployment of %s abandoned as graph had unexpected status", release_Name)
+        logger.warn("Deployment of %s abandoned as graph had unexpected status", release_name)
         return
 
     # Update Status to DEPLOYMENT_IN_PROGRESS
     graph.update_status("DEPLOYMENT_IN_PROGRESS")
 
     # Create values file
-    values = create_values(graph_Name, schema, security_groups)
+    values = create_values(graph_name, schema, security_groups)
     
-    values_file = "/tmp/" + graph_Name + ".json"
+    values_file = "/tmp/" + graph_name + ".json"
     with open(values_file, "w") as f:
         f.write(json.dumps(values, indent=2))
         
     # Deploy Graph
-    success = helm_client.install_chart(release_Name, values=values_file)
+    success = helm_client.install_chart(release_name, values=values_file)
 
     if success:
-        logger.info("Deployment of " + release_Name + " Succeeded")
+        logger.info("Deployment of " + release_name + " Succeeded")
         graph.update_status("DEPLOYED")
     else:
         graph.update_status("DEPLOYMENT_FAILED")
