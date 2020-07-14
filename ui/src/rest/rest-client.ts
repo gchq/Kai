@@ -1,7 +1,7 @@
 export class RestClient {
 
     public static async getAllGraphs(): Promise<Array<Object>> {
-        const response = await fetch('/graph');
+        const response = await fetch('/graphs');
         const body = await response.json();
     
         if (response.status !== 200) {
