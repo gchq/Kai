@@ -4,35 +4,32 @@ import { RestClient } from '../rest/rest-client';
 import ExampleTable from '../components/Tables/ExampleTable';
 import {Container, Grid} from '@material-ui/core'
 import Navigation from '../components/Navigation/Navigation'
-
+import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
+import {blue, purple} from '@material-ui/core/colors';
+import { withStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 interface IState {
   graphs: Array<Object>;
+
 }
 
-class App extends React.Component<{},IState> {
-  constructor() {
-    super({});
-    this.state = { graphs: [] };
-  }
 
 
-  public async componentDidMount() {
-    const graphs = await RestClient.getAllGraphs();
-    this.setState({ graphs: graphs })
-  };
+export default function App() {
 
-  public render() {
+
     return (
-      <div className="App">
-         <Grid style={{marginTop: 60}}
+       <div className="App">
+            <Grid style={{marginTop: 70}}
                   container
                   direction="row"
                   justify="center"
-                  alignItems="center">
+                  alignItems="center"
+            >
                 <Grid item>
                     <Navigation/>
                 </Grid>
-                <Grid item style={{marginLeft: 100}}>
+                <Grid item>
                     <BrowserRouter basename="/">
                         <Route exact path={"/"}>
                         </Route>
@@ -40,10 +37,9 @@ class App extends React.Component<{},IState> {
                 </Grid>
             </Grid>
 
-        
-      </div>
+        </div>
     );
   }
-}
 
-export default App;
+
+
