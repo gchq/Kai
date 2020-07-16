@@ -37,7 +37,7 @@ test("should create a database", () => {
     expectCDK(stack).to(haveResource("AWS::DynamoDB::Table"));
 });
 
-test("should use the graphId as a primary key", () => {
+test("should use the releaseName as a primary key", () => {
     // Given
     const stack = new Stack();
 
@@ -48,13 +48,13 @@ test("should use the graphId as a primary key", () => {
     expectCDK(stack).to(haveResource("AWS::DynamoDB::Table", {
         "KeySchema": [
             {
-                "AttributeName": "graphName",
+                "AttributeName": "releaseName",
                 "KeyType": "HASH"
             }
         ],
         "AttributeDefinitions": [
             {
-                "AttributeName": "graphName",
+                "AttributeName": "releaseName",
                 "AttributeType": "S"
             }
         ]
