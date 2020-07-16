@@ -19,13 +19,13 @@ def get_all_graphs():
     return table.scan()["Items"]
 
 
-def get_graph(graph_id):
+def get_graph(graph_name):
     """
     Gets a specific graph from Dynamodb table
     """
     response = table.get_item(
         Key={
-            "graphId": graph_id
+            "graphName": graph_name
         }
     )
     if "Item" in response:
@@ -36,17 +36,17 @@ def get_graph(graph_id):
 def handler(event, context):
     """
     Main entrypoint for the HTTP GET lambda functions. This function
-    serves both GET handlers so returns all graphs if no graphId
+    serves both GET handlers so returns all graphs if no graphName
     is specified in the path parameters
     """
 
     path_params = event["pathParameters"]
     return_all = False
-    graph_id = None
-    if path_params is None or path_params["graphId"] is None:
+    graph_name = None
+    if path_params is None or path_params["graphName"] is None:
         return_all = True
     else:
-        graph_id = path_params["graphId"]
+        graph_name = path_params["graphName"]
 
     if return_all:
         return {
@@ -57,11 +57,11 @@ def handler(event, context):
         try:
             return {
                 "statusCode": 200,
-                "body": json.dumps(get_graph(graph_id))
+                "body": json.dumps(get_graph(graph_name))
             }
         except NotFoundException as e:
             return {
                 "statusCode": 404,
-                "body": graph_id + " was not found"
+                "body": graph_name + " was not found"
             }
 

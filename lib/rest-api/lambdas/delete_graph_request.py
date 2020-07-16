@@ -15,12 +15,12 @@ def handler(event, context):
     params = event["pathParameters"]
 
     # Check request is valid
-    graph_id = params["graphId"]
+    graph_name = params["graphName"]
 
-    if graph_id is None:
+    if graph_name is None:
         return {
             statusCode: 400,
-            body: "graphId is a required field"
+            body: "graphName is a required field"
         }
 
     initial_status = "DELETION_QUEUED"
@@ -29,19 +29,19 @@ def handler(event, context):
     try:
         table.update_item(
             Key={
-                "graphId": graph_id
+                "graphName": graph_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
                 ":state": initial_status
             },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("graphId").exists()
+            ConditionExpression=boto3.dynamodb.conditions.Attr("graphName").exists()
         )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Graph " + graph_id + " does not exist. It may have already been deleted"
+                "body": "Graph " + graph_name + " does not exist. It may have already been deleted"
             }
         else:
             return {
@@ -51,7 +51,7 @@ def handler(event, context):
 
     # Set the status so the worker knows what to expect. This also filters out anything else in the body
     message = {
-        "graphId": graph_id,
+        "graphName": graph_name,
         "expectedStatus": initial_status
     }
 

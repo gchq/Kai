@@ -105,7 +105,7 @@ test("The REST API should have a resource which can GET specific graphs", () => 
  
     // Then
     expectCDK(stack).to(haveResource("AWS::ApiGateway::Resource", {
-        PathPart: "{graphId}",
+        PathPart: "{graphName}",
         ParentId: {
             "Ref": "TestTestRestApigraphs6F3DCBD4"
         }

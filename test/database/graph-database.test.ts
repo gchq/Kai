@@ -48,13 +48,13 @@ test("should use the graphId as a primary key", () => {
     expectCDK(stack).to(haveResource("AWS::DynamoDB::Table", {
         "KeySchema": [
             {
-                "AttributeName": "graphId",
+                "AttributeName": "graphName",
                 "KeyType": "HASH"
             }
         ],
         "AttributeDefinitions": [
             {
-                "AttributeName": "graphId",
+                "AttributeName": "graphName",
                 "AttributeType": "S"
             }
         ]
