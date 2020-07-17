@@ -31,7 +31,7 @@ export class KaiRestApi extends cdk.Construct {
         // REST API
         const restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
         const graphsResource = restApi.root.addResource("graphs");
-        const graph = graphsResource.addResource("{graphId}");
+        const graph = graphsResource.addResource("{graphName}");
 
         // Service Functions all share the same code and timeout 
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));

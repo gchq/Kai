@@ -6,7 +6,7 @@ The Kai REST API had a variety of endpoints. This will grow over time and this d
 The Graphs resource enables creation, deletion and retrieval of Graphs managed by Kai.
 
 ### GET /graphs
-Retrieves all graphs objects from the backend database. At present this only includes the graphId and its current state but this is likely to change as the project grows.
+Retrieves all graphs objects from the backend database. At present this only includes the graphName and its current state but this is likely to change as the project grows.
 
 A graph can be in different states. At present these states can be:
 * DEPLOYMENT_QUEUED
@@ -23,34 +23,34 @@ Example response:
 ```json
 [
     {
-        "graphId": "roadTraffic",
+        "graphName": "roadTraffic",
         "currentState": "DEPLOYED"
     },
     {
-        "graphId": "basicGraph",
+        "graphName": "basicGraph",
         "currentState": "DELETION_QUEUED"
     }
 ]
 ```
 
-### GET /graphs/{graphId}
+### GET /graphs/{graphName}
 Retrieves a single graph from the backend database. If the Graph Id is not found, a 404 response is sent.
 
 Example response:
 ```json
 {
-    "graphId": "roadTraffic",
+    "graphName": "roadTraffic",
     "currentState": "DEPLOYED"
 }
 ```
 
 ### POST /graphs
-Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph wich takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphId wich must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message. There is a constraint in gaffer-docker that graph ids have to be lowercase alphanumerics. We hope to address this in a bugfix to allow uppercase alphanumerics too.
+Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph wich takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphName wich must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message. There is a constraint in gaffer-docker that graph ids have to be lowercase alphanumerics. We hope to address this in a bugfix to allow uppercase alphanumerics too.
 
 Example request body:
 ```json
 {
-  "graphId": "basic",
+  "graphName": "basic",
   "schema": {
     "elements": {
       "edges": {
@@ -90,5 +90,5 @@ Example request body:
 }
 ```
 
-### DELETE /graphs/{graphId}
-Deletes a graph deployment from the platform. This endpoint is asynchronous meaning that it will respond before the graph deployment is removed. Once the graph deployment is removed, the graph will be removed from the backend database. If the requested graphId is not present or is not in the backend database at the start, a 400 error is returned, otherwise a 202 status code is returned.
+### DELETE /graphs/{graphName}
+Deletes a graph deployment from the platform. This endpoint is asynchronous meaning that it will respond before the graph deployment is removed. Once the graph deployment is removed, the graph will be removed from the backend database. If the requested graphName is not present or is not in the backend database at the start, a 400 error is returned, otherwise a 202 status code is returned.

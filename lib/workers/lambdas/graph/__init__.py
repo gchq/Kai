@@ -4,10 +4,10 @@ class Graph:
     """
     Represents a Graph object in a DynamoDB table
     """
-    def __init__(self, table_name, graph_id):
+    def __init__(self, table_name, graph_name):
         dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
-        self.graph_id = graph_id
+        self.graph_name = graph_name
 
     def check_status(self, expected_status):
         """
@@ -15,7 +15,7 @@ class Graph:
         """
         response = self.table.get_item(
             Key={
-                'graphId': self.graph_id
+                'graphName': self.graph_id
             }
         )
 
@@ -34,7 +34,7 @@ class Graph:
         """
         self.table.update_item(
             Key={
-                "graphId": self.graph_id
+                "graphName": self.graph_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
@@ -48,6 +48,6 @@ class Graph:
         """
         self.table.delete_item(
         Key={
-            "graphId": self.graph_id
+            "graphName": self.graph_name
         }
     )
