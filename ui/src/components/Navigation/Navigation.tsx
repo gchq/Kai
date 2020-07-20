@@ -1,14 +1,7 @@
 import React, {useState} from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
+import {Drawer, CssBaseline, AppBar, Toolbar, List, Typography, Divider, IconButton, Tab, Tabs, ClickAwayListener} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -17,10 +10,12 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-import {Tab,Tabs} from '@material-ui/core';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import {BrowserRouter,Switch,Route,Link} from "react-router-dom";
+
 import Page1 from '../Page1';
+import Page2 from '../Page2'
 import TabPanel from './TabPanel';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -73,6 +68,7 @@ function a11yProps(index: number) {
 }
 
 export default function Navigation() {
+  const allTabs = ['/', '/Page1', '/Page2'];
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -115,6 +111,8 @@ export default function Navigation() {
           </Typography>
         </Toolbar>
       </AppBar>
+      <BrowserRouter>
+      </BrowserRouter>
       <Drawer
         className={classes.drawer}
         variant="persistent"
@@ -130,7 +128,10 @@ export default function Navigation() {
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </div>
+        
+        
         <Divider />
+
         <Tabs value={tab} onChange={handleTabChange} orientation={'vertical'} indicatorColor="primary" textColor="primary">
                     <Tab label={"Page 1"} {...a11yProps(0)}  />
                     <Tab label={"Page 2"} {...a11yProps(1)} />
@@ -145,12 +146,28 @@ export default function Navigation() {
                 </Tabs>
 
       </Drawer>
-      <TabPanel value={tab} index={0}>
-        <Page1/>
+    
 
-      </TabPanel>
+      
 
+          
+            <TabPanel value={tab} index={0}>
+
+              <Page1/>
+
+
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
+
+              <Page2/>
+
+
+            </TabPanel>
+
+
+  
 
     </div>
+    
   );
 }

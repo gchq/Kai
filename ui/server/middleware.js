@@ -14,7 +14,7 @@ app.get('/graphs', (req, res) => {
         "currentState": "DEPLOYED"
     }, {
         "graphId": "basicGraph",
-        "currentState": "DELETION_QUEUED"
+        "currentState": "DEPLOYED"
     }]);
 });
 

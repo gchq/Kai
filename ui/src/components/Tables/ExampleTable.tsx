@@ -24,16 +24,7 @@ function getData(){
 }
 
 
-function deleteData (graphId: any){
-  var request = new XMLHttpRequest();
-      request.open('DELETE', 'graphId', false);  // `false` makes the request synchronous
-      request.send(null);
-  
-      if (request.status === 200) {
-        return JSON.parse(request.responseText);
-      }
 
-}
 
 function createData(graphId: any, currentState: any) {
   return { graphId, currentState};
@@ -50,8 +41,43 @@ function generateData(){
 			}
 			return rows
 }
-const rows = generateData();
+var rows = generateData();
+function deleteData (graphId: any){
+  var request = new XMLHttpRequest();
+      request.open('DELETE','/graphs/:'+graphId, false);  // `false` makes the request synchronous
+      request.send(null);
+  
+      if (request.status === 200) {
+        return JSON.parse(request.responseText);
+      }
 
+}
+ 
+
+function updateData(graphId:any){
+  rows=[];
+  var data= getData()
+  var newRow= deleteData(graphId)
+
+  for (var row in data){
+    var currentRow= data[row]
+    if (currentRow.graphId != graphId){
+      rows.push(createData(currentRow.graphId, currentRow.currentState))
+
+    }
+    else{
+      console.log(22)
+      
+      rows.push(createData(newRow.graphId,newRow.currentState))
+    }
+  
+    
+    
+  }
+  console.log(rows)
+
+  
+}
 
 
 
@@ -95,7 +121,7 @@ export default function ExampleTable() {
       
     </TableContainer>
     <Box display="flex" justifyContent="center" style={{marginTop: 20}}>
-    <Button  variant="contained" color="primary" onClick={()=> console.log(selectedRow) }>
+    <Button  variant="contained" color="primary" onClick={()=>console.log(updateData(selectedRow)) }>
         Delete Graph
     </Button>
     </Box>
