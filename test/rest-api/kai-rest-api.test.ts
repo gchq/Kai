@@ -114,7 +114,7 @@ test("The REST API should have a resource which can GET specific graphs", () => 
     expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
         HttpMethod: "GET",
         ResourceId: {
-            Ref: "TestTestRestApigraphsgraphName0A18A4C6"
+            Ref: "TestTestRestApigraphs6F3DCBD4"
         },
         RestApiId: {
             Ref: "TestTestRestApiF3AB3CBC"
@@ -191,7 +191,7 @@ test("The specific Graph resource should handle DELETE requests", () => {
     expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
         HttpMethod: "DELETE",
         ResourceId: {
-            Ref: "TestTestRestApigraphsgraphName0A18A4C6"
+            Ref: "TestTestRestApigraphsgraphNameB9AC8DA7"
         },
         RestApiId: {
             Ref: "TestTestRestApiF3AB3CBC"
