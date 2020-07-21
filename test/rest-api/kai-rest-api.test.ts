@@ -28,7 +28,8 @@ function createRestAPI(stack: cdk.Stack, id = "Test"): rest.KaiRestApi {
 
     return new rest.KaiRestApi(stack, id, {
         "graphTable": table,
-        "userPoolArn": "userPoolArn"
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 }
 
@@ -227,7 +228,7 @@ test("Should create a lambda to send messages to the deleteGraph queue", () => {
     }));
 });
 
-test("Should allow the Delete Graph Lambda to write to the backend database and Send messages to the Queue", () => {
+test("Should allow the Delete Graph Lambda to read/write to the backend database and Send messages to the Queue", () => {
     // Given
     const stack = new cdk.Stack();
 
@@ -240,6 +241,12 @@ test("Should allow the Delete Graph Lambda to write to the backend database and 
             "Statement": [
                 {
                     "Action": [
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:GetRecords",
+                        "dynamodb:GetShardIterator",
+                        "dynamodb:Query",
+                        "dynamodb:GetItem",
+                        "dynamodb:Scan",
                         "dynamodb:BatchWriteItem",
                         "dynamodb:PutItem",
                         "dynamodb:UpdateItem",
@@ -294,7 +301,8 @@ test("should create a queue for AddGraph messages to be sent to workers", () => 
     // When
     new rest.KaiRestApi(stack, "Test", {
         "graphTable": table,
-        "userPoolArn": "userPoolArn"
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -313,7 +321,8 @@ test("should create lambda to write messages to the Add Graph Queue", () => {
     // When
     new rest.KaiRestApi(stack, "Test", {
         "graphTable": table,
-        "userPoolArn": "userPoolArn"
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -322,7 +331,7 @@ test("should create lambda to write messages to the Add Graph Queue", () => {
     }));
 });
 
-test("should allow AddGraphLambda to write messages to queue and write to Dynamodb", () => {
+test("should allow AddGraphLambda to write messages to queue, list Cognito users and read/write to Dynamodb", () => {
     // Given
     const stack = new cdk.Stack();
     const table = new Table(stack, "test", {
@@ -332,7 +341,8 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
     // When
     new rest.KaiRestApi(stack, "Test", {
         "graphTable": table,
-        "userPoolArn": "userPoolArn"
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -340,7 +350,18 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
         "PolicyDocument": {
             "Statement": [
                 {
+                    "Action": "cognito-idp:ListUsers",
+                    "Effect": "Allow",
+                    "Resource": "userPoolArn"
+                },
+                {
                     "Action": [
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:GetRecords",
+                        "dynamodb:GetShardIterator",
+                        "dynamodb:Query",
+                        "dynamodb:GetItem",
+                        "dynamodb:Scan",
                         "dynamodb:BatchWriteItem",
                         "dynamodb:PutItem",
                         "dynamodb:UpdateItem",

@@ -43,7 +43,8 @@ export class AppStack extends cdk.Stack {
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
             graphTable: database.table,
-            userPoolArn: userPool.userPoolArn
+            userPoolArn: userPool.userPoolArn,
+            userPoolId: userPool.userPoolId
         });
 
         // Kubectl Lambda layer

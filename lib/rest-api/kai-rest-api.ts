@@ -19,6 +19,7 @@ import * as api from "@aws-cdk/aws-apigateway";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as sqs from "@aws-cdk/aws-sqs";
 import * as path from "path";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { KaiRestApiProps } from "./kai-rest-api-props";
 import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
 import { KaiRestAuthorizer } from "./authentication/kai-rest-authorizer";
@@ -56,11 +57,17 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.addGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
-        props.graphTable.grantWriteData(addGraphLambda);
+        addGraphLambda.addToRolePolicy(new PolicyStatement({
+            actions: [ "cognito-idp:ListUsers" ],
+            resources: [ props.userPoolArn ]
+        }));
+
+        props.graphTable.grantReadWriteData(addGraphLambda);
         this.addGraphQueue.grantSendMessages(addGraphLambda);
         graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda), methodOptions);
 
@@ -76,11 +83,12 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.deleteGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
-        props.graphTable.grantWriteData(deleteGraphLambda);
+        props.graphTable.grantReadWriteData(deleteGraphLambda);
         this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
         graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda), methodOptions);
 
@@ -91,7 +99,8 @@ export class KaiRestApi extends cdk.Construct {
             handler: "get_graph_request.handler",
             timeout: lambdaTimeout,
             environment: {
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
