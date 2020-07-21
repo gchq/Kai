@@ -92,7 +92,7 @@ export default function ExampleTable() {
   }
 
   return (
-    <Box>
+    <Box >
     <TableContainer >
       <Table className={classes.table} aria-label="simple table" >
         <TableHead>

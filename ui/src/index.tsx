@@ -3,16 +3,18 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom';
+import {CssBaseline} from '@material-ui/core';
 
 //import './global.scss';
 
 ReactDOM.render(
-  <React.StrictMode>
-  <BrowserRouter>
-      <App/>
-  </BrowserRouter>
-</React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <BrowserRouter>
+            <CssBaseline/>
+            <App/>
+        </BrowserRouter>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change

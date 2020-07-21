@@ -4,7 +4,8 @@ import ExampleTable from './Tables/ExampleTable'
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        width: '100%',
+        //width: '100%',
+        marginTop: 10
     },
     container: {
         width: '40%'
@@ -16,12 +17,13 @@ export default function Page1() {
 
     return (
         <Grid className={classes.root}
-              direction="column"
+              container
               justify="center"
-              alignItems="center">
+        >
             <Paper>
                 <ExampleTable/>
             </Paper>
+
 
 
         </Grid>

@@ -5,6 +5,7 @@ import {makeStyles, Typography, Grid, Divider, Box, Container, Paper} from "@mat
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
+        marginTop: 10
     },
     container: {
         width: '40%'
@@ -16,13 +17,12 @@ export default function Page2() {
 
     return (
         <Grid className={classes.root}
-              direction="column"
+              container
               justify="center"
-              alignItems="center">
-            <Paper>
+        >
+            <Typography variant="h3">
                 Page 2
-
-            </Paper>
+            </Typography>
 
 
         </Grid>
