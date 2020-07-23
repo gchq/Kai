@@ -1,6 +1,4 @@
-//import { RestClient } from '../../src/rest/rest-client';
-
-const RestClient = require('../../src/rest/rest-client');
+import { RestClient } from '../../src/rest/rest-client';
 
 beforeEach(() => {
   fetch.resetMocks();
