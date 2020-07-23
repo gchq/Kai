@@ -19,8 +19,10 @@ import * as api from "@aws-cdk/aws-apigateway";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as sqs from "@aws-cdk/aws-sqs";
 import * as path from "path";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { KaiRestApiProps } from "./kai-rest-api-props";
 import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
+import { KaiRestAuthorizer } from "./authentication/kai-rest-authorizer";
 
 export class KaiRestApi extends cdk.Construct {
     private readonly _addGraphQueue: sqs.Queue;
@@ -32,6 +34,12 @@ export class KaiRestApi extends cdk.Construct {
         const restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
         const graphsResource = restApi.root.addResource("graphs");
         const graph = graphsResource.addResource("{graphId}");
+
+        // Create MethodOptions to secure access to the RestApi methods using the Cognito user pool
+        const methodOptions = new KaiRestAuthorizer(this, "KaiRestApiAuthorizer", {
+            restApiId: restApi.restApiId,
+            userPoolArn: props.userPoolArn
+        }).methodOptions;
 
         // Service Functions all share the same code and timeout 
         const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
@@ -49,13 +57,19 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.addGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
-        props.graphTable.grantWriteData(addGraphLambda);
+        addGraphLambda.addToRolePolicy(new PolicyStatement({
+            actions: [ "cognito-idp:ListUsers" ],
+            resources: [ props.userPoolArn ]
+        }));
+
+        props.graphTable.grantReadWriteData(addGraphLambda);
         this.addGraphQueue.grantSendMessages(addGraphLambda);
-        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda));
+        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda), methodOptions);
 
         // DELETE handlers
         this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", { 
@@ -69,13 +83,14 @@ export class KaiRestApi extends cdk.Construct {
             timeout: lambdaTimeout,
             environment: {
                 sqs_queue_url: this.deleteGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
-        props.graphTable.grantWriteData(deleteGraphLambda);
+        props.graphTable.grantReadWriteData(deleteGraphLambda);
         this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
-        graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda));
+        graph.addMethod("DELETE", new api.LambdaIntegration(deleteGraphLambda), methodOptions);
 
         // GET handlers
         const getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
@@ -84,16 +99,16 @@ export class KaiRestApi extends cdk.Construct {
             handler: "get_graph_request.handler",
             timeout: lambdaTimeout,
             environment: {
-                graph_table_name: props.graphTable.tableName
+                graph_table_name: props.graphTable.tableName,
+                user_pool_id: props.userPoolId
             }
         });
 
         props.graphTable.grantReadData(getGraphsLambda);
         // Both GET and GET all are served by the same lambda
         const getGraphIntegration = new api.LambdaIntegration(getGraphsLambda);
-        graphsResource.addMethod("GET", getGraphIntegration);
-        graph.addMethod("GET", getGraphIntegration);
-
+        graphsResource.addMethod("GET", getGraphIntegration, methodOptions);
+        graph.addMethod("GET", getGraphIntegration, methodOptions);
     }
 
     public get addGraphQueue(): sqs.Queue { 
