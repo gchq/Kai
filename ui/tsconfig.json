@@ -31,7 +31,6 @@
     "./test/**/*.ts"
   ],
   "exclude": [
-    "**/*.test.ts",
     "node_modules",
   ],
   "types": ["node", "jest"]
