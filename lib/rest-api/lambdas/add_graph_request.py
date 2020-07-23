@@ -1,8 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
+from graph import Graph
 import json
 import os
 import re
+from user import User
+
+graph = Graph()
+user = User()
 
 def is_graph_id_valid(graph_id):
     if graph_id is None:
@@ -30,22 +35,25 @@ def handler(event, context):
 
     # Get variables from env
     queue_url = os.getenv("sqs_queue_url")
-    graph_table_name = os.getenv("graph_table_name")
-
-    # Add Entry to table
-    dynamo = boto3.resource("dynamodb")
-    table = dynamo.Table(graph_table_name)
 
     initial_status = "DEPLOYMENT_QUEUED"
 
+    administrators = []
+    requesting_user = user.get_requesting_cognito_user(event)
+    if requesting_user is not None:
+        administrators.append(requesting_user)
+    if "administrators" in request_body:
+        administrators.extend(request_body["administrators"])
+    if user.contains_duplicates(administrators):
+        administrators = list(set(administrators))
+    if not user.valid_cognito_users(administrators):
+        return {
+            "statusCode": 400,
+            "body": "Not all of the supplied administrators are valid Cognito users: {}".format(str(administrators))
+        }
+
     try:
-        table.put_item(
-            Item={
-                "graphId": graph_id,
-                "currentState": initial_status
-            },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("graphId").not_exists()
-        )
+        graph.create_graph(graph_id, initial_status, administrators)
     except ClientError as e:
         if e.response['Error']['Code']=='ConditionalCheckFailedException': 
             return {

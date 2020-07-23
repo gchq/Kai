@@ -1,15 +1,15 @@
 import boto3
+from botocore.exceptions import ClientError
+from graph import Graph
 import json
 import os
-from botocore.exceptions import ClientError
+from user import User
 
 # Get variables from env
 queue_url = os.getenv("sqs_queue_url")
-graph_table_name = os.getenv("graph_table_name")
 
-# Dynamodb table
-dynamo = boto3.resource("dynamodb")
-table = dynamo.Table(graph_table_name)
+graph = Graph()
+user = User()
 
 def handler(event, context):
     params = event["pathParameters"]
@@ -23,20 +23,18 @@ def handler(event, context):
             body: "graphId is a required field"
         }
 
+    requesting_user = user.get_requesting_cognito_user(event)
+    if not user.is_authorized(requesting_user, graph_id):
+        return {
+            "statusCode": 403,
+            "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_id)
+        }
+
     initial_status = "DELETION_QUEUED"
 
     # Add Entry to table
     try:
-        table.update_item(
-            Key={
-                "graphId": graph_id
-            },
-            UpdateExpression="SET currentState = :state",
-            ExpressionAttributeValues={
-                ":state": initial_status
-            },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("graphId").exists()
-        )
+        graph.update_graph(graph_id, initial_status)
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {

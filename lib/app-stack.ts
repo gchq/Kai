@@ -32,7 +32,7 @@ export class AppStack extends cdk.Stack {
         super(scope, id, props);
 
         // User Pool
-        new KaiUserPool(this, "KaiUserPool");
+        const userPool = new KaiUserPool(this, "KaiUserPool");
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");
@@ -43,7 +43,9 @@ export class AppStack extends cdk.Stack {
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
-            graphTable: database.table
+            graphTable: database.table,
+            userPoolArn: userPool.userPoolArn,
+            userPoolId: userPool.userPoolId
         });
 
         // Kubectl Lambda layer
