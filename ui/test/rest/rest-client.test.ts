@@ -1,30 +1,66 @@
-import {RestClient} from '../../src/rest/rest-client';
+import { RestClient } from '../../src/rest/rest-client';
 
-describe('Rest Client', () => {
+beforeEach(() => {
+  fetch.resetMocks();
+});
 
-    const restClient = new RestClient('testhost:8080');
+describe('get graph data', () => {
+  const rest = new RestClient();
 
-    mock(fetch());
+  it('Successfuly get graphs', async () => {
+      const mockSuccessResponse = {
+          graphId: "test",
+          currentState: "TEST"
+      };
+  fetch.mockResponseOnce(JSON.stringify(mockSuccessResponse));
 
-    it('get graphs', ()=>{
-        // Given
+    const actual = await rest.getAllGraphs();
 
-        // When
-        const actual = restClient.getAllGraphs();
+    expect(actual).toEqual(mockSuccessResponse);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith('/graph');
 
-        // Then
-        expect()
-    })
+  });
 
-    it('get graph by id', ()=>{
-        // Given
-        mockReturn =
+  it('catches errors', async() => {
+    fetch.mockReject(() => "API failure");
 
-        // When
-        const actual = restClient.getGraphById(1);
+    const actual = await rest.getAllGraphs();
+    const error = () => {
+      throw new TypeError();
+    }
+    expect(actual).toEqual(error);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith('/graph');
+  });
+});
 
-        // Then
-        expect()
-    })
+describe('get graph data by ID', () => {
+  const rest = new RestClient();
+  const mockGraphId = 10;
+  it('Successfuly get graph ID', async () => {
+  
+  fetch.mockResponseOnce(JSON.stringify({
+    graphId: mockGraphId
+  }));
 
+    const actual = await rest.getGraphById(mockGraphId);
+
+    expect(actual).toEqual("test");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith('/graph/' + 10);
+
+  });
+
+  it('catches errors', async() => {
+    fetch.mockReject(() => "API failure");
+
+    const actual = await rest.getGraphById();
+    const error = () => {
+      throw new TypeError();
+    }
+    expect(actual).toEqual(error);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith('/graph' + 10);
+  });
 });

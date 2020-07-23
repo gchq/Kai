@@ -20,4 +20,15 @@ export class RestClient {
         return body;
     }
 
+    public static async deleteGraphById(graphId: number): Promise<Object> {
+      const response = await fetch('/graph/' + graphId, {
+        method: 'DELETE',
+      });
+      const body = await response.json();
+      if (response.status !== 200) {
+        throw Error(body.message) 
+      }
+      return body;
+    }
+
 }

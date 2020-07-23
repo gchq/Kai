@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "declaration": true,
     "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es2015"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -17,9 +21,17 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["./typings", "./node_modules/@types"]
   },
   "include": [
-    "src", "test/components/App.test.tsx"
-  ]
+    "./src/**/*.tsx", 
+    "./src/**/*.ts",
+    "./test/**/*.tsx",
+    "./test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+  ],
+  "types": ["node", "jest"]
 }
