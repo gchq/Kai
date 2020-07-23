@@ -17,9 +17,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": [
-    "src", "test/components/App.test.tsx"
-  ]
+    "src"
+  ],
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts"
+  ],
+  "types": ["node", "jest"]
 }

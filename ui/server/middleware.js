@@ -1,5 +1,5 @@
 const express = require('express');
-
+const dynamoDB = require('../../infrastructure/lib/database/graph-database');
 // app
 const app = express();
 const port = process.env.PORT || 5000;
@@ -9,13 +9,15 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 
 // create a GET route
 app.get('/graphs', (req, res) => {
-    res.send([ {
-        "graphId": "roadTraffic",
-        "currentState": "DEPLOYED"
-    }, {
-        "graphId": "basicGraph",
-        "currentState": "DELETION_QUEUED"
-    }]);
+    const table = dynamoDB.get();
+    // res.send([ {
+    //     "graphId": "roadTraffic",
+    //     "currentState": "DEPLOYED"
+    // }, {
+    //     "graphId": "basicGraph",
+    //     "currentState": "DELETION_QUEUED"
+    // }]);
+    res.send(table);
 });
 
 app.get('/graphs/:graphId', (req, res) => {
