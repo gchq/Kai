@@ -14,7 +14,6 @@ os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 
 cluster_name = os.getenv("cluster_name")
 graph_table_name = os.getenv("graph_table_name")
-accumuloPassword = os.getenv("accumuloPassword")
 
 def generate_password(length=8):
     """
@@ -62,7 +61,7 @@ def create_values(graph_id, schema, security_groups):
         "accumulo": {
             "config": {
                 "accumuloSite": {
-                    "instance.secret": accumuloPassword # todo store these somewhere secure in future ticket
+                    "instance.secret": generate_password() # todo store these somewhere secure in future ticket
                 },
                 "userManagement": {
                     "rootPassword": generate_password(),
