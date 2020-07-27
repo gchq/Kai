@@ -1,3 +1,16 @@
-import fetchMock from "jest-fetch-mock";
+import fetch from "jest-fetch-mock";
 
-fetchMock.enableMocks();
+fetch.enableMocks();
+
+const syncify = async (fn) => {
+    try {
+      const result = await fn();
+      return () => { return result; };
+    } catch (e) {
+      return () => { throw e; };
+    }
+  };
+
+  export default {
+    syncify
+  }

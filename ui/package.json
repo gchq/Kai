@@ -51,6 +51,7 @@
     "@types/jest": "26.0.5",
     "@types/react-router-dom": "^5.1.5",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "fetch-mock": "^9.10.4",
     "jest": "^24.9.0",
     "jest-fetch-mock": "^3.0.3",
     "node-sass": "^4.14.1",
@@ -58,5 +59,11 @@
     "ts-node": "^8.10.2",
     "tslint": "^6.1.2",
     "typescript": "^3.9.5"
+  },
+  "jest": {
+    "automock": false,
+    "setupFiles": [
+      "./setupJest.js"
+    ]
   }
 }

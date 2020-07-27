@@ -1,7 +1,7 @@
 export class RestClient {
 
-    public static async getAllGraphs(): Promise<Array<Object>> {
-        const response = await fetch('/graphs');
+    public async getAllGraphs(url:string): Promise<Array<Object>> {
+        const response = await fetch(url);
         const body = await response.json();
     
         if (response.status !== 200) {
@@ -10,19 +10,20 @@ export class RestClient {
         return body;
     }
 
-    public static async getGraphById(graphId: number): Promise<Object> {
-        const response = await fetch('/graph/' + graphId);
+    public async getGraphById(url:string, graphId: number): Promise<Object> {
+        const response = await fetch(url + graphId);
         const body = await response.json();
     
         if (response.status !== 200) {
           throw Error(body.message) 
         }
         return body;
+        
     }
 
-    public static async deleteGraphById(graphId: number): Promise<Object> {
-      const response = await fetch('/graph/' + graphId, {
-        method: 'DELETE',
+    public async deleteGraphById(url:string, graphId: number): Promise<Object> {
+      const response = await fetch(url + graphId, {
+        method: 'delete',
       });
       const body = await response.json();
       if (response.status !== 200) {
