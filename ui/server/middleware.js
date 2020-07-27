@@ -9,15 +9,22 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 
 // create a GET route
 app.get('/graphs', (req, res) => {
-    //const table = dynamoDB.get();
     res.send([ {
         "graphId": "roadTraffic",
         "currentState": "DEPLOYED"
     }, {
         "graphId": "basicGraph",
-        "currentState": "DELETION_QUEUED"
+        "currentState": "DEPLOYED"
     }]);
-    //res.send(table);
+    const table = dynamoDB.get();
+    // res.send([ {
+    //     "graphId": "roadTraffic",
+    //     "currentState": "DEPLOYED"
+    // }, {
+    //     "graphId": "basicGraph",
+    //     "currentState": "DELETION_QUEUED"
+    // }]);
+    res.send(table);
 });
 
 app.get('/graphs/:graphId', (req, res) => {

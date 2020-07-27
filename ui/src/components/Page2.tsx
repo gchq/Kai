@@ -1,10 +1,10 @@
 import React from 'react';
 import {makeStyles, Typography, Grid, Divider, Box, Container, Paper} from "@material-ui/core";
-import ExampleTable from './Tables/ExampleTable'
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        //width: '100%',
+        width: '100%',
         marginTop: 10
     },
     container: {
@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     },
 
 }));
-export default function Page1() {
+export default function Page2() {
     const classes = useStyles();
 
     return (
@@ -20,10 +20,9 @@ export default function Page1() {
               container
               justify="center"
         >
-            <Paper>
-                <ExampleTable/>
-            </Paper>
-
+            <Typography variant="h3">
+                Page 2
+            </Typography>
 
 
         </Grid>
