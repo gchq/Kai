@@ -34,8 +34,8 @@ export default class ExampleTable extends React.Component<{}, IState> {
         return RestClient.getAllGraphs();
     }
     
-    private async deleteAndGetGraphs(graphId: any):Promise<Graph[]> {
-        await RestClient.deleteGraphById(graphId);
+    private async deleteAndGetGraphs():Promise<Graph[]> {
+        await RestClient.deleteGraphById(this.state.selectedRow);
         return await this.getGraphs();
     }
 
@@ -67,7 +67,7 @@ export default class ExampleTable extends React.Component<{}, IState> {
 
                 </TableContainer>
                 <Box display="flex" justifyContent="center" style={{marginTop: 20}}>
-                    <Button variant="contained" color="primary" onClick={() => this.deleteAndGetGraphs(1)}>
+                    <Button variant="contained" color="primary" onClick={() => this.deleteAndGetGraphs()}>
                         Delete Graph
                     </Button>
                 </Box>
