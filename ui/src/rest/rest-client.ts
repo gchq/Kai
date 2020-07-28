@@ -1,35 +1,39 @@
+import { Graph } from '../domain/graph';
+
 export class RestClient {
 
-    public async getAllGraphs(url:string): Promise<Array<Object>> {
-        const response = await fetch(url);
-        const body = await response.json();
-    
-        if (response.status !== 200) {
-          throw Error(body.message) 
-        }
-        return body;
-    }
-
-    public async getGraphById(url:string, graphId: number): Promise<Object> {
-        const response = await fetch(url + graphId);
-        const body = await response.json();
-    
-        if (response.status !== 200) {
-          throw Error(body.message) 
-        }
-        return body;
-        
-    }
-
-    public async deleteGraphById(url:string, graphId: number): Promise<Object> {
-      const response = await fetch(url + graphId, {
-        method: 'delete',
-      });
+  public static async getAllGraphs(): Promise<Graph[]> {
+      const response = await fetch('/graphs');
       const body = await response.json();
+  
       if (response.status !== 200) {
         throw Error(body.message) 
       }
-      return body;
+
+      return body.map((jsonObject: any) => {
+        return new Graph(jsonObject.graphId, jsonObject.currentState)
+      });
+  }
+
+  public static async getGraphById(graphId: number): Promise<Graph> {
+      const response = await fetch('/graphs/' + graphId);
+      const body = await response.json();
+  
+      if (response.status !== 200) {
+        throw Error(body.message) 
+      }
+
+      return new Graph(body.graphId, body.currentState);
+  }
+
+  public static async deleteGraphById(graphId: number): Promise<void> {
+    const response = await fetch('/graphs/' + graphId, {
+      method: 'delete',
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+      throw Error(body.message) 
     }
+  }
 
 }
