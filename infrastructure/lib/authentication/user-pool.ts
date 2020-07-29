@@ -64,6 +64,10 @@ export class KaiUserPool extends cdk.Construct {
         }
     }
 
+    public get userPoolArn(): string {
+        return this._userPool.userPoolArn;
+    }
+
     public get userPoolId(): string {
         return this._userPool.userPoolId;
     }
