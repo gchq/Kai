@@ -5,7 +5,6 @@ import random
 import string
 
 import boto3
-
 import kubernetes
 from graph import Graph
 
@@ -109,10 +108,10 @@ def deploy_graph(helm_client, body, security_groups):
     expected_status = body["expectedStatus"]
 
     # Create Graph to log progress of deployment
-    graph = Graph(graph_table_name, graph_name)
+    graph = Graph(graph_table_name, release_name)
 
     if not graph.check_status(expected_status):
-        logger.warn("Deployment of %s abandoned as graph had unexpected status", release_name)
+        logger.warn("Deployment of %s abandoned as graph had unexpected status", graph_name)
         return
 
     # Update Status to DEPLOYMENT_IN_PROGRESS
@@ -129,7 +128,7 @@ def deploy_graph(helm_client, body, security_groups):
     success = helm_client.install_chart(release_name, values=values_file)
 
     if success:
-        logger.info("Deployment of " + release_name + " Succeeded")
+        logger.info("Deployment of " + graph_name + " Succeeded")
         graph.update_status("DEPLOYED")
     else:
         graph.update_status("DEPLOYMENT_FAILED")

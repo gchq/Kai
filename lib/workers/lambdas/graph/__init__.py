@@ -4,10 +4,10 @@ class Graph:
     """
     Represents a Graph object in a DynamoDB table
     """
-    def __init__(self, table_name, graph_name):
+    def __init__(self, table_name, release_name):
         dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
-        self.graph_name = graph_name
+        self.release_name = release_name
 
     def check_status(self, expected_status):
         """
@@ -15,14 +15,15 @@ class Graph:
         """
         response = self.table.get_item(
             Key={
-                'graphName': self.graph_id
+                "releaseName": self.release_name
             }
         )
+        print(response)
 
         # If the graph does not exist, it cannot have the expected status
         graph = response["Item"]
         if graph is None:
-            return False
+          return False
         
         status = graph["currentState"]
 
@@ -34,7 +35,7 @@ class Graph:
         """
         self.table.update_item(
             Key={
-                "graphName": self.graph_name
+                "releaseName": self.release_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
@@ -48,6 +49,6 @@ class Graph:
         """
         self.table.delete_item(
         Key={
-            "graphName": self.graph_name
+            "releaseName": self.release_name
         }
     )

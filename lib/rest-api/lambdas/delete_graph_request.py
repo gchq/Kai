@@ -11,11 +11,17 @@ graph_table_name = os.getenv("graph_table_name")
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table(graph_table_name)
 
+def format_graph_name(graph_name):
+        return graph_name.lower()
+
 def handler(event, context):
     params = event["pathParameters"]
 
     # Check request is valid
     graph_name = params["graphName"]
+
+    # Convert graph name to lowercase
+    release_name = format_graph_name(graph_name)    
 
     if graph_name is None:
         return {
@@ -29,13 +35,13 @@ def handler(event, context):
     try:
         table.update_item(
             Key={
-                "graphName": graph_name
+                "releaseName": release_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
                 ":state": initial_status
             },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("graphName").exists()
+            ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").exists()
         )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
@@ -51,7 +57,7 @@ def handler(event, context):
 
     # Set the status so the worker knows what to expect. This also filters out anything else in the body
     message = {
-        "graphName": graph_name,
+        "releaseName": release_name,
         "expectedStatus": initial_status
     }
 

@@ -17,15 +17,20 @@ def get_all_graphs():
     Gets all graphs from Dynamodb table
     """
     return table.scan()["Items"]
-
+    
+def format_graph_name(graph_name):
+        return graph_name.lower()
 
 def get_graph(graph_name):
     """
     Gets a specific graph from Dynamodb table
     """
+    # Convert graph name to lowercase
+    release_name = format_graph_name(graph_name) 
+    
     response = table.get_item(
         Key={
-            "graphName": graph_name
+            "releaseName": release_name
         }
     )
     if "Item" in response:
