@@ -1,8 +1,16 @@
 {
-  "name": "ui",
+  "name": "kai-ui",
   "version": "0.1.0",
   "proxy": "http://localhost:5000",
   "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run client\" \"npm run server\"",
+    "client": "react-scripts start",
+    "server": "node server/middleware.js",
+    "build": "react-scripts build",
+    "test": "jest",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
@@ -22,29 +30,6 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1"
-  },
-  "scripts": {
-    "start": "concurrently \"npm run client\" \"npm run server\"",
-    "client": "react-scripts start",
-    "server": "node server/middleware.js",
-    "build": "react-scripts build",
-    "test": "jest",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "devDependencies": {
     "@babel/preset-env": "^7.10.4",
@@ -68,5 +53,20 @@
     "ts-node": "^8.10.2",
     "tslint": "^6.1.2",
     "typescript": "^3.9.5"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
