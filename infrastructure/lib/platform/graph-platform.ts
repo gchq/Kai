@@ -20,6 +20,7 @@ import * as iam from "@aws-cdk/aws-iam";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import { albPolicyStatement } from "./alb-policy-statement";
 import { NodeGroupConfig } from "./node-group-config";
+import { KubernetesVersion } from "@aws-cdk/aws-eks";
 
 export class GraphPlatForm extends cdk.Construct {
 
@@ -61,7 +62,8 @@ export class GraphPlatForm extends cdk.Construct {
             kubectlEnabled: true,
             vpc: vpc,
             mastersRole: mastersRole,
-            defaultCapacity: 0
+            defaultCapacity: 0,
+            version: KubernetesVersion.V1_17,
         });
 
         // Create node group
