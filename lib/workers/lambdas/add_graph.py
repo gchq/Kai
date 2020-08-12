@@ -49,7 +49,7 @@ def create_values(graph_name, schema, security_groups):
     return {
         "graph": {
             "config": {
-                "graphName": graph_name
+                "graphId": graph_name
             },
             "schema": {
                 "elements.json": json.dumps(schema["elements"]),
