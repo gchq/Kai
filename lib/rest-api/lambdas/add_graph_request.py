@@ -1,19 +1,24 @@
 import boto3
 from botocore.exceptions import ClientError
+from graph import Graph
 import json
 import os
 import re
+from user import User
+
+graph = Graph()
+user = User()
 
 def is_graph_name_valid(graph_name):
     if graph_name  is None:
         return False
     
-    return re.match("^[a-zA-Z0-9]+$", graph_name) # Graph names have to be alphanumerics
+    return re.match("^[a-zA-Z0-9]+$", graph_name) # Graph names have to be alphanumerics  
 
 
 def format_graph_name(graph_name):
-    return graph_name.lower()
-    
+     return graph_name.lower()
+
 
 def handler(event, context):
     request_body = json.loads(event["body"])
@@ -32,28 +37,31 @@ def handler(event, context):
             "statusCode": 400,
             "body": "schema is a required field"
         }
-    # Convert graph name to lowercase
-    release_name = format_graph_name(graph_name)
 
     # Get variables from env
     queue_url = os.getenv("sqs_queue_url")
-    graph_table_name = os.getenv("graph_table_name")
 
-    # Add Entry to table
-    dynamo = boto3.resource("dynamodb")
-    table = dynamo.Table(graph_table_name)
+    # Convert graph name to lowercase
+    release_name = format_graph_name(graph_name) 
 
     initial_status = "DEPLOYMENT_QUEUED"
 
+    administrators = []
+    requesting_user = user.get_requesting_cognito_user(event)
+    if requesting_user is not None:
+        administrators.append(requesting_user)
+    if "administrators" in request_body:
+        administrators.extend(request_body["administrators"])
+    if user.contains_duplicates(administrators):
+        administrators = list(set(administrators))
+    if not user.valid_cognito_users(administrators):
+        return {
+            "statusCode": 400,
+            "body": "Not all of the supplied administrators are valid Cognito users: {}".format(str(administrators))
+        }
+
     try:
-        table.put_item(
-            Item={
-                "graphName": graph_name,
-                "releaseName": release_name,
-                "currentState": initial_status
-            },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
-        )
+        graph.create_graph(release_name, graph_name, initial_status, administrators)
     except ClientError as e:
         if e.response['Error']['Code']=='ConditionalCheckFailedException': 
             return {
