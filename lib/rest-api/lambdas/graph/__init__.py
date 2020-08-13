@@ -4,12 +4,15 @@ import os
 
 class Graph:
 
-
     def __init__(self):
         dynamodb = boto3.resource("dynamodb")
         graph_table_name = os.getenv("graph_table_name")
         self.table = dynamodb.Table(graph_table_name)
 
+
+    def format_graph_name(self, graph_name):
+        return graph_name.lower()
+        
 
     def get_all_graphs(self, requesting_user):
         """
@@ -48,8 +51,8 @@ class Graph:
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").exists()
         )
 
-    def create_graph(self, release_name, graph_name, status, administrators):
-         self.table.put_item(
+    def create_graph(self, release_name, graph_name, status, administrators):      
+        self.table.put_item(
             Item={
                 "graphName": graph_name,
                 "releaseName": release_name,

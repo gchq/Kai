@@ -16,10 +16,6 @@ def is_graph_name_valid(graph_name):
     return re.match("^[a-zA-Z0-9]+$", graph_name) # Graph names have to be alphanumerics  
 
 
-def format_graph_name(graph_name):
-     return graph_name.lower()
-
-
 def handler(event, context):
     request_body = json.loads(event["body"])
 
@@ -42,7 +38,7 @@ def handler(event, context):
     queue_url = os.getenv("sqs_queue_url")
 
     # Convert graph name to lowercase
-    release_name = format_graph_name(graph_name) 
+    release_name = graph.format_graph_name(graph_name)
 
     initial_status = "DEPLOYMENT_QUEUED"
 

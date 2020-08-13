@@ -7,14 +7,12 @@ from user import User
 graph = Graph()
 user = User()
 
-
 def handler(event, context):
     """
     Main entrypoint for the HTTP GET lambda functions. This function
     serves both GET handlers so returns all graphs if no graphName
     is specified in the path parameters
     """
-
     path_params = event["pathParameters"]
     return_all = False
     graph_name = None
@@ -40,7 +38,7 @@ def handler(event, context):
         try:
             return {
                 "statusCode": 200,
-                "body": json.dumps(graph.get_graph(release_name))
+                "body": json.dumps(graph.get_graph(graph.format_graph_name(graph_name)))
             }
         except Exception as e:
             return {

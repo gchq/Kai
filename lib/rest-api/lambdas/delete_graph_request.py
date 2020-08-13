@@ -11,9 +11,6 @@ queue_url = os.getenv("sqs_queue_url")
 graph = Graph()
 user = User()
 
-def format_graph_name(graph_name):
-        return graph_name.lower()
-
 def handler(event, context):
     params = event["pathParameters"]
 
@@ -21,7 +18,7 @@ def handler(event, context):
     graph_name = params["graphName"]
 
     # Convert graph name to lowercase
-    release_name = format_graph_name(graph_name)    
+    release_name = graph.format_graph_name(graph_name)    
 
     if graph_name is None:
         return {

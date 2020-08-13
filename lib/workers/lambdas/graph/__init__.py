@@ -1,4 +1,8 @@
 import boto3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 class Graph:
     """
@@ -18,7 +22,7 @@ class Graph:
                 "releaseName": self.release_name
             }
         )
-        print(response)
+        logger.info(response)
 
         # If the graph does not exist, it cannot have the expected status
         graph = response["Item"]

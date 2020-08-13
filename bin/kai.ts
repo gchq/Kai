@@ -27,9 +27,9 @@ const dev = {
 };
 
 // Main Stack
-new AppStack(app, "KaiStackp", {
+new AppStack(app, "KaiStack", {
     env: dev,
-    stackName: "KaiStackp"
+    stackName: "KaiStack"
 });
 
 // Tags
