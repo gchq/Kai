@@ -101,16 +101,9 @@ describe('Create a new Graph', () => {
       schema: "testing"
     };
 
-    const httpResponse = {
-      status: 500
-    };
+    fetchMock.mockResponse("", {status: 500});
 
-    fetchMock.mockResponseOnce(JSON.stringify(httpResponse));
-
-    expect(()=>{RestClient.createNewGraph(newGraphRequest)}).toThrowError(new Error("Graph was not created"))
-    expect(fetch).toThrowError(new Error("Graph was not created"))
-
-
+    await expect(RestClient.createNewGraph(newGraphRequest)).rejects.toEqual(Error('Graph was not created.'));
   })
   // it ('should respond with a 201 status, when a new graph is created', ())
 })

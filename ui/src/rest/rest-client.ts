@@ -36,21 +36,16 @@ export class RestClient {
       throw Error(body.message) 
     }
   }
-  public static async createNewGraph(newGraph: {}): Promise<any> {
-      const response =await fetch('/graphs', {
+
+  public static async createNewGraph(newGraph: {}): Promise<void> {
+      const response = await fetch(`${API_HOST}/graphs`, {
           method: 'POST',
           body: JSON.stringify(newGraph)
 
       });
-      console.log(response);
-
+      
       if (response.status !== 201) {
-          throw Error("Graph was not created")
+          throw new Error('Graph was not created.');
       }
-
-
-
-
   }
-
 }
