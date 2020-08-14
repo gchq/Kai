@@ -96,19 +96,19 @@ describe('Delete graph by ID', () => {
 });
 describe('Create a new Graph', () => {
   it('should throw unexpected response error, when response status is not 201 ', async() =>{
-    // const newGraphRequest= {
-    //   graphId: "testId",
-    //   schema: "testing"
-    // };
-    //
-    // const httpResponse = {
-    //   status: 500
-    // };
-    //
-    // fetchMock.mockResponseOnce(JSON.stringify(httpResponse));
-    //
-    // // expect(()=>{RestClient.createNewGraph(newGraphRequest)}).toThrowError(new Error("Graph was not created"))
-    // expect(fetch).toThrowError(new Error("Graph was not created"))
+    const newGraphRequest= {
+      graphId: "testId",
+      schema: "testing"
+    };
+
+    const httpResponse = {
+      status: 500
+    };
+
+    fetchMock.mockResponseOnce(JSON.stringify(httpResponse));
+
+    expect(()=>{RestClient.createNewGraph(newGraphRequest)}).toThrowError(new Error("Graph was not created"))
+    expect(fetch).toThrowError(new Error("Graph was not created"))
 
 
   })
