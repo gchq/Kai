@@ -1,6 +1,6 @@
 import React from 'react';
 import {makeStyles, Typography, Grid, Divider, Box, Container, Paper} from "@material-ui/core";
-import ExampleTable from './Tables/ExampleTable'
+import ExampleTable from './Graphs/ExampleTable'
 
 const useStyles = makeStyles((theme) => ({
     root: {

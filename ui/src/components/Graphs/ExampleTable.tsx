@@ -3,6 +3,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@material-ui/core'
 import { RestClient } from '../../rest/rest-client';
 import { Graph } from '../../domain/graph';
+import CreateGraph from "./CreateGraph";
 
 interface IState {
     graphs: Graph[],
@@ -67,9 +68,10 @@ export default class ExampleTable extends React.Component<{}, IState> {
 
                 </TableContainer>
                 <Box display="flex" justifyContent="center" style={{marginTop: 20}}>
-                    <Button variant="contained" color="primary" onClick={() => this.deleteAndGetGraphs()}>
+                    <Button variant="outlined" color="primary" onClick={() => this.deleteAndGetGraphs()} style={{margin: "10px"}}>
                         Delete Graph
                     </Button>
+                    <CreateGraph />
                 </Box>
             </Box>
 

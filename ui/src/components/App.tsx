@@ -4,7 +4,7 @@ import Routes from "./Navigation/Routes";
 import Nav from "./Navigation/NavigationAppbar";
 
 import { RestClient } from '../rest/rest-client';
-import ExampleTable from '../components/Tables/ExampleTable';
+import ExampleTable from './Graphs/ExampleTable';
 import {Container, Grid} from '@material-ui/core'
 import Navigation from './Navigation/NavigationDrawer'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';

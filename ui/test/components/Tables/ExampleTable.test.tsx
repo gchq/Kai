@@ -1,5 +1,5 @@
 import {mount} from 'enzyme';
-import ExampleTable from '../../../src/components/Tables/ExampleTable';
+import ExampleTable from '../../../src/components/Graphs/ExampleTable';
 import React from 'react';
 describe('When ExampleTable mounts', () => {
     const wrapper = mount(<ExampleTable/>);
