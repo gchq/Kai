@@ -10,8 +10,8 @@ const useStyles = makeStyles((theme) => ({
     container: {
         width: '40%'
     },
-
 }));
+
 export default function Page1() {
     const classes = useStyles();
 
@@ -24,13 +24,6 @@ export default function Page1() {
                 <ExampleTable/>
             </Paper>
 
-
-
         </Grid>
-
-
-
-
     );
-
 }

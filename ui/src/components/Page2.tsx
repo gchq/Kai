@@ -1,7 +1,6 @@
 import React from 'react';
 import {makeStyles, Typography, Grid, Divider, Box, Container, Paper} from "@material-ui/core";
 
-
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
@@ -12,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     },
 
 }));
+
 export default function Page2() {
     const classes = useStyles();
 
@@ -24,12 +24,6 @@ export default function Page2() {
                 Page 2
             </Typography>
 
-
         </Grid>
-
-
-
-
     );
-
 }
