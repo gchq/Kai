@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * @group unit
+ */
+
 import { expect as expectCDK, haveResource, haveResourceLike, countResourcesLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as api from "@aws-cdk/aws-apigateway";

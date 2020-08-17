@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * @group unit
+ */
+
 import { IExternalPool, IDefaultPoolConfig, IUserPoolConfig, UserPoolConfig } from "../../lib/authentication/user-pool-config";
 
 const ERROR_MESSAGE_REGEXP = /is not a valid User Pool config/;
