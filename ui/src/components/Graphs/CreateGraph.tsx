@@ -52,9 +52,11 @@ const Transition = React.forwardRef(function Transition(
 
 interface IState {
     dialogIsOpen: boolean,
-    graphId: string,
-    schema: string,
-    administrators: Array<string>,
+    newGraph: {
+        graphId: string,
+        administrators: Array<string>,
+        schema: string,
+    }
     notifications: Notifications,
 }
 
@@ -63,9 +65,11 @@ export default class CreateGraph extends React.Component<{}, IState> {
         super(props);
         this.state = {
             dialogIsOpen: false,
-            graphId: "",
-            administrators: [],
-            schema: "",
+            newGraph: {
+                graphId: "",
+                administrators: [],
+                schema: "",
+            },
             notifications: new Notifications(),
         }
     }
@@ -94,7 +98,7 @@ export default class CreateGraph extends React.Component<{}, IState> {
     }));
 
     private async submitNewGraph() {
-        const { graphId, administrators, schema } = this.state;
+        const { graphId, administrators, schema } = this.state.newGraph;
         const _schema = new Schema(schema);
         const notifications: Notifications = _schema.validation();
 
