@@ -58,6 +58,7 @@ export class GraphPlatForm extends cdk.Construct {
 
         // Create cluster
         this._eksCluster = new eks.Cluster(this, "EksCluster", {
+            version: eks.KubernetesVersion.V1_16,
             kubectlEnabled: true,
             vpc: vpc,
             mastersRole: mastersRole,

@@ -22,7 +22,8 @@ class User:
         return set([item for item in items if items.count(item) > 1])
 
     def get_requesting_cognito_user(self, request):
-        if ("authorizer" not in request["requestContext"]
+        if ("requestContext" not in request
+            or "authorizer" not in request["requestContext"]
             or "claims" not in request["requestContext"]["authorizer"]
             or "cognito:username" not in request["requestContext"]["authorizer"]["claims"]):
             return None

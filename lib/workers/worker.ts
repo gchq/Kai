@@ -23,6 +23,8 @@ import { SqsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 
 export class Worker extends Construct {
 
+    private _function: lambda.Function
+
     constructor(scope: Construct, id: string, props: WorkerProps) {
         super(scope, id);
         this.createConstructs(id, props);
@@ -41,7 +43,7 @@ export class Worker extends Construct {
         }
 
         // Create worker from Lambda
-        const worker = new lambda.Function(this, id + "Lambda", {
+        this._function = new lambda.Function(this, id + "Lambda", {
             runtime: lambda.Runtime.PYTHON_3_7,
             code: new lambda.AssetCode(path.join(__dirname, "lambdas")),
             handler: props.handler,
@@ -50,24 +52,28 @@ export class Worker extends Construct {
             environment: environment
         });
 
-        worker.addEventSource(new SqsEventSource(props.queue, {
+        this._function.addEventSource(new SqsEventSource(props.queue, {
             batchSize: props.batchSize
         }));
 
         // Add permisssions to role
-        worker.addToRolePolicy(new PolicyStatement({
+        this._function.addToRolePolicy(new PolicyStatement({
             actions: [ "eks:DescribeCluster" ],
             resources: [ props.cluster.clusterArn ]
         }));
 
-        props.graphTable.grantReadWriteData(worker);
+        props.graphTable.grantReadWriteData(this._function);
     
-        const workerRole = worker.role;
+        const workerRole = this._function.role;
 
         if (workerRole == undefined) {
             throw new Error("Worker must have an associated IAM Role");
         } else {
             props.cluster.awsAuth.addMastersRole(workerRole);
         }
+    }
+
+    public get functionArn(): string {
+        return this._function.functionArn;
     }
 }

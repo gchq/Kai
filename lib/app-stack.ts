@@ -17,6 +17,7 @@
 import * as cdk from "@aws-cdk/core";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
+import { GraphUninstaller } from "./platform/graph-uninstaller";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
 import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
@@ -72,7 +73,7 @@ export class AppStack extends cdk.Stack {
             batchSize: ADD_GRAPH_WORKER_BATCH_SIZE
         });
 
-        new Worker(this, "DeleteGraphWorker", {
+        const deleteGraphWorker = new Worker(this, "DeleteGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.deleteGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
@@ -80,6 +81,22 @@ export class AppStack extends cdk.Stack {
             handler: "delete_graph.handler",
             timeout: DELETE_GRAPH_TIMEOUT,
             batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE
+        });
+
+        // Graph uninstaller
+        new GraphUninstaller(this, "GraphUninstaller", {
+            getGraphsFunctionArn: kaiRest.getGraphsLambda.functionArn,
+            deleteGraphFunctionArn: kaiRest.deleteGraphLambda.functionArn,
+            kubectlLayer: kubectlLambdaLayer,
+            timeout: cdk.Duration.seconds(30),
+            dependencies: [
+                platform,
+                database,
+                deleteGraphWorker,
+                kaiRest.getGraphsLambda,
+                kaiRest.deleteGraphLambda,
+                kaiRest.deleteGraphQueue
+            ]
         });
     }
 }
