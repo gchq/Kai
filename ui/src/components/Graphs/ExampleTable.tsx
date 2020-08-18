@@ -4,6 +4,8 @@ import {Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, Tab
 import { RestClient } from '../../rest/rest-client';
 import { Graph } from '../../domain/graph';
 import CreateGraph from "./CreateGraph";
+import { DeleteGraphRepo } from '../../rest/repositories/delete-graph-repo';
+import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
 
 interface IState {
     graphs: Graph[],
@@ -31,12 +33,12 @@ export default class ExampleTable extends React.Component<{}, IState> {
         },
     });
 
-    private async getGraphs() :Promise<Graph[]> {
-        return RestClient.getAllGraphs();
+    private async getGraphs(): Promise<Graph[]> {
+        return await new GetAllGraphsRepo().getAll();
     }
     
-    private async deleteAndGetGraphs():Promise<Graph[]> {
-        await RestClient.deleteGraphById(this.state.selectedRow);
+    private async deleteAndGetGraphs(): Promise<Graph[]> {
+        await new DeleteGraphRepo().delete(this.state.selectedRow);
         return await this.getGraphs();
     }
 

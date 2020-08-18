@@ -16,9 +16,9 @@ import { Alert } from '@material-ui/lab';
 import {TransitionProps} from '@material-ui/core/transitions';
 import ClearIcon from "@material-ui/icons/Clear";
 import {makeStyles} from "@material-ui/core/styles";
-import {RestClient} from "../../rest/rest-client";
 import { Schema } from '../../domain/schema';
 import { Notifications } from '../../domain/notifications';
+import { CreateGraphRepo } from '../../rest/repositories/create-graph-repo';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -55,7 +55,7 @@ interface IState {
     newGraph: {
         graphId: string,
         administrators: Array<string>,
-        schema: string,
+        schemaJson: string,
     }
     notifications: Notifications,
 }
@@ -68,7 +68,7 @@ export default class CreateGraph extends React.Component<{}, IState> {
             newGraph: {
                 graphId: "",
                 administrators: [],
-                schema: "",
+                schemaJson: "",
             },
             notifications: new Notifications(),
         }
@@ -98,12 +98,12 @@ export default class CreateGraph extends React.Component<{}, IState> {
     }));
 
     private async submitNewGraph() {
-        const { graphId, administrators, schema } = this.state.newGraph;
-        const _schema = new Schema(schema);
-        const notifications: Notifications = _schema.validation();
+        const { graphId, administrators, schemaJson } = this.state.newGraph;
+        const schema = new Schema(schemaJson);
+        const notifications: Notifications = schema.validation();
 
         if (notifications.isEmpty()) {
-            await RestClient.createNewGraph(graphId, administrators, _schema);
+            await new CreateGraphRepo().create(graphId, administrators, schema);
             this.setState({ dialogIsOpen: false });
 
         } else {
@@ -192,7 +192,7 @@ export default class CreateGraph extends React.Component<{}, IState> {
                                                     this.setState({
                                                         newGraph: {
                                                             ...this.state.newGraph,
-                                                            schema: event.target.value
+                                                            schemaJson: event.target.value
                                                         }
                                                     });
                                                 }}
@@ -211,7 +211,6 @@ export default class CreateGraph extends React.Component<{}, IState> {
                             alignItems="center">
                             <Button onClick={() =>{this.submitNewGraph()}}
                                     type="submit"
-                                // fullWidth
                                     variant="outlined"
                                     color="primary"
                                     className={this.classes.submit}
