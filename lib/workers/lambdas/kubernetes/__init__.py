@@ -6,7 +6,6 @@ logger.setLevel(logging.INFO)
 
 standard_kubeconfig="/tmp/kubeconfig"
 
-
 class HelmClient:
     __HELM_CMD="helm"
 

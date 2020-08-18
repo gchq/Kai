@@ -67,11 +67,11 @@ Example response:
 ```json
 [
     {
-        "graphId": "roadTraffic",
+        "graphName": "roadTraffic",
         "currentState": "DEPLOYED"
     },
     {
-        "graphId": "basicGraph",
+        "graphName": "basicGraph",
         "currentState": "DELETION_QUEUED"
     }
 ]
@@ -83,7 +83,7 @@ Retrieves a single graph from the backend database. If the Graph Id is not found
 Example response:
 ```json
 {
-    "graphId": "roadTraffic",
+    "graphName": "roadTraffic",
     "currentState": "DEPLOYED"
 }
 ```

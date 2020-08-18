@@ -1,13 +1,17 @@
 import boto3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 class Graph:
     """
     Represents a Graph object in a DynamoDB table
     """
-    def __init__(self, table_name, graph_id):
+    def __init__(self, table_name, release_name):
         dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
-        self.graph_id = graph_id
+        self.release_name = release_name
 
     def check_status(self, expected_status):
         """
@@ -15,14 +19,15 @@ class Graph:
         """
         response = self.table.get_item(
             Key={
-                'graphId': self.graph_id
+                "releaseName": self.release_name
             }
         )
+        logger.info(response)
 
         # If the graph does not exist, it cannot have the expected status
         graph = response["Item"]
         if graph is None:
-            return False
+          return False
         
         status = graph["currentState"]
 
@@ -34,7 +39,7 @@ class Graph:
         """
         self.table.update_item(
             Key={
-                "graphId": self.graph_id
+                "releaseName": self.release_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
@@ -48,6 +53,6 @@ class Graph:
         """
         self.table.delete_item(
         Key={
-            "graphId": self.graph_id
+            "releaseName": self.release_name
         }
     )
