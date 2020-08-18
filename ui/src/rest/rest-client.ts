@@ -15,13 +15,13 @@ export class RestClient {
     }
 
     public static async get(): Promise<IApiResponse> {
-      const response = await fetch(`${API_HOST}/graphs`, {
+      const response: Response = await fetch(`${API_HOST}/graphs`, {
         method: 'GET',
       });
-      
+
       return {
         status: response.status,
-        body: response.json(),
+        body: await response.json(),
       }
     }
 
@@ -33,7 +33,7 @@ export class RestClient {
 
         return {
           status: response.status,
-          body: response.json(),
+          body: await response.json(),
         }
     }
 
@@ -44,7 +44,7 @@ export class RestClient {
 
         return {
           status: response.status,
-          body: response.json(),
+          body: await response.json(),
         }
     }
 }
