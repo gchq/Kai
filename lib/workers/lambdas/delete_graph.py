@@ -19,19 +19,19 @@ def uninstall_release(helm_client, body):
     """
     Uninstalls a release from the Kubernetes Cluster
     """
-    graph_id = body["graphId"]
+    release_Name = body["releaseName"]
     expected_status=body["expectedStatus"]
 
     # Create a Graph object to track the deletion
-    graph = Graph(graph_table_name, graph_id)
+    graph = Graph(graph_table_name, release_Name)
 
     if not graph.check_status(expected_status):
-        logger.warn("Graph %s had unexpected status. Abandoning delete", graph_id)
+        logger.warn("Graph %s had unexpected status. Abandoning delete", release_Name)
         return
 
     graph.update_status("DELETION_IN_PROGRESS")
 
-    uninstalled = helm_client.uninstall_chart(graph_id)
+    uninstalled = helm_client.uninstall_chart(release_Name)
     if uninstalled:
         graph.delete()
     else:

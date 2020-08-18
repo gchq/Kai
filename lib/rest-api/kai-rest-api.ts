@@ -33,7 +33,7 @@ export class KaiRestApi extends cdk.Construct {
         // REST API
         const restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
         const graphsResource = restApi.root.addResource("graphs");
-        const graph = graphsResource.addResource("{graphId}");
+        const graph = graphsResource.addResource("{graphName}");
 
         // Create MethodOptions to secure access to the RestApi methods using the Cognito user pool
         const methodOptions = new KaiRestAuthorizer(this, "KaiRestApiAuthorizer", {
