@@ -1,6 +1,7 @@
 import { RestClient } from '../../src/rest/rest-client';
 import { Graph } from '../../src/domain/graph';
 import helpers from "../setupTests";
+import { Schema } from '../../src/domain/schema';
 
 beforeEach(() => {
   fetchMock.resetMocks();
@@ -95,15 +96,22 @@ describe('Delete graph by ID', () => {
 
 });
 describe('Create a new Graph', () => {
+  it('should called with ', async() =>{
+    const schema= new Schema(JSON.stringify({ elements: {}, types: {} }));
+
+    fetchMock.mockResponse("", {status: 201});
+
+    await RestClient.createNewGraph('id', [], schema)
+
+    await expect(RestClient.createNewGraph('id', [], schema)).resolves.toEqual(undefined);
+  })
   it('should throw unexpected response error, when response status is not 201 ', async() =>{
-    const newGraphRequest= {
-      graphId: "testId",
-      schema: "testing"
-    };
+    const schema= new Schema(JSON.stringify({ elements: {}, types: {} }));
+
 
     fetchMock.mockResponse("", {status: 500});
 
-    await expect(RestClient.createNewGraph(newGraphRequest)).rejects.toEqual(Error('Graph was not created.'));
+    await expect(RestClient.createNewGraph('id', [], schema)).rejects.toEqual(Error('Graph was not created.'));
   })
   // it ('should respond with a 201 status, when a new graph is created', ())
 })

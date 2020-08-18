@@ -1,8 +1,10 @@
 import {mount} from 'enzyme';
 import ExampleTable from '../../../src/components/Graphs/ExampleTable';
 import React from 'react';
+
 describe('When ExampleTable mounts', () => {
     const wrapper = mount(<ExampleTable/>);
+
     it('should display only 1 table element', () => {
         const table = wrapper.find('table');
         expect(table).toHaveLength(1);
@@ -35,41 +37,3 @@ describe('When ExampleTable mounts', () => {
         })
     })
 });
-// describe('When ExampleTable mounts', ()=> {
-//   it('should only have 1 table body', ()=>{
-//     const wrapper = mount(<ExampleTable />);
-//     const tableBody= wrapper.find('tbody');
-//     expect(tableBody).toHaveLength(1);
-//
-//
-//   });
-// });
-// describe('When ExampleTable mounts', ()=> {
-//   it('should get and display all graphs', ()=>{
-//     const wrapper = shallow(<ExampleTable />);
-//
-//     expect(wrapper.find('').html()).toEqual('owenfiwof');
-//   });
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

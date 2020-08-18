@@ -3,22 +3,35 @@ import { Notifications } from "./notifications";
 export class Schema {
 
     private schema: any;
-
-    constructor(schema: object){
+    constructor(schema: string){
         this.schema = schema;
     }
 
-    public getSchema(): object {
+    public getSchema(): ISchema {
         return this.schema;
     }
 
     public validation(): Notifications {
         const notes: Notifications = new Notifications();
 
+        if (!this.schemaIsValidJson(notes)) {
+            return notes;
+        }
+
         this.validateElements(notes);
         this.validateTypes(notes);
         this.validateInvalidProperties(notes);
         return notes;
+    }
+
+    private schemaIsValidJson(notes: Notifications): boolean {
+        try {
+            this.schema = JSON.parse(this.schema);
+            return true;
+        } catch (e) {
+            notes.addError('Schema is not valid JSON');
+            return false;
+        }
     }
 
     private validateElements(notes: Notifications): void {
@@ -36,7 +49,12 @@ export class Schema {
     private validateInvalidProperties(notes: Notifications) {
         const invalidProperties = Object.keys(this.schema).filter(key =>  key !== 'elements' && key !== 'types');
         if (invalidProperties.length > 0) {
-            notes.addError('["' + invalidProperties.join('", "').toString() + '"] are invalid schema properties');
+            notes.addError('["' + invalidProperties.join('", "').toString() + '"] are invalid schema root properties');
         }
     }
+}
+
+interface ISchema {
+    elements: object,
+    types: object,
 }

@@ -1,5 +1,7 @@
 import { Graph } from '../domain/graph';
 import { API_HOST } from './api-config';
+import { Schema } from '../domain/schema';
+import { ICreateGraphRequestBody } from './http-message-interfaces/request-interfaces';
 
 export class RestClient {
 
@@ -37,11 +39,16 @@ export class RestClient {
     }
   }
 
-  public static async createNewGraph(newGraph: {}): Promise<void> {
+  public static async createNewGraph(graphId: string, administrators: Array<string>, schema: Schema): Promise<void> {
+      const httpRequestBody: ICreateGraphRequestBody = {
+          graphId: graphId,
+          administrators: administrators,
+          schema: schema.getSchema(),
+      }
+
       const response = await fetch(`${API_HOST}/graphs`, {
           method: 'POST',
-          body: JSON.stringify(newGraph)
-
+          body: JSON.stringify(httpRequestBody),
       });
       
       if (response.status !== 201) {

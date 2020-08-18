@@ -12,11 +12,13 @@ import {
     TextField,
     Typography
 } from '@material-ui/core'
+import { Alert } from '@material-ui/lab';
 import {TransitionProps} from '@material-ui/core/transitions';
 import ClearIcon from "@material-ui/icons/Clear";
 import {makeStyles} from "@material-ui/core/styles";
-import {Graph} from "../../domain/graph";
 import {RestClient} from "../../rest/rest-client";
+import { Schema } from '../../domain/schema';
+import { Notifications } from '../../domain/notifications';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -40,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
         margin: "10px",
     }
 }));
+
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & { children?: React.ReactElement<any, any> },
     ref: React.Ref<unknown>,
@@ -48,26 +51,22 @@ const Transition = React.forwardRef(function Transition(
 });
 
 interface IState {
-    // graphId: string,
-    // schema: string,
     dialogIsOpen: boolean,
-    newGraph: {
-        graphId: string,
-        schema: string
-
-    }
+    graphId: string,
+    schema: string,
+    administrators: Array<string>,
+    notifications: Notifications,
 }
 
 export default class CreateGraph extends React.Component<{}, IState> {
     constructor(props: Object) {
         super(props);
         this.state = {
-            newGraph: {
-                graphId: "",
-                schema: ""
-
-            },
             dialogIsOpen: false,
+            graphId: "",
+            administrators: [],
+            schema: "",
+            notifications: new Notifications(),
         }
     }
 
@@ -93,20 +92,27 @@ export default class CreateGraph extends React.Component<{}, IState> {
             margin: "10px",
         }
     }));
-    private async createGraph(): Promise<any>{
-        return await RestClient.createNewGraph(this.state.newGraph)
 
+    private async submitNewGraph() {
+        const { graphId, administrators, schema } = this.state;
+        const _schema = new Schema(schema);
+        const notifications: Notifications = _schema.validation();
+
+        if (notifications.isEmpty()) {
+            await RestClient.createNewGraph(graphId, administrators, _schema);
+            this.setState({ dialogIsOpen: false });
+
+        } else {
+            this.setState({ notifications: notifications });
+        }
     }
 
     public render() {
-
-
         const openDialogBox = () => {
-            this.setState({dialogIsOpen: true})
+            this.setState({ dialogIsOpen: true });
         };
-
         const closeDialogBox = () => {
-            this.setState({dialogIsOpen: false})
+            this.setState({ dialogIsOpen: false });
         };
 
         return (
@@ -138,6 +144,8 @@ export default class CreateGraph extends React.Component<{}, IState> {
                     <DialogContent>
                         <Container component="main" maxWidth="xs">
                             <CssBaseline/>
+                            {!this.state.notifications.isEmpty() &&
+                                <Alert variant="outlined" severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
                             <div className={this.classes.paper}>
                                 <Typography component="h2" variant="h5">
                                     Create Graph
@@ -183,15 +191,10 @@ export default class CreateGraph extends React.Component<{}, IState> {
                                                             schema: event.target.value
                                                         }
                                                     });
-
-
                                                 }}
                                             />
                                         </Grid>
-
-
                                     </Grid>
-
                                 </form>
                             </div>
                         </Container>
@@ -202,29 +205,19 @@ export default class CreateGraph extends React.Component<{}, IState> {
                             direction="row"
                             justify="center"
                             alignItems="center">
-                            <Button onClick={() =>{
-                                closeDialogBox();
-                                this.createGraph();
-                                // console.log(this.state.newGraph);
-                            }
-                                }
+                            <Button onClick={() =>{this.submitNewGraph()}}
                                     type="submit"
                                 // fullWidth
                                     variant="outlined"
                                     color="primary"
                                     className={this.classes.submit}
-
                             >
                                 Submit
                             </Button>
                         </Grid>
-
-
                     </DialogActions>
                 </Dialog>
             </div>
         );
     }
-
-
 }

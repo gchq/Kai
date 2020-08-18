@@ -9,4 +9,8 @@ export class Notifications {
     public errorMessage(): string {
         return this.errors.join(', ');
     }
+
+    public isEmpty(): boolean {
+        return this.errors.length === 0;
+    }
 }
