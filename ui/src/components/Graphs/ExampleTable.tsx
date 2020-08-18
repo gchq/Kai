@@ -1,7 +1,6 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@material-ui/core'
-import { RestClient } from '../../rest/rest-client';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
 import { Graph } from '../../domain/graph';
 import CreateGraph from "./CreateGraph";
 import { DeleteGraphRepo } from '../../rest/repositories/delete-graph-repo';

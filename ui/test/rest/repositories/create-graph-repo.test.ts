@@ -7,7 +7,8 @@ const repo = new CreateGraphRepo();
 
 // TODO: Error handline, 5**/4** statuses
 
-describe('Create Graph ', ()=> {
+describe('Create Graph Repo', ()=> {
+
     it('should called with ', async() =>{
         restClient.mockReturnValueOnce({status: 201});
         
@@ -15,6 +16,7 @@ describe('Create Graph ', ()=> {
     
         await expect(repo.create('id', [], schema)).resolves.toEqual(undefined);
     });
+    
     it('should throw unexpected response error, when response status is not 201 ', async() =>{
         restClient.mockReturnValueOnce({status: 500});
         

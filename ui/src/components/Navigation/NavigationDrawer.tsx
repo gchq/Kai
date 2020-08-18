@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
-
 import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
-
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    AppBar, Toolbar, Typography,
-    IconButton, Drawer, MenuList,
-    MenuItem, ListItemText, Link,
-    Grid, Box
-} from '@material-ui/core';
+import { AppBar, Toolbar, Typography, IconButton, Drawer, MenuList, MenuItem, ListItemText } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -1,7 +1,6 @@
 import {Box, Typography} from "@material-ui/core";
 import React from "react";
 
-
 export default function TabPanel(props: { [x: string]: any; children: any; value: any; index: any; }) {
     const { children, value, index, ...other } = props;
 

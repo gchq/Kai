@@ -1,10 +1,9 @@
 import React from 'react';
-import {makeStyles, Typography, Grid, Divider, Box, Container, Paper} from "@material-ui/core";
+import {makeStyles, Grid, Paper} from "@material-ui/core";
 import ExampleTable from './Graphs/ExampleTable'
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        //width: '100%',
         marginTop: 10
     },
     container: {
@@ -13,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Page1() {
+    
     const classes = useStyles();
 
     return (
@@ -23,7 +23,6 @@ export default function Page1() {
             <Paper>
                 <ExampleTable/>
             </Paper>
-
         </Grid>
     );
 }

@@ -8,7 +8,7 @@ const repo = new GetAllGraphsRepo();
 // TODO: Error handline, 5**/4** statuses
 
 describe('Get All Graphs Repo', ()=> {
-    it('should return one Graph when api returns one', async() =>{
+    it('should return many Graphs when api returns many', async() =>{
         const apiResponse = {
             status: 200,
             body: [ {

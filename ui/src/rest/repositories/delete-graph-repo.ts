@@ -1,6 +1,4 @@
 import { RestClient, IApiResponse } from "../rest-client";
-import { IAllGraphsResponse } from "../http-message-interfaces/response-interfaces";
-import { Graph } from "../../domain/graph";
 
 export class DeleteGraphRepo { 
 
