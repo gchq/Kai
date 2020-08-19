@@ -1,9 +1,10 @@
-import { Notifications } from "./notifications";
+import { Notifications } from './notifications';
 
 export class Schema {
 
     private schema: any;
-    constructor(schema: string){
+    
+    constructor(schema: string) {
         this.schema = schema;
     }
 
@@ -47,7 +48,8 @@ export class Schema {
     }
 
     private validateInvalidProperties(notes: Notifications) {
-        const invalidProperties = Object.keys(this.schema).filter(key =>  key !== 'elements' && key !== 'types');
+        const invalidProperties = Object.keys(this.schema).filter((key) => key !== 'elements' && key !== 'types');
+
         if (invalidProperties.length > 0) {
             notes.addError('["' + invalidProperties.join('", "').toString() + '"] are invalid schema root properties');
         }
@@ -55,6 +57,6 @@ export class Schema {
 }
 
 interface ISchema {
-    elements: object,
-    types: object,
+    elements: object;
+    types: object;
 }

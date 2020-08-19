@@ -1,8 +1,8 @@
 export interface ICreateGraphRequestBody {
-    graphId: string,
-    administrators: Array<string>,
+    graphId: string;
+    administrators: Array<string>;
     schema: {
-        elements: object,
-        types: object,
-    }
+        elements: object;
+        types: object;
+    };
 }

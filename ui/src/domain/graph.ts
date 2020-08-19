@@ -1,9 +1,9 @@
 export class Graph {
-
+    
     private graphId: string;
     private status: string;
 
-    constructor(graphId: string, status: string){
+    constructor(graphId: string, status: string) {
         this.graphId = graphId;
         this.status = status;
     }
@@ -12,7 +12,7 @@ export class Graph {
         return this.graphId;
     }
 
-    public getStatus() : string {
+    public getStatus(): string {
         return this.status;
     }
 }

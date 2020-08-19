@@ -1,20 +1,24 @@
-import fetch from "jest-fetch-mock";
+import fetch from 'jest-fetch-mock';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
- 
+
 Enzyme.configure({ adapter: new Adapter() });
 
 fetch.enableMocks();
 
 const syncify = async (fn: any) => {
     try {
-      const result = await fn();
-      return () => { return result; };
+        const result = await fn();
+        return () => {
+            return result;
+        };
     } catch (e) {
-      return () => { throw e; };
+        return () => {
+            throw e;
+        };
     }
-  };
+};
 
-  export default {
-    syncify
-  }
+export default {
+    syncify,
+};
