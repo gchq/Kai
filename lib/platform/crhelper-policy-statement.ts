@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-import { Table } from "@aws-cdk/aws-dynamodb";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
-export interface KaiRestApiProps {
-    graphTable: Table;
-    userPoolArn: string;
-    userPoolId: string;
-}
+export const crhelperPolicyStatement: PolicyStatement = new PolicyStatement({
+    resources: ["*"],
+    actions: [
+        "lambda:AddPermission",
+        "lambda:RemovePermission",
+        "events:PutRule",
+        "events:DeleteRule",
+        "events:PutTargets",
+        "events:RemoveTargets"
+    ]
+});

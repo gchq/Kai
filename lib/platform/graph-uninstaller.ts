@@ -20,6 +20,7 @@ import { GraphUninstallerProps } from "./graph-uninstaller-props";
 import { Function, Runtime, AssetCode } from "@aws-cdk/aws-lambda";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { Provider } from "@aws-cdk/custom-resources";
+import { crhelperPolicyStatement } from "./crhelper-policy-statement";
 
 export class GraphUninstaller extends Construct {
 
@@ -42,9 +43,8 @@ export class GraphUninstaller extends Construct {
             }
         });
 
-        const lambdaInvokePolicyStatement: PolicyStatement = new PolicyStatement({
+        const lambdaInvokeGetGraphsPolicyStatement: PolicyStatement = new PolicyStatement({
             resources: [
-                props.deleteGraphFunctionArn,
                 props.getGraphsFunctionArn
             ],
             actions: [
@@ -52,18 +52,49 @@ export class GraphUninstaller extends Construct {
             ]
         });
 
+        const lambdaInvokeDeleteGraphPolicyStatement: PolicyStatement = new PolicyStatement({
+            resources: [
+                props.deleteGraphFunctionArn
+            ],
+            actions: [
+                "lambda:InvokeFunction"
+            ]
+        });
+
         if (uninstallGraphsLambda.role) {
-            uninstallGraphsLambda.role.addToPolicy(lambdaInvokePolicyStatement);
+            uninstallGraphsLambda.role.addToPolicy(crhelperPolicyStatement);
+            uninstallGraphsLambda.role.addToPolicy(lambdaInvokeGetGraphsPolicyStatement);
+            uninstallGraphsLambda.role.addToPolicy(lambdaInvokeDeleteGraphPolicyStatement);
+        }
+
+        const uninstallGraphsIsCompleteLambda = new Function(this, "UninstallGraphsIsCompleteLambda", {
+            runtime: Runtime.PYTHON_3_7,
+            code: new AssetCode(path.join(__dirname, "lambdas")),
+            handler: "uninstall_graphs_is_complete.handler",
+            layers: [ props.kubectlLayer ],
+            timeout: props.timeout,
+            environment: {
+                "get_graphs_function_arn": props.getGraphsFunctionArn
+            }
+        });
+
+        if (uninstallGraphsIsCompleteLambda.role) {
+            uninstallGraphsIsCompleteLambda.role.addToPolicy(lambdaInvokeGetGraphsPolicyStatement);
         }
 
         const uninstallGraphsCustomResourceProvider = new Provider(this, "UninstallGraphsCustomResourceProvider", {
-            onEventHandler: uninstallGraphsLambda
+            onEventHandler: uninstallGraphsLambda,
+            isCompleteHandler: uninstallGraphsIsCompleteLambda
         });
 
         const uninstallGraphsCustomResource = new CustomResource(this, "UninstallGraphsCustomResource", {
             serviceToken: uninstallGraphsCustomResourceProvider.serviceToken
         });
 
+        /* Ensure deletion of the uninstallGraphsCustomResource occurs before the uninstallGraphsCustomResourceProvider. */
+        uninstallGraphsCustomResource.node.addDependency(uninstallGraphsCustomResourceProvider);
+
+        /* Ensure all the dependencies required to uninstall graphs are retained until the uninstallGraphsCustomResource has been deleted successfully. */
         for (const dependency of props.dependencies) {
             uninstallGraphsCustomResource.node.addDependency(dependency);
         }

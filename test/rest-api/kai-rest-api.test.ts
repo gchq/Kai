@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
+import { expect as expectCDK, haveResource, haveResourceLike, countResourcesLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
+import * as api from "@aws-cdk/aws-apigateway";
 import * as rest from "../../lib/rest-api/kai-rest-api";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
 import { ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT } from "../../lib/constants";
@@ -26,7 +27,9 @@ function createRestAPI(stack: cdk.Stack, id = "Test"): rest.KaiRestApi {
     });
 
     return new rest.KaiRestApi(stack, id, {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 }
 
@@ -105,7 +108,7 @@ test("The REST API should have a resource which can GET specific graphs", () => 
  
     // Then
     expectCDK(stack).to(haveResource("AWS::ApiGateway::Resource", {
-        PathPart: "{graphId}",
+        PathPart: "{graphName}",
         ParentId: {
             "Ref": "TestTestRestApigraphs6F3DCBD4"
         }
@@ -114,7 +117,7 @@ test("The REST API should have a resource which can GET specific graphs", () => 
     expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
         HttpMethod: "GET",
         ResourceId: {
-            Ref: "TestTestRestApigraphsgraphId0A18A4C6"
+            Ref: "TestTestRestApigraphs6F3DCBD4"
         },
         RestApiId: {
             Ref: "TestTestRestApiF3AB3CBC"
@@ -191,7 +194,7 @@ test("The specific Graph resource should handle DELETE requests", () => {
     expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
         HttpMethod: "DELETE",
         ResourceId: {
-            Ref: "TestTestRestApigraphsgraphId0A18A4C6"
+            Ref: "TestTestRestApigraphsgraphNameB9AC8DA7"
         },
         RestApiId: {
             Ref: "TestTestRestApiF3AB3CBC"
@@ -225,7 +228,7 @@ test("Should create a lambda to send messages to the deleteGraph queue", () => {
     }));
 });
 
-test("Should allow the Delete Graph Lambda to write to the backend database and Send messages to the Queue", () => {
+test("Should allow the Delete Graph Lambda to read/write to the backend database and Send messages to the Queue", () => {
     // Given
     const stack = new cdk.Stack();
 
@@ -238,6 +241,12 @@ test("Should allow the Delete Graph Lambda to write to the backend database and 
             "Statement": [
                 {
                     "Action": [
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:GetRecords",
+                        "dynamodb:GetShardIterator",
+                        "dynamodb:Query",
+                        "dynamodb:GetItem",
+                        "dynamodb:Scan",
                         "dynamodb:BatchWriteItem",
                         "dynamodb:PutItem",
                         "dynamodb:UpdateItem",
@@ -291,7 +300,9 @@ test("should create a queue for AddGraph messages to be sent to workers", () => 
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -309,7 +320,9 @@ test("should create lambda to write messages to the Add Graph Queue", () => {
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -318,7 +331,7 @@ test("should create lambda to write messages to the Add Graph Queue", () => {
     }));
 });
 
-test("should allow AddGraphLambda to write messages to queue and write to Dynamodb", () => {
+test("should allow AddGraphLambda to write messages to queue, list Cognito users and read/write to Dynamodb", () => {
     // Given
     const stack = new cdk.Stack();
     const table = new Table(stack, "test", {
@@ -327,7 +340,9 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
 
     // When
     new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table
+        "graphTable": table,
+        "userPoolArn": "userPoolArn",
+        "userPoolId": "userPoolId"
     });
 
     // Then
@@ -335,7 +350,18 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
         "PolicyDocument": {
             "Statement": [
                 {
+                    "Action": "cognito-idp:ListUsers",
+                    "Effect": "Allow",
+                    "Resource": "userPoolArn"
+                },
+                {
                     "Action": [
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:GetRecords",
+                        "dynamodb:GetShardIterator",
+                        "dynamodb:Query",
+                        "dynamodb:GetItem",
+                        "dynamodb:Scan",
                         "dynamodb:BatchWriteItem",
                         "dynamodb:PutItem",
                         "dynamodb:UpdateItem",
@@ -379,3 +405,25 @@ test("should allow AddGraphLambda to write messages to queue and write to Dynamo
         ] 
     }));
 });
+
+test("All Rest API Methods should be configured with the KaiRestAuthorizer", () => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    createRestAPI(stack);
+
+    // Then
+    const apiGatewayMethodCount = stack.node.findAll().filter(isApiGatewayMethod).length;
+
+    expectCDK(stack).to(countResourcesLike("AWS::ApiGateway::Method", apiGatewayMethodCount, {
+        AuthorizationType: "COGNITO_USER_POOLS",
+        AuthorizerId: {
+            Ref: "TestKaiRestApiAuthorizerB0CFBC9B"
+        }
+    }));
+});
+
+function isApiGatewayMethod(construct: cdk.IConstruct): boolean {
+    return (construct instanceof api.Method);
+}

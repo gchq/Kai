@@ -33,7 +33,7 @@ export class AppStack extends cdk.Stack {
         super(scope, id, props);
 
         // User Pool
-        new KaiUserPool(this, "KaiUserPool");
+        const userPool = new KaiUserPool(this, "KaiUserPool");
 
         // Graph Platform
         const platform = new GraphPlatForm(this, "GraphPlatform");
@@ -44,7 +44,9 @@ export class AppStack extends cdk.Stack {
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
-            graphTable: database.table
+            graphTable: database.table,
+            userPoolArn: userPool.userPoolArn,
+            userPoolId: userPool.userPoolId
         });
 
         // Kubectl Lambda layer
@@ -92,11 +94,17 @@ export class AppStack extends cdk.Stack {
         // Graph uninstaller
         new GraphUninstaller(this, "GraphUninstaller", {
             getGraphsFunctionArn: kaiRest.getGraphsLambda.functionArn,
-            deleteGraphFunctionArn: deleteGraphWorker.functionArn,
+            deleteGraphFunctionArn: kaiRest.deleteGraphLambda.functionArn,
             kubectlLayer: kubectlLambdaLayer,
-            timeout: DELETE_GRAPH_TIMEOUT,
+            timeout: cdk.Duration.seconds(30),
             dependencies: [
-                platform, database, deleteGraphWorker, kaiRest.getGraphsLambda, volumeRemover
+                platform,
+                database,
+                deleteGraphWorker,
+                kaiRest.getGraphsLambda,
+                kaiRest.deleteGraphLambda,
+                kaiRest.deleteGraphQueue,
+                volumeRemover
             ]
         });
     }
