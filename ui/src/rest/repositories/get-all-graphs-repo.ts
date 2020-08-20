@@ -5,15 +5,13 @@ import { Graph } from '../../domain/graph';
 export class GetAllGraphsRepo {
     
     public async getAll(): Promise<Graph[]> {
-        const response: IApiResponse = await RestClient.get();
+        const response: IApiResponse<IAllGraphsResponse> = await RestClient.get();
 
         if (response.status !== 200) {
             throw new Error(`Error (${response.status}): Unable to get response`);
         }
 
-        const responseBody: IAllGraphsResponse = response.body;
-
-        return responseBody.map((jsonObject: any) => {
+        return response.data.map((jsonObject: any) => {
             return new Graph(jsonObject.graphId, jsonObject.currentState);
         });
     }

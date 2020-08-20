@@ -1,6 +1,7 @@
-import { RestClient } from '../../../src/rest/rest-client';
+import { RestClient, IApiResponse } from '../../../src/rest/rest-client';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
 import { Graph } from '../../../src/domain/graph';
+import { IAllGraphsResponse } from '../../../src/rest/http-message-interfaces/response-interfaces';
 
 const restClient = (RestClient.get = jest.fn());
 const repo = new GetAllGraphsRepo();
@@ -9,9 +10,9 @@ const repo = new GetAllGraphsRepo();
 
 describe('Get All Graphs Repo', () => {
     it('should return many Graphs when api returns many', async () => {
-        const apiResponse = {
+        const apiResponse: IApiResponse<IAllGraphsResponse> = {
             status: 200,
-            body: [
+            data: [
                 {
                     graphId: 'roadTraffic',
                     currentState: 'DEPLOYED',
@@ -31,9 +32,9 @@ describe('Get All Graphs Repo', () => {
     });
 
     it('should return one Graph when api returns one', async () => {
-        const apiResponse = {
+        const apiResponse: IApiResponse<IAllGraphsResponse> = {
             status: 200,
-            body: [
+            data: [
                 {
                     graphId: 'streetTraffic',
                     currentState: 'DELETION_QUEUED',

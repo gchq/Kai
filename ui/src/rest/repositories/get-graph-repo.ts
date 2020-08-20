@@ -4,14 +4,8 @@ import { IGraphByIdResponse } from '../http-message-interfaces/response-interfac
 
 export class GetGraphRepo {
     public async get(graphId: string): Promise<Graph> {
-        const response: IApiResponse = await RestClient.get(graphId);
+        const response: IApiResponse<IGraphByIdResponse> = await RestClient.get(graphId);
 
-        if (response.status !== 200) {
-            throw new Error('Something went wrong.');
-        }
-
-        const responseBody: IGraphByIdResponse = response.body;
-
-        return new Graph(responseBody.graphId, responseBody.currentState);
+        return new Graph(response.data.graphId, response.data.currentState);
     }
 }

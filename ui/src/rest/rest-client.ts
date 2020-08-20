@@ -1,47 +1,43 @@
 import { API_HOST } from './api-config';
+import axios, { AxiosResponse } from 'axios';
 
 export class RestClient {
-    
     public static async get(pathVariable?: string): Promise<IApiResponse> {
         const path = pathVariable ? `/${pathVariable}` : ``;
 
-        const response: Response = await fetch(`${API_HOST}/graphs${path}`, {
-            method: 'GET',
-        });
-
-        return this.convert(response);
+        try {
+            const response: AxiosResponse<any> = await axios.get(`${API_HOST}/graphs${path}`);
+            return this.convert(response);
+        } catch (e) {
+            throw new Error(e.message);
+        }
     }
 
     public static async post(httpRequestBody: object): Promise<IApiResponse> {
-        const response: Response = await fetch(`${API_HOST}/graphs`, {
-            method: 'POST',
-            body: JSON.stringify(httpRequestBody),
-        });
+        const response: AxiosResponse<any> = await axios.post(`${API_HOST}/graphs`, httpRequestBody);
 
         return this.convert(response);
     }
 
     public static async delete(urlPathVariable: string): Promise<IApiResponse> {
-        const response: Response = await fetch(`${API_HOST}/graphs/` + urlPathVariable, {
-            method: 'DELETE',
-        });
+        const response: AxiosResponse<any> = await axios.delete(`${API_HOST}/graphs/${urlPathVariable}`);
 
         return this.convert(response);
     }
 
-    private static async convert(response: Response): Promise<IApiResponse> {
+    private static async convert(response: AxiosResponse<any>): Promise<IApiResponse> {
         if (response.status >= 400) {
             throw new Error(`(${response.status}): ${response.statusText}`);
         }
 
         return {
             status: response.status,
-            body: await response.json(),
+            data: response.data,
         };
     }
 }
 
-export interface IApiResponse {
+export interface IApiResponse<T = any> {
     status: number;
-    body: any;
+    data: T;
 }

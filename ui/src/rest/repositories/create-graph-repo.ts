@@ -11,7 +11,7 @@ export class CreateGraphRepo {
             schema: schema.getSchema(),
         };
 
-        const response: IApiResponse = await RestClient.post(httpRequestBody);
+        const response: IApiResponse<undefined> = await RestClient.post(httpRequestBody);
 
         if (response.status !== 201) {
             throw new Error('Graph was not created.');

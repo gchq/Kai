@@ -21,9 +21,11 @@ export default class ExampleTable extends React.Component<{}, IState> {
     }
 
     public async componentDidMount() {
-        this.setState({
-            graphs: await this.getGraphs(),
-        })
+        try {
+            this.setState({ graphs: await new GetAllGraphsRepo().getAll() });
+        } catch (e) {
+            console.log(e.message);
+        }
     }
     
     private classes: any = makeStyles({
@@ -31,14 +33,10 @@ export default class ExampleTable extends React.Component<{}, IState> {
             minWidth: 650,
         },
     });
-
-    private async getGraphs(): Promise<Graph[]> {
-        return await new GetAllGraphsRepo().getAll();
-    }
     
     private async deleteAndGetGraphs(): Promise<Graph[]> {
         await new DeleteGraphRepo().delete(this.state.selectedRow);
-        return await this.getGraphs();
+        return await new GetAllGraphsRepo().getAll();
     }
 
     public render() {
