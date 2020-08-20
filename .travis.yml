@@ -4,6 +4,5 @@ node_js:
   - node
 
 script:
-  - cd infrastructure/
-  - npm run lint
-  - npm run test
+  - cd infrastructure/ && npm run lint
+  - cd infrastructure/ && npm run test
