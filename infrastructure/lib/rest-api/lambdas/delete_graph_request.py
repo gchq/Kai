@@ -15,31 +15,34 @@ def handler(event, context):
     params = event["pathParameters"]
 
     # Check request is valid
-    graph_id = params["graphId"]
+    graph_name = params["graphName"]
 
-    if graph_id is None:
+    # Convert graph name to lowercase
+    release_name = graph.format_graph_name(graph_name)    
+
+    if graph_name is None:
         return {
             statusCode: 400,
-            body: "graphId is a required field"
+            body: "graphName is a required field"
         }
 
     requesting_user = user.get_requesting_cognito_user(event)
-    if not user.is_authorized(requesting_user, graph_id):
+    if not user.is_authorized(requesting_user, graph_name):
         return {
             "statusCode": 403,
-            "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_id)
+            "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_name)
         }
 
     initial_status = "DELETION_QUEUED"
 
     # Add Entry to table
     try:
-        graph.update_graph(graph_id, initial_status)
+        graph.update_graph(release_name, initial_status)
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Graph " + graph_id + " does not exist. It may have already been deleted"
+                "body": "Graph " + graph_name + " does not exist. It may have already been deleted"
             }
         else:
             return {
@@ -49,7 +52,8 @@ def handler(event, context):
 
     # Set the status so the worker knows what to expect. This also filters out anything else in the body
     message = {
-        "graphId": graph_id,
+        "graphName": graph_name,
+        "releaseName": release_name,
         "expectedStatus": initial_status
     }
 

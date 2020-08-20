@@ -27,7 +27,7 @@ function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandle
     if (extraSGs !== undefined) {
         stack.node.setContext("extraIngressSecurityGroups", extraSGs);
     }
-    const donorCluster = new Cluster(stack, "testCluster", { version: KubernetesVersion.V1_17 });
+    const donorCluster = new Cluster(stack, "testCluster", { version: KubernetesVersion.V1_16 });
     const donorQueue = new Queue(stack, "testQueue");
     const table = new Table(stack, "test", {
         partitionKey: {name: "test", type: AttributeType.STRING}
