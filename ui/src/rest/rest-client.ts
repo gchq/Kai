@@ -5,12 +5,9 @@ export class RestClient {
     public static async get(pathVariable?: string): Promise<IApiResponse> {
         const path = pathVariable ? `/${pathVariable}` : ``;
 
-        try {
-            const response: AxiosResponse<any> = await axios.get(`${API_HOST}/graphs${path}`);
-            return this.convert(response);
-        } catch (e) {
-            throw new Error(e.message);
-        }
+        const response: AxiosResponse<any> = await axios.get(`${API_HOST}/graphs${path}`);
+        
+        return this.convert(response);
     }
 
     public static async post(httpRequestBody: object): Promise<IApiResponse> {

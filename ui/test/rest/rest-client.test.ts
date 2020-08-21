@@ -5,7 +5,7 @@ var MockAdapter = require('axios-mock-adapter');
 
 var mock = new MockAdapter(axios);
 
-describe('200 Responses', () => {
+describe('2** Responses', () => {
     beforeAll(() =>
         mock
             .onGet('/graphs')
@@ -59,4 +59,32 @@ describe('200 Responses', () => {
     });
 });
 
-// TODO: handle 4**/5** errors
+describe('4** Responses', () => {
+    beforeAll(() =>
+        mock
+            .onGet('/graphs')
+            .reply(404)
+            .onGet('/graphs/unfindable-graph')
+            .reply(404)
+            .onPost('/graphs', { request: 'not-found' })
+            .reply(404)
+            .onDelete('/graphs/already-deleted')
+            .reply(404)
+    );
+    afterAll(() => mock.resetHandlers());
+
+    it('should throw 404 Error Message when api returns 404', async () => {
+        expect(RestClient.get()).rejects.toThrow(new Error('Request failed with status code 404'));
+    });
+    it('should throw 404 Error Message when api returns 404', async () => {
+        expect(RestClient.get('unfindable-graph')).rejects.toThrow(new Error('Request failed with status code 404'));
+    });
+    it('should throw 404 Error Message when api returns 404', async () => {
+        expect(RestClient.post({ request: 'not-found' })).rejects.toThrow(
+            new Error('Request failed with status code 404')
+        );
+    });
+    it('should throw 404 Error Message when api returns 404', async () => {
+        expect(RestClient.delete('unfindable-graph')).rejects.toThrow(new Error('Request failed with status code 404'));
+    });
+});
