@@ -1,11 +1,11 @@
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { RestClient } from '../../src/rest/rest-client';
+import { ApiError } from '../../src/domain/errors/api-error';
 
-var axios = require('axios');
-var MockAdapter = require('axios-mock-adapter');
+const mock = new MockAdapter(axios);
 
-var mock = new MockAdapter(axios);
-
-describe('2** Responses', () => {
+describe('RestClient 2** Responses', () => {
     beforeAll(() =>
         mock
             .onGet('/graphs')
@@ -59,7 +59,7 @@ describe('2** Responses', () => {
     });
 });
 
-describe('4** Responses', () => {
+describe('RestClient 4** Responses', () => {
     beforeAll(() =>
         mock
             .onGet('/graphs')
@@ -74,17 +74,21 @@ describe('4** Responses', () => {
     afterAll(() => mock.resetHandlers());
 
     it('should throw 404 Error Message when api returns 404', async () => {
-        expect(RestClient.get()).rejects.toThrow(new Error('Request failed with status code 404'));
+        await expect(RestClient.get()).rejects.toThrow(new ApiError(404, 'Request failed with status code 404'));
     });
     it('should throw 404 Error Message when api returns 404', async () => {
-        expect(RestClient.get('unfindable-graph')).rejects.toThrow(new Error('Request failed with status code 404'));
-    });
-    it('should throw 404 Error Message when api returns 404', async () => {
-        expect(RestClient.post({ request: 'not-found' })).rejects.toThrow(
-            new Error('Request failed with status code 404')
+        await expect(RestClient.get('unfindable-graph')).rejects.toThrow(
+            new ApiError(404, 'Request failed with status code 404')
         );
     });
     it('should throw 404 Error Message when api returns 404', async () => {
-        expect(RestClient.delete('unfindable-graph')).rejects.toThrow(new Error('Request failed with status code 404'));
+        await expect(RestClient.post({ request: 'not-found' })).rejects.toThrow(
+            new ApiError(404, 'Request failed with status code 404')
+        );
+    });
+    it('should throw 404 Error Message when api returns 404', async () => {
+        await expect(RestClient.delete('unfindable-graph')).rejects.toThrow(
+            new ApiError(404, 'Request failed with status code 404')
+        );
     });
 });

@@ -1,6 +1,6 @@
 import { Schema } from '../../src/domain/schema';
 
-describe('Validation', () => {
+describe('Schema Validation', () => {
     it('should return invalid JSON notifications when string is not JSON format', () => {
         const invalidJsonString = 'invalid: blahJson';
 
