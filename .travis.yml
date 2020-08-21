@@ -3,6 +3,12 @@ dist: bionic
 node_js:
   - node
 
+before_install:
+  - cd infrastructure/
+
+install:
+  - npm install
+
 script:
   - npm run lint
   - npm run test
