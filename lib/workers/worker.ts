@@ -18,7 +18,6 @@ import { Construct } from "@aws-cdk/core";
 import { WorkerProps } from "./worker-props";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as path from "path";
-import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { SqsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 
 export class Worker extends Construct {
@@ -32,13 +31,11 @@ export class Worker extends Construct {
 
     private createConstructs(id: string, props: WorkerProps) {
         const extraSecurityGroups = this.node.tryGetContext("extraIngressSecurityGroups");
-        const accumuloPassword = Math.random().toString(36).substr(2, 8);
 
         // Build environment for Lambda
         const environment: { [id: string] : string; } = {
             "cluster_name": props.cluster.clusterName,
-            "graph_table_name": props.graphTable.tableName,
-            "accumuloPassword": accumuloPassword
+            "graph_table_name": props.graphTable.tableName
         };
         if (extraSecurityGroups) {
             environment["extra_security_groups"] = extraSecurityGroups;
@@ -58,11 +55,10 @@ export class Worker extends Construct {
             batchSize: props.batchSize
         }));
 
-        // Add permisssions to role
-        this._function.addToRolePolicy(new PolicyStatement({
-            actions: [ "eks:DescribeCluster" ],
-            resources: [ props.cluster.clusterArn ]
-        }));
+        // Add policy statements to role
+        for (const policyStatement of props.policyStatements) {
+            this._function.addToRolePolicy(policyStatement);
+        }
 
         props.graphTable.grantReadWriteData(this._function);
     

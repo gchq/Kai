@@ -18,14 +18,14 @@ import * as cdk from "@aws-cdk/core";
 import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { GraphUninstaller } from "./platform/graph-uninstaller";
-import { VolumeRemover } from "./platform/volume-remover";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
-import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE, DELETE_VOLUMES_TIMEOUT } from "./constants";
+import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE } from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
 import { KaiUserPool } from "./authentication/user-pool";
 import { GraphDatabaseProps } from "./database/graph-database-props";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
@@ -63,6 +63,21 @@ export class AppStack extends cdk.Stack {
         const layerVersionArn = samApp.getAtt("Outputs.LayerVersionArn").toString();
         const kubectlLambdaLayer = LayerVersion.fromLayerVersionArn(this, "KubectlLambdaLayer", layerVersionArn);
 
+        // Describe EKS cluster policy statement
+        const describeClusterPolicyStatement = new PolicyStatement({
+            actions: [ "eks:DescribeCluster" ],
+            resources: [ platform.eksCluster.clusterArn ]
+        });
+
+        // Manage EBS Volumes policy statement
+        const manageVolumesPolicyStatement = new PolicyStatement({
+            resources: ["*"],
+            actions: [
+                "ec2:DescribeVolumes",
+                "ec2:DeleteVolume"
+            ]
+        });
+
         // Workers
         new Worker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
@@ -71,7 +86,10 @@ export class AppStack extends cdk.Stack {
             graphTable: database.table,
             handler: "add_graph.handler",
             timeout: ADD_GRAPH_TIMEOUT,
-            batchSize: ADD_GRAPH_WORKER_BATCH_SIZE
+            batchSize: ADD_GRAPH_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement
+            ]
         });
 
         const deleteGraphWorker = new Worker(this, "DeleteGraphWorker", {
@@ -81,14 +99,11 @@ export class AppStack extends cdk.Stack {
             graphTable: database.table,
             handler: "delete_graph.handler",
             timeout: DELETE_GRAPH_TIMEOUT,
-            batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE
-        });
-
-        // Volume remover
-        const volumeRemover = new VolumeRemover(this, "VolumeRemover", {
-            clusterName: platform.eksCluster.clusterName,
-            kubectlLayer: kubectlLambdaLayer,
-            timeout: DELETE_VOLUMES_TIMEOUT
+            batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement,
+                manageVolumesPolicyStatement
+            ]
         });
 
         // Graph uninstaller
@@ -103,8 +118,7 @@ export class AppStack extends cdk.Stack {
                 deleteGraphWorker,
                 kaiRest.getGraphsLambda,
                 kaiRest.deleteGraphLambda,
-                kaiRest.deleteGraphQueue,
-                volumeRemover
+                kaiRest.deleteGraphQueue
             ]
         });
     }
