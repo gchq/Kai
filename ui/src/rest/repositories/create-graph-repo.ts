@@ -1,7 +1,6 @@
 import { RestClient, IApiResponse } from '../rest-client';
 import { ICreateGraphRequestBody } from '../http-message-interfaces/request-interfaces';
 import { Schema } from '../../domain/schema';
-import { ApiError } from '../../domain/errors/api-error';
 
 export class CreateGraphRepo {
 
