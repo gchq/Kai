@@ -1,11 +1,12 @@
 import Page1 from "../Page1";
 import Page2 from "../Page2";
+import AddGraph from "../AddGraph/AddGraph";
 
 const Routes = [
     {
-        path: '/Page1',
-        sidebarName: 'Page 1',
-        component: Page1
+        path: '/AddGraph',
+        sidebarName: 'Add Graph',
+        component: AddGraph
     },
     {
         path: '/Page2',
