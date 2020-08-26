@@ -20,6 +20,7 @@ import {DropzoneArea} from 'material-ui-dropzone'
 import ClearIcon from "@material-ui/icons/Clear";
 import {DropzoneDialog} from 'material-ui-dropzone'
 import {TransitionProps} from "@material-ui/core/transitions";
+import Toolbar from "@material-ui/core/Toolbar";
 
 interface IState {
     dialogIsOpen: boolean,
@@ -197,10 +198,11 @@ export default class AddGraph extends React.Component<{}, IState> {
                                         />
                                     </Grid>
                                 </Grid>
-                            </Grid>
+
                         </form>
                     </div>
                 </Container>
+                </Grid>
                 <Grid
                     container
                     style={{margin:10}}
