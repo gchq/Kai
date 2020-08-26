@@ -3,27 +3,28 @@ import {
     Button,
     Container,
     CssBaseline,
-    Dialog, DialogActions, DialogContent,
+    Dialog,
+    DialogContent,
     Grid,
     IconButton,
-    makeStyles, Slide,
-    TextField,
-    Typography
+    makeStyles,
+    Slide,
+    TextField
 } from "@material-ui/core";
 import {Schema} from '../../domain/schema';
 import {Notifications} from '../../domain/notifications';
 import {CreateGraphRepo} from '../../rest/repositories/create-graph-repo';
 import {Alert} from "@material-ui/lab";
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
-import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import {DropzoneArea} from 'material-ui-dropzone'
 import ClearIcon from "@material-ui/icons/Clear";
-import {DropzoneDialog} from 'material-ui-dropzone'
 import {TransitionProps} from "@material-ui/core/transitions";
+import Toolbar from "@material-ui/core/Toolbar";
 
 interface IState {
     dialogIsOpen: boolean,
-    files: Array<any>,
+    files: Array<File>,
+    schemaFieldDisable: boolean,
     newGraph: {
         graphId: string,
         administrators: Array<string>,
@@ -31,6 +32,7 @@ interface IState {
     }
     notifications: Notifications,
 }
+
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & { children?: React.ReactElement<any, any> },
     ref: React.Ref<unknown>,
@@ -43,6 +45,7 @@ export default class AddGraph extends React.Component<{}, IState> {
         super(props);
         this.state = {
             dialogIsOpen: false,
+            schemaFieldDisable: false,
             files: [],
             newGraph: {
                 graphId: "",
@@ -97,117 +100,194 @@ export default class AddGraph extends React.Component<{}, IState> {
             this.setState({notifications: notifications});
         }
     }
-    private async setFiles(files: Array<any>){
+
+    private async setFiles(files: Array<File>) {
         this.setState({
             files: files
         });
     }
-    private async checkFiles(files: Array<any>){
+
+    private async getSchema(files: Array<File>) {
+        const file = await files[0].text();
+        return file
 
     }
 
     public render() {
         const openDialogBox = () => {
-            this.setState({ dialogIsOpen: true });
+            this.setState({dialogIsOpen: true});
         };
         const closeDialogBox = () => {
-            this.setState({ dialogIsOpen: false });
+            this.setState({dialogIsOpen: false});
         };
         return (
-            <Grid style={{marginTop:30}}
-                  container
-                  justify="center">
+            <main>
+                <Toolbar/>
+                <Grid style={{marginTop: 30}}
+                      container
+                      justify="center">
 
 
-                <Container component="main" maxWidth="xs">
-                    <CssBaseline/>
-                    {!this.state.notifications.isEmpty() &&
-                    <Alert variant="outlined"
-                           severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
-                    <div className={this.classes.paper}>
+                    <Container component="main" maxWidth="xs">
+                        <CssBaseline/>
+                        {!this.state.notifications.isEmpty() &&
+                        <Alert variant="outlined"
+                               severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
+                        <div className={this.classes.paper}>
 
-                        <form className={this.classes.form} noValidate>
-
-
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-
-                                    <TextField
-                                        variant="outlined"
-                                        required
-                                        fullWidth
-                                        id="graphId"
-                                        label="Graph ID"
-                                        name="graphId"
-                                        autoComplete="graph-id"
-                                        onChange={(event) => {
-                                            this.setState({
-                                                newGraph: {
-                                                    ...this.state.newGraph,
-                                                    graphId: event.target.value
-                                                }
-                                            });
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}
-                                      container
-                                      direction="row"
-                                      justify="flex-end"
-                                      alignItems="center"
-                                >
-                                    <IconButton onClick={openDialogBox}>
-                                        <InsertDriveFileOutlinedIcon/>
-                                    </IconButton>
-                                   
-                                        <DropzoneDialog
-                                            open={this.state.dialogIsOpen}
-                                            onSave={this.setFiles.bind(this)}
-                                            showPreviews={true}
+                            <form className={this.classes.form} noValidate>
 
 
-                                            onClose={closeDialogBox}
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+
+                                        <TextField
+                                            variant="outlined"
+                                            value={this.state.newGraph.graphId}
+                                            required
+                                            fullWidth
+                                            id="graphId"
+                                            label="Graph ID"
+                                            name="graphId"
+                                            autoComplete="graph-id"
+                                            onChange={(event) => {
+                                                this.setState({
+                                                    newGraph: {
+                                                        ...this.state.newGraph,
+                                                        graphId: event.target.value
+                                                    }
+                                                });
+                                            }}
                                         />
+                                    </Grid>
+                                    <Grid item xs={12}
+                                          container
+                                          direction="row"
+                                          justify="flex-end"
+                                          alignItems="center"
+                                    >
+                                        <IconButton onClick={openDialogBox}>
+                                            <InsertDriveFileOutlinedIcon/>
+                                        </IconButton>
+
+                                        <Dialog
+                                            open={this.state.dialogIsOpen}
+                                            TransitionComponent={Transition}
+                                            keepMounted
+                                            onClose={closeDialogBox}
+                                            style={{minWidth: '500px'}}
+                                            aria-labelledby="alert-dialog-slide-title"
+                                            aria-describedby="alert-dialog-slide-description"
+                                        >
+                                            <Grid
+                                                container
+                                                direction="row"
+                                                justify="flex-end"
+                                                alignItems="flex-start"
+                                            >
+                                                <IconButton onClick={closeDialogBox}>
+                                                    <ClearIcon/>
+                                                </IconButton>
+
+                                            </Grid>
+                                            <DialogContent>
+                                                <DropzoneArea
+                                                    showPreviews={true}
+                                                    onChange={async (files) => {
+
+                                                        this.setState({
+                                                            files: files,
+                                                        });
+                                                        if (files.length > 0) {
+                                                            const value = await this.getSchema(files);
 
 
+                                                            this.setState({
+                                                                schemaFieldDisable: true,
+                                                                newGraph: {
+                                                                    ...this.state.newGraph,
+                                                                    schemaJson: value
+                                                                },
+
+                                                            })
+
+                                                        } else {
+                                                            this.setState({
+                                                                schemaFieldDisable: false
+                                                            })
+                                                        }
+
+                                                    }}
 
 
+                                                    showPreviewsInDropzone={false}
+                                                    useChipsForPreview
+                                                    previewGridProps={{container: {spacing: 1, direction: 'row'}}}
+                                                    previewChipProps={{classes: {root: this.classes.previewChip}}}
+                                                    previewText="Selected files"
+                                                    clearOnUnmount={true}
+                                                    acceptedFiles={['application/json']}
+                                                    filesLimit={1}
+                                                />
+                                            </DialogContent>
+
+
+                                        </Dialog>
+
+
+                                    </Grid>
+
+                                    <Grid item xs={12}>
+
+                                        <TextField
+                                            style={{width: 400}}
+                                            disabled={this.state.schemaFieldDisable}
+                                            value={this.state.newGraph.schemaJson}
+                                            id="schema"
+                                            label="Schema"
+                                            required
+                                            multiline
+                                            rows={15}
+                                            variant="outlined"
+                                            onChange={(event) => {
+                                                this.setState({
+                                                    newGraph: {
+                                                        ...this.state.newGraph,
+                                                        schemaJson: event.target.value
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    </Grid>
                                 </Grid>
 
-                                <Grid item xs={12}>
-
-                                    <TextField
-                                        style={{width: 400}}
-                                        id="schema"
-                                        label="Schema"
-                                        required
-                                        multiline
-                                        rows={15}
-                                        variant="outlined"
-                                        onChange={(event) => {
-                                            this.setState({
-                                                newGraph: {
-                                                    ...this.state.newGraph,
-                                                    schemaJson: event.target.value
-                                                }
-                                            });
-                                        }}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </form>
-                    </div>
-                </Container>
+                            </form>
+                        </div>
+                    </Container>
+                </Grid>
                 <Grid
                     container
-                    style={{margin:10}}
+                    style={{margin: 10}}
                     direction="row"
                     justify="center"
                     alignItems="center">
-                    <Button onClick={() => {
-                        // this.submitNewGraph()
-                        console.log(this.state.files[0].name)
-                    }}
+                    <Button onClick={()=>{
+                        this.submitNewGraph();
+                        this.setState({
+                            files: [],
+                            newGraph: {
+                                ...this.state.newGraph,
+                                graphId: "",
+                                schemaJson:""
+
+
+
+                            }
+                        })
+
+
+                    }
+                    }
                             type="submit"
                             variant="outlined"
                             color="primary"
@@ -216,7 +296,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                         Add Graph
                     </Button>
                 </Grid>
-            </Grid>
+            </main>
         )
     }
 }

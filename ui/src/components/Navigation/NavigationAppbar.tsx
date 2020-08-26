@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography, MenuList, MenuItem, ListItemText, Link, Grid, Box } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, MenuList, MenuItem, ListItemText, Link, Grid, Box, Drawer, Divider, List, ListItem, ListItemIcon, IconButton} from '@material-ui/core';
+import { green } from '@material-ui/core/colors';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
+const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {},
@@ -15,7 +19,20 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         drawer: {
             width: 240,
+            flexShrink: 0,
         },
+        icon: {
+            color: '#696666',
+            margin: '20px'
+        },
+        drawerPaper: {
+            width: drawerWidth,
+          },
+        drawerContainer: {
+        overflow: 'auto',
+        },
+          // necessary for content to be below app bar
+        toolbar: theme.mixins.toolbar,
         drawerHeader: {
             display: 'flex',
             alignItems: 'center',
@@ -33,6 +50,9 @@ const useStyles = makeStyles((theme: Theme) =>
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
+            backgroundColor: "#607D8B",
+            boxShadow: "0px 0px 0px 0px",
+            zIndex: theme.zIndex.drawer + 1,
         },
         listItem: {},
         listItemText: {
@@ -65,16 +85,28 @@ const NavigationAppbar: React.FC = (props: any) => {
     }
 
     return (
-        <div>
             <div className={classes.root}>
-                <AppBar position="static" className={classes.appBar}>
+                <AppBar position="fixed" className={classes.appBar}>
                     <Toolbar>
-                        <Typography variant="h4" className={classes.title}  >
-                            Kai
+                        <Typography variant="h6" className={classes.title}  >
+                            Graph As Service
                         </Typography>
 
+                       
+                </Toolbar>
+                </AppBar>
+             
+                <Drawer
+                    className={classes.drawer}
+                    variant="permanent"
+                    classes={{
+                    paper: classes.drawerPaper,
+                    }}
+                    >
+                    <Toolbar />    
+                    <div className={classes.drawerContainer}>
+                 
                         <MenuList >
-                            <Box display="flex" justifyContent="flex-start">
                             {Routes.map((prop, key) => {
                                 return (
                                     <NavLink to={prop.path}
@@ -88,13 +120,17 @@ const NavigationAppbar: React.FC = (props: any) => {
                                         </MenuItem>
                                     </NavLink>
                                 );
-                            })}</Box>
+                            })}
                         </MenuList>
-                </Toolbar>
-                </AppBar>
+                   
+                    <Divider />
+                    </div>
+                </Drawer>
+                
             </div>
-        </div>
+       
     );
 };
 
 export default withRouter(NavigationAppbar);
+
