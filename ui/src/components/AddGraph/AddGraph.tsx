@@ -1,13 +1,29 @@
 import React from 'react';
-import {Button, Container, CssBaseline, Grid, IconButton, makeStyles, TextField, Typography} from "@material-ui/core";
+import {
+    Button,
+    Container,
+    CssBaseline,
+    Dialog, DialogActions, DialogContent,
+    Grid,
+    IconButton,
+    makeStyles, Slide,
+    TextField,
+    Typography
+} from "@material-ui/core";
 import {Schema} from '../../domain/schema';
 import {Notifications} from '../../domain/notifications';
 import {CreateGraphRepo} from '../../rest/repositories/create-graph-repo';
 import {Alert} from "@material-ui/lab";
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import {DropzoneArea} from 'material-ui-dropzone'
+import ClearIcon from "@material-ui/icons/Clear";
+import {DropzoneDialog} from 'material-ui-dropzone'
+import {TransitionProps} from "@material-ui/core/transitions";
 
 interface IState {
+    dialogIsOpen: boolean,
+    files: Array<any>,
     newGraph: {
         graphId: string,
         administrators: Array<string>,
@@ -15,11 +31,19 @@ interface IState {
     }
     notifications: Notifications,
 }
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & { children?: React.ReactElement<any, any> },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default class AddGraph extends React.Component<{}, IState> {
     constructor(props: object) {
         super(props);
         this.state = {
+            dialogIsOpen: false,
+            files: [],
             newGraph: {
                 graphId: "",
                 administrators: [],
@@ -54,7 +78,11 @@ export default class AddGraph extends React.Component<{}, IState> {
         },
         button: {
             margin: "10px",
-        }
+        },
+        previewChip: {
+            minWidth: 160,
+            maxWidth: 210
+        },
     }));
 
     private async submitNewGraph() {
@@ -69,8 +97,22 @@ export default class AddGraph extends React.Component<{}, IState> {
             this.setState({notifications: notifications});
         }
     }
+    private async setFiles(files: Array<any>){
+        this.setState({
+            files: files
+        });
+    }
+    private async checkFiles(files: Array<any>){
+
+    }
 
     public render() {
+        const openDialogBox = () => {
+            this.setState({ dialogIsOpen: true });
+        };
+        const closeDialogBox = () => {
+            this.setState({ dialogIsOpen: false });
+        };
         return (
             <Grid style={{marginTop:30}}
                   container
@@ -114,12 +156,21 @@ export default class AddGraph extends React.Component<{}, IState> {
                                       justify="flex-end"
                                       alignItems="center"
                                 >
-                                    <IconButton>
+                                    <IconButton onClick={openDialogBox}>
                                         <InsertDriveFileOutlinedIcon/>
                                     </IconButton>
-                                    <IconButton>
-                                        <DeleteOutlineOutlinedIcon/>
-                                    </IconButton>
+                                   
+                                        <DropzoneDialog
+                                            open={this.state.dialogIsOpen}
+                                            onSave={this.setFiles.bind(this)}
+                                            showPreviews={true}
+
+
+                                            onClose={closeDialogBox}
+                                        />
+
+
+
 
                                 </Grid>
 
@@ -154,7 +205,8 @@ export default class AddGraph extends React.Component<{}, IState> {
                     justify="center"
                     alignItems="center">
                     <Button onClick={() => {
-                        this.submitNewGraph()
+                        // this.submitNewGraph()
+                        console.log(this.state.files[0].name)
                     }}
                             type="submit"
                             variant="outlined"

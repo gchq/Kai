@@ -9,7 +9,7 @@ function App() {
         <div>
             <NavigationAppbar/>
             <Switch>
-                <Redirect exact from="/" to="/Page1" />
+                <Redirect exact from="/" to="/AddGraph" />
                 {Routes.map((route: any) => (
                     <Route exact path={route.path} key={route.path}>
                         <route.component />
