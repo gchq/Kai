@@ -114,23 +114,25 @@ export default class AddGraph extends React.Component<{}, IState> {
             this.setState({ dialogIsOpen: false });
         };
         return (
-            <Grid style={{marginTop:30}}
-                  container
-                  justify="center">
+            <main>
+                <Toolbar />
+                <Grid style={{marginTop:30}}
+                    container
+                    justify="center">
 
 
-                <Container component="main" maxWidth="xs">
-                    <CssBaseline/>
-                    {!this.state.notifications.isEmpty() &&
-                    <Alert variant="outlined"
-                           severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
-                    <div className={this.classes.paper}>
+                    <Container component="main" maxWidth="xs">
+                        <CssBaseline/>
+                        {!this.state.notifications.isEmpty() &&
+                        <Alert variant="outlined"
+                            severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
+                        <div className={this.classes.paper}>
 
-                        <form className={this.classes.form} noValidate>
+                            <form className={this.classes.form} noValidate>
 
 
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
 
                                     <TextField
                                         variant="outlined"
@@ -174,25 +176,26 @@ export default class AddGraph extends React.Component<{}, IState> {
 
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                    <Grid item xs={12}>
 
-                                    <TextField
-                                        style={{width: 400}}
-                                        id="schema"
-                                        label="Schema"
-                                        required
-                                        multiline
-                                        rows={15}
-                                        variant="outlined"
-                                        onChange={(event) => {
-                                            this.setState({
-                                                newGraph: {
-                                                    ...this.state.newGraph,
-                                                    schemaJson: event.target.value
-                                                }
-                                            });
-                                        }}
-                                    />
+                                        <TextField
+                                            style={{width: 400}}
+                                            id="schema"
+                                            label="Schema"
+                                            required
+                                            multiline
+                                            rows={15}
+                                            variant="outlined"
+                                            onChange={(event) => {
+                                                this.setState({
+                                                    newGraph: {
+                                                        ...this.state.newGraph,
+                                                        schemaJson: event.target.value
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </form>
@@ -216,7 +219,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                         Add Graph
                     </Button>
                 </Grid>
-            </Grid>
+            </main>
         )
     }
 }
