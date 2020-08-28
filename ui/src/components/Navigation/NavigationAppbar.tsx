@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography, MenuList, MenuItem, ListItemText, Link, Grid, Box, Drawer, Divider, List, ListItem, ListItemIcon, IconButton} from '@material-ui/core';
+import { AppBar, Toolbar, Typography, MenuList, MenuItem, ListItemText,Drawer, Divider, ListItem, List, ListItemIcon, Avatar, ListItemAvatar} from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import PersonIcon from '@material-ui/icons/Person';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,10 +56,12 @@ const useStyles = makeStyles((theme: Theme) =>
             boxShadow: "0px 0px 0px 0px",
             zIndex: theme.zIndex.drawer + 1,
         },
-        listItem: {},
+        listItem: {  
+            color: '#696666' 
+        },
         listItemText: {
             '& span, & svg': {
-                fontSize: '20px',
+                fontSize: '20px'
             }
         },
     }),
@@ -83,52 +87,69 @@ const NavigationAppbar: React.FC = (props: any) => {
     const activeRoute = (routeName: any) => {
         return props.location.pathname === routeName ? true : false;
     }
-
+    const getAvataricon = (sidebarName: any) => {
+        switch(sidebarName) {
+          case 'Add Graph':
+            return (<AddCircleOutlineIcon/>);
+          case 'View Graph':
+            return (<VisibilityIcon/>);
+          case 'User Guide':
+            return (<LocalLibraryIcon/>);
+          default:
+            return null;
+        }
+      }
     return (
-            <div className={classes.root}>
-                <AppBar position="fixed" className={classes.appBar}>
-                    <Toolbar>
-                        <Typography variant="h6" className={classes.title}  >
-                            Graph As Service
-                        </Typography>
-
-                       
-                </Toolbar>
-                </AppBar>
-             
-                <Drawer
-                    className={classes.drawer}
-                    variant="permanent"
-                    classes={{
-                    paper: classes.drawerPaper,
-                    }}
-                    >
-                    <Toolbar />    
-                    <div className={classes.drawerContainer}>
-                 
-                        <MenuList >
-                            {Routes.map((prop, key) => {
-                                return (
-                                    <NavLink to={prop.path}
-                                             style={{ color: 'inherit', textDecoration: 'inherit'}}
-                                             key={key}>
-
-                                        <MenuItem className={classes.listItem} selected={activeRoute(prop.path)}>
-
-                                            <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
-
-                                        </MenuItem>
-                                    </NavLink>
-                                );
-                            })}
-                        </MenuList>
-                   
-                    <Divider />
-                    </div>
-                </Drawer>
-                
-            </div>
-       
+        <div className={classes.root}>
+            <AppBar position="fixed" className={classes.appBar}>
+                <Toolbar>
+                    <Typography variant="h6" className={classes.title}  >
+                        Graph As Service
+                    </Typography>
+                    </Toolbar>
+            </AppBar>
+            
+            <Drawer
+                className={classes.drawer}
+                variant="permanent"
+                classes={{
+                paper: classes.drawerPaper,
+                }}>
+                <Toolbar />    
+                <div className={classes.drawerContainer}>
+                    <List>
+                        <ListItem className={classes.listItem} >
+                            <ListItemAvatar>
+                                <Avatar>
+                                    <PersonIcon/>
+                                </Avatar>
+                            </ListItemAvatar>
+                           
+                            <ListItemText primary="User" secondary="someuser@mail.com"/>
+                        </ListItem>
+                    </List>
+                <Divider />
+                    <List >
+                        {Routes.map((prop, key) => {
+                            return (
+                                <NavLink to={prop.path}
+                                            style={{ color: 'inherit', textDecoration: 'inherit'}}
+                                            key={key}>
+                                    <ListItem className={classes.listItem} selected={activeRoute(prop.path)}>
+                                    <ListItemIcon>
+                                        {getAvataricon(prop.sidebarName)}
+                                    </ListItemIcon>    
+                                         <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
+                                    </ListItem>
+                                </NavLink>
+                            );
+                        })}
+                    </List>
+                <Divider />
+                </div>
+            </Drawer>
+            
+        </div>
     );
 };
 
