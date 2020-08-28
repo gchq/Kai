@@ -44,7 +44,6 @@ export default class ViewGraph extends React.Component<{}, IState> {
     }
 
     public render() {
-        console.log(this.state.graphs);
         return (
            <main style={{marginTop:30}}>
                <Toolbar />
