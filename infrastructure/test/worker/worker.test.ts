@@ -26,6 +26,7 @@ import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { LAMBDA_LAYER_ARN } from "../../lib/constants";
 import { Worker } from "../../lib/workers/worker";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
 function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandler", timeout = cdk.Duration.minutes(10), batchSize = 3): Worker {
     if (extraSGs !== undefined) {
@@ -45,7 +46,13 @@ function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandle
         graphTable: table,
         handler: handler,
         timeout: timeout,
-        batchSize: batchSize
+        batchSize: batchSize,
+        policyStatements: [
+            new PolicyStatement({
+                actions: [ "eks:DescribeCluster" ],
+                resources: [ donorCluster.clusterArn ]
+            })
+        ]
     });
 }
 

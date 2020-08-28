@@ -42,7 +42,7 @@ def delete(event, context):
             InvocationType = "RequestResponse",
             Payload = json.dumps({
                 "pathParameters": {
-                    "graphId": graph["graphId"]
+                    "graphName": graph["graphName"]
                 }
             })
         )
@@ -50,7 +50,7 @@ def delete(event, context):
         logger.info("Received responsePayloadJson: {}".format(responsePayloadJson))
         if responsePayloadJson["statusCode"] != 202:
             logger.error("Unable to delete graph: {}, received status code: {}, message: {}".format(
-                graph["graphId"],
+                graph["graphName"],
                 responsePayloadJson["statusCode"],
                 responsePayloadJson["body"]
             )

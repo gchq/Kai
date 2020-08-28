@@ -25,6 +25,7 @@ import { GraphDatabase } from "./database/graph-database";
 import { Worker } from "./workers/worker";
 import { KaiUserPool } from "./authentication/user-pool";
 import { GraphDatabaseProps } from "./database/graph-database-props";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
 // The main stack for Kai
 export class AppStack extends cdk.Stack {
@@ -62,6 +63,21 @@ export class AppStack extends cdk.Stack {
         const layerVersionArn = samApp.getAtt("Outputs.LayerVersionArn").toString();
         const kubectlLambdaLayer = LayerVersion.fromLayerVersionArn(this, "KubectlLambdaLayer", layerVersionArn);
 
+        // Describe EKS cluster policy statement
+        const describeClusterPolicyStatement = new PolicyStatement({
+            actions: [ "eks:DescribeCluster" ],
+            resources: [ platform.eksCluster.clusterArn ]
+        });
+
+        // Manage EBS Volumes policy statement
+        const manageVolumesPolicyStatement = new PolicyStatement({
+            resources: ["*"],
+            actions: [
+                "ec2:DescribeVolumes",
+                "ec2:DeleteVolume"
+            ]
+        });
+
         // Workers
         new Worker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
@@ -70,7 +86,10 @@ export class AppStack extends cdk.Stack {
             graphTable: database.table,
             handler: "add_graph.handler",
             timeout: ADD_GRAPH_TIMEOUT,
-            batchSize: ADD_GRAPH_WORKER_BATCH_SIZE
+            batchSize: ADD_GRAPH_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement
+            ]
         });
 
         const deleteGraphWorker = new Worker(this, "DeleteGraphWorker", {
@@ -80,7 +99,11 @@ export class AppStack extends cdk.Stack {
             graphTable: database.table,
             handler: "delete_graph.handler",
             timeout: DELETE_GRAPH_TIMEOUT,
-            batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE
+            batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement,
+                manageVolumesPolicyStatement
+            ]
         });
 
         // Graph uninstaller

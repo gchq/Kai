@@ -38,7 +38,7 @@ def handler(event, context):
         try:
             return {
                 "statusCode": 200,
-                "body": json.dumps(graph.get_graph(graph.format_graph_name(graph_name)))
+                "body": json.dumps(graph.get_graph(graph_name))
             }
         except Exception as e:
             return {
