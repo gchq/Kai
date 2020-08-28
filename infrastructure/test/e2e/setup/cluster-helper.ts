@@ -33,7 +33,7 @@ export interface IUserPool {
 
 export class ClusterHelper {
     //private readonly _uuid: string = uuidv4();
-    private readonly _uuid: string = "316dce26-54b9-49a5-aa92-d49f3a1652cf";
+    private readonly _uuid: string = "4c2866f9-2b0b-4f25-b14f-4695bddd7547";
     private readonly _stackName: string = "KaiE2eTesting-" + this._uuid;
     private readonly _outputsFileName: string = this._stackName + "-outputs.json";
     private readonly _testUser: string = this._stackName + "-TestUser";

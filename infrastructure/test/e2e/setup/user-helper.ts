@@ -33,14 +33,13 @@ export class UserHelper {
         this._cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({apiVersion: "2016-04-18"});
     }
 
-    public async createUserAuthenticationToken(userPool: IUserPool, userName: string): Promise<string | undefined> {
+    public async createUserAuthenticationToken(userPool: IUserPool, userName: string): Promise<string | void> {
         const user: IUser = {
             userName: this._stackName + "-" + userName,
             password: uuidv4() + "Q"
         };
 
-        /* Create user */
-        await this.createUser(userPool.userPoolId, user).then(
+        let token: string | void = await this.createUser(userPool.userPoolId, user).then(
             (data: AWS.CognitoIdentityServiceProvider.AdminCreateUserResponse) => {
                 /* Set password */
                 return this.setPassword(userPool.userPoolId, user);
@@ -67,7 +66,7 @@ export class UserHelper {
             console.log(error.message);
         });
 
-        return undefined;
+        return token;
     }
 
     private createUser(userPoolId: string, user: IUser): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.AdminCreateUserResponse, AWS.AWSError>> {

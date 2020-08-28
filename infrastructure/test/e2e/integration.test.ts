@@ -24,14 +24,14 @@ import { UserHelper } from "./setup/user-helper";
 const clusterHelper: ClusterHelper = new ClusterHelper();
 const userHelper: UserHelper = new UserHelper(clusterHelper.stackName);
 
-let user1Token: string | undefined;
-let user2Token: string | undefined;
+let user1Token: string | void;
+let user2Token: string | void;
 
 
 beforeAll(async() => {
     await clusterHelper.deployCluster();
-    //user1Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user1");
-    //user2Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user2");
+    user1Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user1");
+    user2Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user2");
 });
 
 test("ztest 1", () => {
@@ -47,5 +47,5 @@ test("xtest 3", () => {
 });
 
 afterAll(async() => {
-    await clusterHelper.destroyCluster();
+    //await clusterHelper.destroyCluster();
 });
