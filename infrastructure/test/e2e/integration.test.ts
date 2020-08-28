@@ -18,8 +18,8 @@
  * @group e2e
  */
 
-import { ClusterHelper } from "./cluster/cluster-helper";
-import { UserHelper } from "./cluster/user-helper";
+import { ClusterHelper } from "./setup/cluster-helper";
+import { UserHelper } from "./setup/user-helper";
 
 const clusterHelper: ClusterHelper = new ClusterHelper();
 const userHelper: UserHelper = new UserHelper(clusterHelper.stackName);

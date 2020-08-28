@@ -44,8 +44,10 @@ export class SecurityGroupHelper {
             }
         );
         if (!ip) {
-            return Promise.resolve(undefined);
+            return undefined;
         }
+
+        console.log("IP Address for Security Group: " + ip);
 
         let securityGroupId: string | void = await this.getDefaultVpc().then(
             (describeVpcsResult: AWS.EC2.DescribeVpcsResult) => {
@@ -63,7 +65,6 @@ export class SecurityGroupHelper {
         ).then(
             (createSecurityGroupResult: AWS.EC2.CreateSecurityGroupResult) => {
                 if (createSecurityGroupResult.GroupId) {
-                    console.log("Created Security Group: " + createSecurityGroupResult.GroupId);
                     return createSecurityGroupResult.GroupId;
                 } else {
                     throw new Error("Unable to create security group");
@@ -72,8 +73,7 @@ export class SecurityGroupHelper {
         ).then(
             (createdSecurityGroupId: string) => {
                 this.authorizeSecurityGroupIngress(createdSecurityGroupId, ip);
-                console.log("Returing createdSecurityGroupId: " + createdSecurityGroupId);
-                return Promise.resolve(createdSecurityGroupId);
+                return createdSecurityGroupId;
             }
         ).catch(
             (error) => {
@@ -81,7 +81,9 @@ export class SecurityGroupHelper {
             }
         );
 
-        return Promise.resolve(securityGroupId);
+        console.log("Created Security Group: " + securityGroupId);
+
+        return securityGroupId;
     }
 
     private getDefaultVpc(): Promise<AWS.EC2.DescribeVpcsResult> {
