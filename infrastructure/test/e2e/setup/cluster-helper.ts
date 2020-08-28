@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import * as cp from "child_process";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { SecurityGroupHelper } from "./security-group-helper";

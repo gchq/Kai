@@ -39,18 +39,18 @@ export class UserHelper {
             password: uuidv4() + "Q"
         };
 
-        let token: string | void = await this.createUser(userPool.userPoolId, user).then(
-            (data: AWS.CognitoIdentityServiceProvider.AdminCreateUserResponse) => {
+        const token: string | void = await this.createUser(userPool.userPoolId, user).then(
+            () => {
                 /* Set password */
                 return this.setPassword(userPool.userPoolId, user);
             }
         ).then(
-            (data: AWS.CognitoIdentityServiceProvider.AdminSetUserPasswordResponse) => {
+            () => {
                 /* Enable authentication */
                 return this.enableAdminUserPasswordAuthentication(userPool);
             },
         ).then(
-            (data: AWS.CognitoIdentityServiceProvider.UpdateUserPoolResponse) => {
+            () => {
                 /* Obtain token */
                 return this.authenticate(userPool, user);
             },

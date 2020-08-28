@@ -35,7 +35,8 @@ beforeAll(async() => {
 });
 
 test("ztest 1", () => {
-    console.log("test 1: token" + user1Token);
+    console.log("test 1: " + user1Token);
+    console.log("test 1: " + user2Token);
 });
 
 test("ytest 2", () => {

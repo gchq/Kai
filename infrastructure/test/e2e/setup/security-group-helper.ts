@@ -26,7 +26,7 @@ export class SecurityGroupHelper {
 
     constructor(stackName: string) {
         this._stackName = stackName;
-        this._ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+        this._ec2 = new AWS.EC2({apiVersion: "2016-11-15"});
         this._axiosInstance = axios.create({
             baseURL: this._ipAddressProviderUrl,
             responseType: "json"
@@ -36,10 +36,10 @@ export class SecurityGroupHelper {
     public async createSecurityGroup(): Promise<string | void> {
         const ip = await this._axiosInstance.get("/?format=json").then(
             (response: AxiosResponse) => {
-               return response.data.ip;
+                return response.data.ip;
             }
         ).catch(
-            (error: any) => {
+            (error) => {
                 console.log("Could not determine IP Address, received error: " + error);
             }
         );
@@ -49,7 +49,7 @@ export class SecurityGroupHelper {
 
         console.log("IP Address for Security Group: " + ip);
 
-        let securityGroupId: string | void = await this.getDefaultVpc().then(
+        const securityGroupId: string | void = await this.getDefaultVpc().then(
             (describeVpcsResult: AWS.EC2.DescribeVpcsResult) => {
                 if (describeVpcsResult.Vpcs && describeVpcsResult.Vpcs.length > 0 && describeVpcsResult.Vpcs[0].VpcId) {
                     console.log("Default VPC: " + describeVpcsResult.Vpcs[0].VpcId);
@@ -119,7 +119,7 @@ export class SecurityGroupHelper {
         return this._ec2.createSecurityGroup(params).promise();
     }
 
-    private authorizeSecurityGroupIngress(securityGroupId: string, ipAddress: string): Promise<PromiseResult<{}, AWS.AWSError>> {
+    private authorizeSecurityGroupIngress(securityGroupId: string, ipAddress: string): Promise<PromiseResult<Record<string, unknown>, AWS.AWSError>> {
         const params = {
             GroupId: securityGroupId,
             IpPermissions: [
@@ -140,12 +140,12 @@ export class SecurityGroupHelper {
         return this._ec2.authorizeSecurityGroupIngress(params).promise();
     }
 
-    public async deleteSecurityGroup(securityGroupId: string) {
-        var params = {
+    public async deleteSecurityGroup(securityGroupId: string): Promise<void> {
+        const params = {
             GroupId: securityGroupId
         };
         await this._ec2.deleteSecurityGroup(params).promise().then(
-            (data: {}) => {
+            () => {
                 console.log("Successfully deleted security group: " + securityGroupId);
             }
         ).catch((error) => {
