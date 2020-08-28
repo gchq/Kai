@@ -41,7 +41,7 @@ export class ClusterHelper {
 
     private _readApiEndpoint: string;
     private _userPool: IUserPool;
-    private _securityGroupId: string | undefined;
+    private _securityGroupId: string | void;
 
     public async deployCluster(): Promise<void> {
         /*
@@ -49,6 +49,7 @@ export class ClusterHelper {
          */
         console.log("Creating security group for stack: " + this._stackName);
         this._securityGroupId = await this._securityGroupHelper.createSecurityGroup();
+        console.log("Created security group for stack: " + this._securityGroupId);
 
         console.log("Deploying stack: " + this._stackName);
         const deployCommand="cdk deploy --context stackName=" + this._stackName + " --require-approval never --outputs-file " + this._outputsFileName;

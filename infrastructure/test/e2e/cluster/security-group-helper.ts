@@ -33,10 +33,21 @@ export class SecurityGroupHelper {
         });
     }
 
-    public async createSecurityGroup(): Promise<string | undefined> {
-        let securityGroupId: string | undefined;
+    public async createSecurityGroup(): Promise<string | void> {
+        const ip = await this._axiosInstance.get("/?format=json").then(
+            (response: AxiosResponse) => {
+               return response.data.ip;
+            }
+        ).catch(
+            (error: any) => {
+                console.log("Could not determine IP Address, received error: " + error);
+            }
+        );
+        if (!ip) {
+            return Promise.resolve(undefined);
+        }
 
-        this.getDefaultVpc().then(
+        let securityGroupId: string | void = await this.getDefaultVpc().then(
             (describeVpcsResult: AWS.EC2.DescribeVpcsResult) => {
                 if (describeVpcsResult.Vpcs && describeVpcsResult.Vpcs.length > 0 && describeVpcsResult.Vpcs[0].VpcId) {
                     console.log("Default VPC: " + describeVpcsResult.Vpcs[0].VpcId);
@@ -50,37 +61,27 @@ export class SecurityGroupHelper {
                 return this.createSecurityGroupInVpc(vpcId);
             }
         ).then(
-            async(createSecurityGroupResult: AWS.EC2.CreateSecurityGroupResult) => {
-                console.log("Hello1");
+            (createSecurityGroupResult: AWS.EC2.CreateSecurityGroupResult) => {
                 if (createSecurityGroupResult.GroupId) {
-                    securityGroupId = createSecurityGroupResult.GroupId;
-                    return await this._axiosInstance.get("/?format=json").then(
-                        (response: AxiosResponse) => {
-                            return response.data.ip;
-                        }
-                    );
+                    console.log("Created Security Group: " + createSecurityGroupResult.GroupId);
+                    return createSecurityGroupResult.GroupId;
                 } else {
                     throw new Error("Unable to create security group");
                 }
             }
         ).then(
-            (ip: string) => {
-                console.log("Hello4");
-                if (securityGroupId) {
-                    return this.authorizeSecurityGroupIngress(securityGroupId, ip);
-                } else {
-                    throw new Error("Unable to update security group: " + securityGroupId);
-                }
+            (createdSecurityGroupId: string) => {
+                this.authorizeSecurityGroupIngress(createdSecurityGroupId, ip);
+                console.log("Returing createdSecurityGroupId: " + createdSecurityGroupId);
+                return Promise.resolve(createdSecurityGroupId);
             }
         ).catch(
             (error) => {
                 console.log(error);
-                console.log(error.message);
-                console.log(error.stack);
             }
         );
 
-        return securityGroupId;
+        return Promise.resolve(securityGroupId);
     }
 
     private getDefaultVpc(): Promise<AWS.EC2.DescribeVpcsResult> {
