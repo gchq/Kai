@@ -39,7 +39,7 @@ export class UserHelper {
             password: uuidv4() + "Q"
         };
 
-        const token: string | void = await this.createUser(userPool.userPoolId, user).then(
+        return await this.createUser(userPool.userPoolId, user).then(
             () => {
                 /* Set password */
                 return this.setPassword(userPool.userPoolId, user);
@@ -56,17 +56,15 @@ export class UserHelper {
             },
         ).then(
             (data: AWS.CognitoIdentityServiceProvider.InitiateAuthResponse) => {
-                if (data.AuthenticationResult && data.AuthenticationResult.AccessToken) {
-                    return data.AuthenticationResult.AccessToken;
+                if (data.AuthenticationResult && data.AuthenticationResult.IdToken) {
+                    return data.AuthenticationResult.IdToken;
                 } else {
-                    throw new Error("No Token returned");
+                    throw new Error("No IdToken returned");
                 }
             },
         ).catch((error) => {
             console.log(error.message);
         });
-
-        return token;
     }
 
     private createUser(userPoolId: string, user: IUser): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.AdminCreateUserResponse, AWS.AWSError>> {

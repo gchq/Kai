@@ -18,35 +18,43 @@
  * @group e2e
  */
 
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { ClusterHelper } from "./setup/cluster-helper";
-import { UserHelper } from "./setup/user-helper";
 
 const clusterHelper: ClusterHelper = new ClusterHelper();
-const userHelper: UserHelper = new UserHelper(clusterHelper.stackName);
+const clusterSetupTimeoutMilliseconds: number = 30 * 60 * 1000;
 
-let user1Token: string | void;
-let user2Token: string | void;
+beforeAll(
+    async() => {
+        await clusterHelper.deployCluster([ "user1", "user2" ]);
+    },
+    clusterSetupTimeoutMilliseconds
+);
 
+test("GET /graphs returns success and an empty array when there are no graphs deployed.", async() => {
 
-beforeAll(async() => {
-    await clusterHelper.deployCluster();
-    user1Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user1");
-    user2Token = await userHelper.createUserAuthenticationToken(clusterHelper.userPool, "user2");
+    const response: AxiosResponse | void = await axios({
+        method: "get",
+        responseType: "json",
+        headers: {"Authorization": clusterHelper.userIdToken("user1")},
+        baseURL: clusterHelper.restApiEndpoint,
+        url: "/graphs"
+    }).then(
+        (response: AxiosResponse) => {
+            return response;
+        }
+    );
+
+    if (response) {
+        console.log("Response received, status : " + response.status);
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual(JSON.parse("[]"));
+    } else {
+        fail("No response received");
+    }
 });
 
-test("ztest 1", () => {
-    console.log("test 1: " + user1Token);
-    console.log("test 1: " + user2Token);
-});
-
-test("ytest 2", () => {
-    console.log("test 2");
-});
-
-test("xtest 3", () => {
-    console.log("test 3");
-});
 
 afterAll(async() => {
-    //await clusterHelper.destroyCluster();
+    await clusterHelper.destroyCluster();
 });

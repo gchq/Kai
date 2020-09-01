@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import * as cp from "child_process";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { SecurityGroupHelper } from "./security-group-helper";
+import { UserHelper } from "./user-helper";
 
 interface IClusterOutputs {
     restApiEndpoint: string;
@@ -31,46 +33,54 @@ export interface IUserPool {
 
 
 export class ClusterHelper {
-    //private readonly _uuid: string = uuidv4();
-    private readonly _uuid: string = "4c2866f9-2b0b-4f25-b14f-4695bddd7547";
+    private readonly _uuid: string = uuidv4();
+    //private readonly _uuid: string = "b8f635f0-bbf8-4b16-bb3a-21a7824541b0";
     private readonly _stackName: string = "KaiE2eTesting-" + this._uuid;
     private readonly _outputsFileName: string = this._stackName + "-outputs.json";
     private readonly _testUser: string = this._stackName + "-TestUser";
     private readonly _securityGroupHelper: SecurityGroupHelper = new SecurityGroupHelper(this._stackName);
+    private readonly _userHelper: UserHelper = new UserHelper(this._stackName);
+    private readonly _userTokens: Record<string, string> = {};
 
-    private _readApiEndpoint: string;
+    private _restApiEndpoint: string;
     private _userPool: IUserPool;
     private _securityGroupId: string | void;
 
-    public async deployCluster(): Promise<void> {
+    public async deployCluster(users: string[]): Promise<void> {
+        this._securityGroupId = await this._securityGroupHelper.createSecurityGroup();
+
         /*
          * Programmatic deployment not available: https://github.com/aws/aws-cdk/issues/601
          */
-        console.log("Creating security group for stack: " + this._stackName);
-        this._securityGroupId = await this._securityGroupHelper.createSecurityGroup();
-        console.log("Created security group for stack: " + this._securityGroupId);
-
-        console.log("Deploying stack: " + this._stackName);
-        const deployCommand="cdk deploy --context stackName=" + this._stackName + " --require-approval never --outputs-file " + this._outputsFileName;
-        console.log(deployCommand);
-        //cp.execSync(deployCommand);
+        const deployCommand = "cdk deploy --context stackName=" + this._stackName + " --require-approval never --outputs-file " + this._outputsFileName;
+        console.log("Deploying stack: " + this._stackName + " using command: " + deployCommand);
+        cp.execSync(deployCommand);
 
         const clusterOutputs: IClusterOutputs = this.parseOutputsFile();
 
-        this._readApiEndpoint = clusterOutputs.restApiEndpoint;
+        this._restApiEndpoint = clusterOutputs.restApiEndpoint;
         this._userPool = clusterOutputs.userPool;
+
+        await this.createUsers(users);
     }
 
     public async destroyCluster(): Promise<void> {
         if (this._securityGroupId) {
-            console.log("Deleting security group: " + this._securityGroupId);
             await this._securityGroupHelper.deleteSecurityGroup(this._securityGroupId);
         }
 
-        console.log("Destroying stack: " + this._stackName);
         const destroyCommand="cdk destroy --context stackName=" + this._stackName + " --force";
-        console.log(destroyCommand);
-        //cp.execSync(destroyCommand);
+        console.log("Destroying stack: " + this._stackName + " using command: " + destroyCommand);
+        cp.execSync(destroyCommand);
+    }
+
+    private async createUsers(users: string[]): Promise<void> {
+        for (const user of users) {
+            const token: string | void = await this._userHelper.createUserAuthenticationToken(this._userPool, user);
+            if (token) {
+                this._userTokens[user] = token;
+            }
+        }
     }
 
     private parseOutputsFile(): IClusterOutputs {
@@ -115,11 +125,19 @@ export class ClusterHelper {
         };
     }
 
+    public get restApiEndpoint(): string {
+        return this._restApiEndpoint;
+    }
+
     public get stackName(): string {
         return this._stackName;
     }
 
     public get userPool(): IUserPool {
         return this._userPool;
+    }
+
+    public userIdToken(user: string): string {
+        return this._userTokens[user];
     }
 }

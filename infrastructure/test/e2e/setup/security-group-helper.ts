@@ -34,6 +34,8 @@ export class SecurityGroupHelper {
     }
 
     public async createSecurityGroup(): Promise<string | void> {
+        console.log("Creating security group for stack: " + this._stackName);
+
         const ip = await this._axiosInstance.get("/?format=json").then(
             (response: AxiosResponse) => {
                 return response.data.ip;
@@ -81,7 +83,7 @@ export class SecurityGroupHelper {
             }
         );
 
-        console.log("Created Security Group: " + securityGroupId);
+        console.log("Created and configured Security Group: " + securityGroupId);
 
         return securityGroupId;
     }
@@ -141,6 +143,8 @@ export class SecurityGroupHelper {
     }
 
     public async deleteSecurityGroup(securityGroupId: string): Promise<void> {
+        console.log("Deleting security group: " + securityGroupId);
+
         const params = {
             GroupId: securityGroupId
         };
