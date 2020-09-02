@@ -97,13 +97,13 @@ describe('Dropzone behaviour', () => {
         };
 
         const ui = (
-            <Dropzonea>
+            <Dropzone>
                 {({ getRootProps, getInputProps }) => (
                     <div {...getRootProps()}>
                         <input {...getInputProps(inputProps)} />
                     </div>
                 )}
-            </Dropzonea>
+            </Dropzone>
         );
 
         const { container } = render(ui);
