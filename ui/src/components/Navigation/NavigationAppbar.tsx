@@ -68,6 +68,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const NavigationAppbar: React.FC = (props: any) => {
+    
     const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
     const toggleDrawer = (open: boolean) => (
@@ -87,7 +88,7 @@ const NavigationAppbar: React.FC = (props: any) => {
     const activeRoute = (routeName: any) => {
         return props.location.pathname === routeName ? true : false;
     }
-    const getAvataricon = (sidebarName: any) => {
+    const getSideNavIcon = (sidebarName: any) => {
         switch(sidebarName) {
           case 'Add Graph':
             return (<AddCircleOutlineIcon/>);
@@ -137,7 +138,7 @@ const NavigationAppbar: React.FC = (props: any) => {
                                             key={key}>
                                     <ListItem className={classes.listItem} selected={activeRoute(prop.path)}>
                                     <ListItemIcon>
-                                        {getAvataricon(prop.sidebarName)}
+                                        {getSideNavIcon(prop.sidebarName)}
                                     </ListItemIcon>    
                                          <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
                                     </ListItem>
@@ -154,4 +155,3 @@ const NavigationAppbar: React.FC = (props: any) => {
 };
 
 export default withRouter(NavigationAppbar);
-
