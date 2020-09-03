@@ -42,7 +42,7 @@ export class SecurityGroupHelper {
             }
         ).catch(
             (error) => {
-                console.log("Could not determine IP Address, received error: " + error);
+                throw new Error("Could not determine IP Address, received error: " + error);
             }
         );
         if (!ip) {
@@ -79,7 +79,7 @@ export class SecurityGroupHelper {
             }
         ).catch(
             (error) => {
-                console.log(error);
+                throw new Error("Problem encountered creating security group, received error: " + error);
             }
         );
 
@@ -153,7 +153,7 @@ export class SecurityGroupHelper {
                 console.log("Successfully deleted security group: " + securityGroupId);
             }
         ).catch((error) => {
-            console.log(error.message);
+            throw new Error("Problem encountered deleting security group: " + securityGroupId + ", received error: " + error.message);
         });
     }
 }

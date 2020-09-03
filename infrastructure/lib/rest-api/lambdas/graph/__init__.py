@@ -31,7 +31,7 @@ class Graph:
         """
         response = self.table.get_item(
             Key={
-                "releaseName": format_graph_name(graph_name)
+                "releaseName": self.format_graph_name(graph_name)
             }
         )
         if "Item" in response:

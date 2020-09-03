@@ -63,7 +63,7 @@ export class UserHelper {
                 }
             },
         ).catch((error) => {
-            console.log(error.message);
+            throw new Error("Problem encountered creating user: " + userName + ", received error: " + error.message);
         });
     }
 

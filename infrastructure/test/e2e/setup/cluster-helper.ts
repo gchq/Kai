@@ -34,7 +34,7 @@ export interface IUserPool {
 
 export class ClusterHelper {
     private readonly _uuid: string = uuidv4();
-    //private readonly _uuid: string = "b8f635f0-bbf8-4b16-bb3a-21a7824541b0";
+    //private readonly _uuid: string = "987c36d9-51aa-4e40-b8d6-3cc60448d381";
     private readonly _stackName: string = "KaiE2eTesting-" + this._uuid;
     private readonly _outputsFileName: string = this._stackName + "-outputs.json";
     private readonly _testUser: string = this._stackName + "-TestUser";
@@ -47,21 +47,28 @@ export class ClusterHelper {
     private _securityGroupId: string | void;
 
     public async deployCluster(users: string[]): Promise<void> {
-        this._securityGroupId = await this._securityGroupHelper.createSecurityGroup();
 
-        /*
-         * Programmatic deployment not available: https://github.com/aws/aws-cdk/issues/601
-         */
-        const deployCommand = "cdk deploy --context stackName=" + this._stackName + " --require-approval never --outputs-file " + this._outputsFileName;
-        console.log("Deploying stack: " + this._stackName + " using command: " + deployCommand);
-        cp.execSync(deployCommand);
+        try {
 
-        const clusterOutputs: IClusterOutputs = this.parseOutputsFile();
+            this._securityGroupId = await this._securityGroupHelper.createSecurityGroup();
 
-        this._restApiEndpoint = clusterOutputs.restApiEndpoint;
-        this._userPool = clusterOutputs.userPool;
+            /*
+             * Programmatic deployment not available: https://github.com/aws/aws-cdk/issues/601
+             */
+            const deployCommand = "cdk deploy --context stackName=" + this._stackName + " --require-approval never --outputs-file " + this._outputsFileName;
+            console.log("Deploying stack: " + this._stackName + " using command: " + deployCommand);
+            cp.execSync(deployCommand);
 
-        await this.createUsers(users);
+            const clusterOutputs: IClusterOutputs = this.parseOutputsFile();
+
+            this._restApiEndpoint = clusterOutputs.restApiEndpoint;
+            this._userPool = clusterOutputs.userPool;
+
+            await this.createUsers(users);
+
+        } catch (error) {
+            throw new Error("Problem deploying cluster, received error: " + error);
+        }
     }
 
     public async destroyCluster(): Promise<void> {
@@ -135,6 +142,10 @@ export class ClusterHelper {
 
     public get userPool(): IUserPool {
         return this._userPool;
+    }
+
+    public get userTokens(): Record<string, string> {
+        return this._userTokens;
     }
 
     public userIdToken(user: string): string {
