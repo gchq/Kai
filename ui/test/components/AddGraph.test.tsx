@@ -8,7 +8,7 @@ describe('When AddGraph mounts', () => {
 
     it('should have a Graph Id text field', () => {
         const textfield = wrapper.find('input');
-        expect(textfield.at(0).props().name).toBe("graphId");
+        expect(textfield.at(0).props().name).toBe("graphName");
     });
     it('should have a Schema text area', () => {
         const textfield = wrapper.find('textarea');

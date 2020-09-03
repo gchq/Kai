@@ -4,9 +4,9 @@ import { Schema } from '../../domain/schema';
 
 export class CreateGraphRepo {
 
-    public async create(graphId: string, administrators: Array<string>, schema: Schema): Promise<void> {
+    public async create(graphName: string, administrators: Array<string>, schema: Schema): Promise<void> {
         const httpRequestBody: ICreateGraphRequestBody = {
-            graphId: graphId,
+            graphName: graphName,
             administrators: administrators,
             schema: schema.getSchema(),
         };
