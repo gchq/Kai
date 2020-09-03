@@ -1,5 +1,5 @@
 export interface IGraphByIdResponse {
-    graphId: string;
+    graphName: string;
     currentState: string;
 }
 

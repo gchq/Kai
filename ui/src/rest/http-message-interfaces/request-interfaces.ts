@@ -1,5 +1,5 @@
 export interface ICreateGraphRequestBody {
-    graphId: string;
+    graphName: string;
     administrators: Array<string>;
     schema: {
         elements: object;
