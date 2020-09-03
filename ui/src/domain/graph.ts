@@ -1,15 +1,15 @@
 export class Graph {
     
-    private graphId: string;
+    private graphName: string;
     private status: string;
 
-    constructor(graphId: string, status: string) {
-        this.graphId = graphId;
+    constructor(graphName: string, status: string) {
+        this.graphName = graphName;
         this.status = status;
     }
 
     public getId(): string {
-        return this.graphId;
+        return this.graphName;
     }
 
     public getStatus(): string {

@@ -14,11 +14,11 @@ describe('Get All Graphs Repo', () => {
     it('should return many Graphs when api returns many', async () => {
         const apiResponse: IAllGraphsResponse = [
             {
-                graphId: 'roadTraffic',
+                graphName: 'roadTraffic',
                 currentState: 'DEPLOYED',
             },
             {
-                graphId: 'basicGraph',
+                graphName: 'basicGraph',
                 currentState: 'DELETION_QUEUED',
             },
         ];
@@ -33,7 +33,7 @@ describe('Get All Graphs Repo', () => {
     it('should return one Graph when api returns one', async () => {
         const apiResponse: IAllGraphsResponse = [
             {
-                graphId: 'streetTraffic',
+                graphName: 'streetTraffic',
                 currentState: 'DELETION_QUEUED',
             },
         ];

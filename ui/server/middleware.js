@@ -10,24 +10,24 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 // Get all graphs
 app.get('/graphs', (req, res) => {
     res.send([ {
-        "graphId": "roadTraffic",
+        "graphName": "roadTraffic",
         "currentState": "DEPLOYED"
     }, {
-        "graphId": "basicGraph",
+        "graphName": "basicGraph",
         "currentState": "DEPLOYED"
     }]);
 });
 
 // Get graph by ID
-app.get('/graphs/:graphId', (req, res) => {
+app.get('/graphs/:graphName', (req, res) => {
     res.send({
-        "graphId": req.params.graphId,
+        "graphName": req.params.graphName,
         "currentState": "DEPLOYED"
     });
 });
 
 // Delete graph by ID
-app.delete('/graphs/:graphId', (req, res) => {
+app.delete('/graphs/:graphName', (req, res) => {
     res.status(202).end();
 });
 

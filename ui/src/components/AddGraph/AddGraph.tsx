@@ -26,7 +26,7 @@ interface IState {
     files: Array<File>,
     schemaFieldDisable: boolean,
     newGraph: {
-        graphId: string,
+        graphName: string,
         administrators: Array<string>,
         schemaJson: string,
     }
@@ -48,7 +48,7 @@ export default class AddGraph extends React.Component<{}, IState> {
             schemaFieldDisable: false,
             files: [],
             newGraph: {
-                graphId: "",
+                graphName: "",
                 administrators: [],
                 schemaJson: "",
             },
@@ -89,12 +89,12 @@ export default class AddGraph extends React.Component<{}, IState> {
     }));
 
     private async submitNewGraph() {
-        const {graphId, administrators, schemaJson} = this.state.newGraph;
+        const {graphName, administrators, schemaJson} = this.state.newGraph;
         const schema = new Schema(schemaJson);
         const notifications: Notifications = schema.validation();
 
         if (notifications.isEmpty()) {
-            await new CreateGraphRepo().create(graphId, administrators, schema);
+            await new CreateGraphRepo().create(graphName, administrators, schema);
 
         } else {
             this.setState({notifications: notifications});
@@ -143,18 +143,18 @@ export default class AddGraph extends React.Component<{}, IState> {
 
                                         <TextField
                                             variant="outlined"
-                                            value={this.state.newGraph.graphId}
+                                            value={this.state.newGraph.graphName}
                                             required
                                             fullWidth
-                                            id="graphId"
-                                            label="Graph ID"
-                                            name="graphId"
-                                            autoComplete="graph-id"
+                                            id="graphName"
+                                            label="Graph Name"
+                                            name="graphName"
+                                            autoComplete="graph-name"
                                             onChange={(event) => {
                                                 this.setState({
                                                     newGraph: {
                                                         ...this.state.newGraph,
-                                                        graphId: event.target.value
+                                                        graphName: event.target.value
                                                     }
                                                 });
                                             }}
@@ -277,7 +277,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                             files: [],
                             newGraph: {
                                 ...this.state.newGraph,
-                                graphId: "",
+                                graphName: "",
                                 schemaJson:""
 
 
