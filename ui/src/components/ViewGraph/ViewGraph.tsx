@@ -53,9 +53,9 @@ export default class ViewGraph extends React.Component<{}, IState> {
                     
                             <TableHead>
                                 <TableRow style = {{background: '#F4F2F2'}}>
-                                    <TableCell>Graph Name </TableCell>
+                                    <TableCell>Graph Name</TableCell>
                                     <TableCell align="right">Current State</TableCell>
-                                    <TableCell align="right">Update</TableCell>
+                                    <TableCell align="right">Delete</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -67,9 +67,6 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                         <TableCell component="th" scope="row">{graph.getId()}</TableCell>
                                         <TableCell align="right">{graph.getStatus()}</TableCell>
                                         <TableCell align="right">
-                                            <IconButton>
-                                                <CreateIcon/>
-                                            </IconButton>
                                             <IconButton>
                                                 <DeleteOutlineOutlinedIcon/>
                                             </IconButton>
