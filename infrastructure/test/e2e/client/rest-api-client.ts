@@ -15,7 +15,7 @@
  */
 
 import axios, { AxiosResponse, Method } from "axios";
-import schema from "../config/schema.json";
+import { IUserToken } from "../setup/user-helper";
 
 export interface IResponse {
     status: number,
@@ -25,9 +25,9 @@ export interface IResponse {
 export class RestApiClient {
     private readonly _graphs = "/graphs";
     private readonly _restApiEndpoint: string;
-    private readonly _userTokens: Record<string, string>;
+    private readonly _userTokens: Record<string, IUserToken>;
 
-    constructor(restApiEndpoint: string, userTokens: Record<string, string>) {
+    constructor(restApiEndpoint: string, userTokens: Record<string, IUserToken>) {
         this._restApiEndpoint = restApiEndpoint;
         this._userTokens = userTokens;
     }
@@ -41,9 +41,8 @@ export class RestApiClient {
         return this.callApi("get", url, userName, undefined);
     }
 
-    public createGraph(userName: string, graphName: string): Promise<IResponse> {
-        schema.graphName = graphName;
-        return this.callApi("post", this._graphs, userName, schema);
+    public createGraph(userName: string, data: Record<string, unknown>): Promise<IResponse> {
+        return this.callApi("post", this._graphs, userName, data);
     }
 
     public async awaitGraphDeployment(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
@@ -72,27 +71,41 @@ export class RestApiClient {
                     break;
                 }
             }
-            console.log("Sleeping.............................");
             await new Promise(r => setTimeout(r, 10000));
         }
         console.log("Timed out awaiting graph deployment");
         return false;
     }
 
-    private callApi(method: Method, url: string, userName: string, data: object | undefined): Promise<IResponse> {
+    private callApi(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): Promise<IResponse> {
         return axios({
             method: method,
             responseType: "json",
-            headers: {"Authorization": this._userTokens[userName]},
+            headers: {"Authorization": this._userTokens[userName].token},
             baseURL: this._restApiEndpoint,
             url: url,
             data: data
         }).then(
             (response: AxiosResponse) => {
+                console.log("response: " + JSON.stringify(response));
                 return {
                     status: response.status,
                     data: <Record<string, undefined>>response.data
                 };
+            },
+        ).catch(
+            (error) => {
+                if (error.response) {
+                    // The request was made and the server responded with a status code that falls out of the range of 2xx
+                    return {
+                        status: error.response.status,
+                        data: <Record<string, undefined>>error.response.data
+                    };
+                } else if (error.request) {
+                    throw new Error("No response received, original request: " + error.request);
+                } else {
+                    throw new Error("Error received while creating request: " + error.message);
+                }
             }
         );
     }

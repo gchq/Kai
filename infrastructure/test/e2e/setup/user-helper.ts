@@ -19,9 +19,14 @@ import { v4 as uuidv4 } from "uuid";
 import * as AWS from "aws-sdk";
 import { PromiseResult } from "aws-sdk/lib/request";
 
-interface IUser {
+export interface IUser {
     userName: string;
     password: string;
+}
+
+export interface IUserToken {
+    user: IUser;
+    token: string;
 }
 
 export class UserHelper {
@@ -33,7 +38,7 @@ export class UserHelper {
         this._cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({apiVersion: "2016-04-18"});
     }
 
-    public async createUserAuthenticationToken(userPool: IUserPool, userName: string): Promise<string | void> {
+    public async createUserAuthenticationToken(userPool: IUserPool, userName: string): Promise<IUserToken | void> {
         const user: IUser = {
             userName: this._stackName + "-" + userName,
             password: uuidv4() + "Q"
@@ -57,7 +62,10 @@ export class UserHelper {
         ).then(
             (data: AWS.CognitoIdentityServiceProvider.InitiateAuthResponse) => {
                 if (data.AuthenticationResult && data.AuthenticationResult.IdToken) {
-                    return data.AuthenticationResult.IdToken;
+                    return {
+                        user: user,
+                        token: data.AuthenticationResult.IdToken
+                    };
                 } else {
                     throw new Error("No IdToken returned");
                 }

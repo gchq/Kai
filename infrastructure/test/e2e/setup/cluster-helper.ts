@@ -18,7 +18,7 @@ import * as cp from "child_process";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { SecurityGroupHelper } from "./security-group-helper";
-import { UserHelper } from "./user-helper";
+import { IUser, IUserToken, UserHelper } from "./user-helper";
 
 interface IClusterOutputs {
     restApiEndpoint: string;
@@ -34,13 +34,13 @@ export interface IUserPool {
 
 export class ClusterHelper {
     private readonly _uuid: string = uuidv4();
-    //private readonly _uuid: string = "987c36d9-51aa-4e40-b8d6-3cc60448d381";
+    //private readonly _uuid: string = "acf9b1ce-eae5-446d-80ff-5ed02eff425d";
     private readonly _stackName: string = "KaiE2eTesting-" + this._uuid;
     private readonly _outputsFileName: string = this._stackName + "-outputs.json";
     private readonly _testUser: string = this._stackName + "-TestUser";
     private readonly _securityGroupHelper: SecurityGroupHelper = new SecurityGroupHelper(this._stackName);
     private readonly _userHelper: UserHelper = new UserHelper(this._stackName);
-    private readonly _userTokens: Record<string, string> = {};
+    private readonly _userTokens: Record<string, IUserToken> = {};
 
     private _restApiEndpoint: string;
     private _userPool: IUserPool;
@@ -83,7 +83,7 @@ export class ClusterHelper {
 
     private async createUsers(users: string[]): Promise<void> {
         for (const user of users) {
-            const token: string | void = await this._userHelper.createUserAuthenticationToken(this._userPool, user);
+            const token: IUserToken | void = await this._userHelper.createUserAuthenticationToken(this._userPool, user);
             if (token) {
                 this._userTokens[user] = token;
             }
@@ -144,11 +144,7 @@ export class ClusterHelper {
         return this._userPool;
     }
 
-    public get userTokens(): Record<string, string> {
+    public get userTokens(): Record<string, IUserToken> {
         return this._userTokens;
-    }
-
-    public userIdToken(user: string): string {
-        return this._userTokens[user];
     }
 }
