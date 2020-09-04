@@ -6,8 +6,9 @@ node_js:
 jobs:
   include:
   - name: Infrastructure
-    install:
+    before_install:
       - cd infrastructure/
+    install:
       - npm install
     script:
       - npm run lint
