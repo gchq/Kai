@@ -4,7 +4,6 @@ node_js:
   - node
 
 jobs:
-  fast_finish: true
   include:
   - name: Infrastructure
     before_install:
