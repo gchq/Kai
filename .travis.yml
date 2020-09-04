@@ -3,12 +3,26 @@ dist: bionic
 node_js:
   - node
 
-before_install:
-  - cd infrastructure/
+jobs:
+  fast_finish: true
+  include:
+  - name: Infrastructure
+    before_install:
+      - cd infrastructure/
 
-install:
-  - npm install
+    install:
+      - npm install
 
-script:
-  - npm run lint
-  - npm run test
+    script:
+      - npm run lint
+      - npm run test
+
+  - name: UI
+    before_install:
+      - cd ui/
+
+    install:
+      - npm install
+
+    script:
+      - npm run test
