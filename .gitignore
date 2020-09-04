@@ -17,3 +17,6 @@ cdk.out
 # Parcel build directories
 .cache
 .build
+
+# IntelliJ settings
+.idea
