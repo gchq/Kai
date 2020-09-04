@@ -108,7 +108,6 @@ export class KaiRestApi extends cdk.Construct {
 
         props.graphTable.grantReadData(this._getGraphsLambda);
         // Both GET and GET all are served by the same lambda
-
         const getGraphIntegration = new api.LambdaIntegration(this._getGraphsLambda);
         graphsResource.addMethod("GET", getGraphIntegration, methodOptions);
         graph.addMethod("GET", getGraphIntegration, methodOptions);

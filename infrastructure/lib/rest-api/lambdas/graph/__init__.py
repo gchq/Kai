@@ -25,13 +25,13 @@ class Graph:
             return list(filter(lambda graph: requesting_user in graph["administrators"], graphs))
 
 
-    def get_graph(self, release_name):
+    def get_graph(self, graph_name):
         """
         Gets a specific graph from Dynamodb table
         """
         response = self.table.get_item(
             Key={
-                "releaseName": release_name
+                "releaseName": format_graph_name(graph_name)
             }
         )
         if "Item" in response:
@@ -61,4 +61,3 @@ class Graph:
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
         )
-

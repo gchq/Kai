@@ -19,6 +19,7 @@ import { ILayerVersion } from "@aws-cdk/aws-lambda";
 import { Cluster } from "@aws-cdk/aws-eks";
 import { Duration } from "@aws-cdk/core";
 import { Table } from "@aws-cdk/aws-dynamodb";
+import { PolicyStatement } from "@aws-cdk/aws-iam";
 
 export interface WorkerProps {
     queue: Queue;
@@ -28,4 +29,5 @@ export interface WorkerProps {
     handler: string;
     timeout: Duration;
     batchSize: number;
+    policyStatements: PolicyStatement[];
 }
