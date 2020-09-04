@@ -15,8 +15,9 @@ jobs:
       - npm run test
 
   - name: UI
-    install:
+    before_install:
       - cd ui/
+    install:
       - npm install
     script:
       - npm run test
