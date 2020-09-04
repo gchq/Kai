@@ -6,18 +6,14 @@ node_js:
 jobs:
   include:
   - name: Infrastructure
-    before_install:
-      - cd infrastructure/
-    install:
-      - npm install
     script:
+      - cd infrastructure/
+      - npm install
       - npm run lint
       - npm run test
 
   - name: UI
-    before_install:
-      - cd ui/
-    install:
-      - npm install
     script:
+      - cd ui/
+      - npm install
       - npm run test
