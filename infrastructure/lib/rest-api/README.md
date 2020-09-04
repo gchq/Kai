@@ -50,7 +50,7 @@ curl -H "Authorization: <IdToken>" https://<restapi-id>.execute-api.<aws-region>
 The Graphs resource enables creation, deletion and retrieval of Graphs managed by Kai.
 
 #### GET /graphs
-Retrieves all graphs objects from the backend database. At present this only includes the graphId and its current state but this is likely to change as the project grows.
+Retrieves all graphs objects from the backend database. At present this only includes the graphName and its current state but this is likely to change as the project grows.
 
 A graph can be in different states. At present these states can be:
 * DEPLOYMENT_QUEUED
@@ -77,7 +77,7 @@ Example response:
 ]
 ```
 
-#### GET /graphs/{graphId}
+#### GET /graphs/{graphName}
 Retrieves a single graph from the backend database. If the Graph Id is not found, a 404 response is sent. If the requesting user is not a configured administrator of the graph a 403 response is returned.
 
 Example response:
@@ -89,12 +89,12 @@ Example response:
 ```
 
 #### POST /graphs
-Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph which takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphId which must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message. There is a constraint in gaffer-docker that graph ids have to be lowercase alphanumerics. We hope to address this in a bugfix to allow uppercase alphanumerics too. By default only the creating user has administration access to the graph through the REST API. If you wish to specify additional users with administration privileges they can be listed in an optional "administrators" property. If an attempt is made to configure users who are not members of the Cognito User Pool a 400 response will be returned.
+Creates and deploys a new graph. This endpoint is asynchronous meaning it will return before deploying a graph which takes around 5 minutes. At present, you need to provide a Gaffer schema which is split into two parts: elements and types, as well as a graphName which must be unique. This endpoint will respond with a simple 201 return code. If the user requests a graph which is already created, A 400 response will be sent, along with an error message. There is a constraint in gaffer-docker that graph names have to be lowercase alphanumerics. We hope to address this in a bugfix to allow uppercase alphanumerics too. By default only the creating user has administration access to the graph through the REST API. If you wish to specify additional users with administration privileges they can be listed in an optional "administrators" property. If an attempt is made to configure users who are not members of the Cognito User Pool a 400 response will be returned.
 
 Example request body:
 ```json
 {
-  "graphId": "basic",
+  "graphName": "basic",
   "administrators": [],
   "schema": {
     "elements": {
@@ -135,5 +135,5 @@ Example request body:
 }
 ```
 
-#### DELETE /graphs/{graphId}
-Deletes a graph deployment from the platform. This endpoint is asynchronous meaning that it will respond before the graph deployment is removed. Once the graph deployment is removed, the graph will be removed from the backend database. If the requested graphId is not present or is not in the backend database at the start, a 400 error is returned. If the user is not an administrator a 403 response is returned. Otherwise a 202 status code is returned.
+#### DELETE /graphs/{graphName}
+Deletes a graph deployment from the platform. This endpoint is asynchronous meaning that it will respond before the graph deployment is removed. Once the graph deployment is removed, the graph will be removed from the backend database. If the requested graphName is not present or is not in the backend database at the start, a 400 error is returned. If the user is not an administrator a 403 response is returned. Otherwise a 202 status code is returned.

@@ -29,13 +29,13 @@ class User:
             return None
         return request["requestContext"]["authorizer"]["claims"]["cognito:username"]
 
-    def is_authorized(self, user, graphId):
+    def is_authorized(self, user, graphName):
         # If Authenticated through AWS account treat as admin for all graphs
         if (user is None):
             return True
         # Otherwise check the list of administrators configured on the graph
         try:
-            graph_record = self.graph.get_graph(graphId)
+            graph_record = self.graph.get_graph(graphName)
             return user in graph_record["administrators"]
         except Exception as e:
             return False
