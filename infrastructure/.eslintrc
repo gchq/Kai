@@ -29,6 +29,6 @@
         "notice/notice": [2, {
             "templateFile": "header.js",
             "onNonMatchingHeader": "replace"
-        }],
+        }]
     }
 }
