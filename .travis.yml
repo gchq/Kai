@@ -9,10 +9,8 @@ jobs:
   - name: Infrastructure
     before_install:
       - cd infrastructure/
-
     install:
       - npm install
-
     script:
       - npm run lint
       - npm run test
@@ -20,9 +18,7 @@ jobs:
   - name: UI
     before_install:
       - cd ui/
-
     install:
       - npm install
-
     script:
       - npm run test
