@@ -56,6 +56,7 @@ describe('When UserGuide mounts', () => {
         const exampleSchema = wrapper.find('div.react-json-view');
 
         const display= mount(<ReactJson src={exampleJSON} theme="summerfruit:inverted" displayDataTypes={false} displayObjectSize={false} name={"schema"}/>)
+        
         expect(exampleSchema).toHaveLength(1);
         expect(exampleSchema.html()).toBe(display.html())
     });
