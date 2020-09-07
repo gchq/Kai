@@ -1,12 +1,14 @@
-.classpath.txt
-target
-.classpath
-.project
-.idea
-.settings
-.vscode
-*.iml
-node_modules/
+*.js
+!jest.config.js
+!**/lambdas/*.js
+!header.js
+*.d.ts
+node_modules
+__pycache__/
+*.pyc
+
+# CDK temporary file
+cdk.context.json
 
 # CDK asset staging directory
 .cdk.staging
@@ -15,3 +17,7 @@ cdk.out
 # Parcel build directories
 .cache
 .build
+
+# IntelliJ settings
+.idea
+Kai.iml
