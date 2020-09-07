@@ -4,6 +4,14 @@ module.exports = {
     transform: {
       "^.+\\.tsx?$": "ts-jest"
     },
+    coverageThreshold: {
+      global: {
+        branches: 60,
+        functions: 70,
+        lines: 80,
+        statements: 80
+      }
+    },
     globals: {
       "ts-jest": {
         diagnostics: false

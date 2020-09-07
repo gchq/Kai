@@ -1,9 +1,10 @@
 import {mount} from 'enzyme';
 import React from 'react';
 import AddGraph from "../../src/components/AddGraph/AddGraph";
-import Dropzone from 'react-dropzone'
-import {fireEvent, render} from '@testing-library/react'
+import {DropzoneArea} from 'material-ui-dropzone';
+
 const wrapper = mount(<AddGraph/>);
+
 describe('When AddGraph mounts', () => {
 
     it('should have a Graph Id text field', () => {
@@ -22,96 +23,35 @@ describe('When AddGraph mounts', () => {
         const submitButton = wrapper.find('button').at(2).text();
         expect(submitButton).toBe("Add Graph");
     });
-
-
 });
 describe('Dropzone behaviour', () => {
-    function flushPromises(ui: JSX.Element, container: any) {
-        return new Promise(resolve =>
-            setImmediate(() => {
-                render(ui, {container});
-                resolve(container)
-            })
-        )
-    }
+    it("should fire onChange handler", () => {
+        const handleDropzoneChange = jest.fn();
+        const dzwrapper = mount(
+            <DropzoneArea
+            showPreviews={true}
+            onChange={handleDropzoneChange}
 
-    function dispatchEvt(node: any, type: any, data: any) {
-        const event = new Event(type, {bubbles: true});
-        Object.assign(event, data);
-        fireEvent(node, event)
-    }
 
-    function mockData(files: Array<File>) {
-        return {
-            dataTransfer: {
-                files,
-                items: files.map(file => ({
-                    kind: 'file',
-                    type: file.type,
-                    getAsFile: () => file
-                })),
-                types: ['Files']
-            }
-        }
-    }
+            showPreviewsInDropzone={false}
+            useChipsForPreview
 
-    it('renders the root and input nodes with the necessary props', () => {
-        const {container} = render(
-            <Dropzone>
-                {({getRootProps, getInputProps}) => (
-                    <div {...getRootProps()}>
-                        <input {...getInputProps()} />
-                    </div>
-                )}
-            </Dropzone>
+            previewText="Selected files"
+            clearOnUnmount={true}
+            acceptedFiles={['application/json']}
+            filesLimit={1}
+        />
         );
-        expect(container.innerHTML).toMatchSnapshot()
-    });
-    test('runs onDragEnter when a file is dragged in component', async () => {
-        const file = new File([
-            JSON.stringify({ping: true})
-        ], 'ping.json', {type: 'application/json'});
-        const data = mockData([file]);
-        const onDragEnter = jest.fn();
+        // find the DropzoneArea node
+        const dropzoneAreaWrapper = dzwrapper.find(DropzoneArea);
+        // call its onChange prop
+        dropzoneAreaWrapper.prop('onChange')();
+        // check handleDropzoneChange has been called
+        expect(handleDropzoneChange).toHaveBeenCalled();
+      });
 
-        const ui = (
-            <Dropzone onDragEnter={onDragEnter}>
-                {({getRootProps, getInputProps}) => (
-                    <div {...getRootProps()}>
-                        <input {...getInputProps()} />
-                    </div>
-                )}
-            </Dropzone>
-        );
-        const {container} = render(ui);
-        const dropzone = container.querySelector('div');
-
-        dispatchEvt(dropzone, 'dragenter', data);
-        await flushPromises(ui, container);
-
-        expect(onDragEnter).toHaveBeenCalled()
-    });
-    it('runs onChange when a change happens in the component', () => {
-        const inputProps = {
-            onChange: jest.fn()
-        };
-
-        const ui = (
-            <Dropzone>
-                {({ getRootProps, getInputProps }) => (
-                    <div {...getRootProps()}>
-                        <input {...getInputProps(inputProps)} />
-                    </div>
-                )}
-            </Dropzone>
-        );
-
-        const { container } = render(ui);
-        const input = container.querySelector('input');
-
-        fireEvent.change(input);
-        expect(inputProps.onChange).toHaveBeenCalled()
-    })
+   
+    
     it('should have an input that accepts files', () => {
 
         const dropZone= wrapper.find('input').at(1);
@@ -122,6 +62,7 @@ describe('Dropzone behaviour', () => {
         const dropZone= wrapper.find('input').at(1);
         expect(dropZone.props().accept).toBe('application/json')
     })
-
+   
+    
 
 });
