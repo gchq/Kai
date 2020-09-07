@@ -1,11 +1,10 @@
 import {mount} from 'enzyme';
 import React from 'react';
 import AddGraph from "../../src/components/AddGraph/AddGraph";
-import {DropzoneArea} from 'material-ui-dropzone'
-import Dropzone from 'react-dropzone'
-import {fireEvent, render} from '@testing-library/react'
-import { act } from 'react-dom/test-utils';
+import {DropzoneArea} from 'material-ui-dropzone';
+
 const wrapper = mount(<AddGraph/>);
+
 describe('When AddGraph mounts', () => {
 
     it('should have a Graph Id text field', () => {
@@ -24,8 +23,6 @@ describe('When AddGraph mounts', () => {
         const submitButton = wrapper.find('button').at(2).text();
         expect(submitButton).toBe("Add Graph");
     });
-
-
 });
 describe('Dropzone behaviour', () => {
     it("should fire onChange handler", () => {

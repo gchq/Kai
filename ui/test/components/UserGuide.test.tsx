@@ -2,7 +2,9 @@ import {mount} from 'enzyme';
 import React from 'react';
 import UserGuide from "../../src/components/UserGuide/UserGuide";
 import ReactJson from "react-json-view";
+
 const wrapper = mount(<UserGuide/>);
+
 const exampleJSON= {
     "elements": {
         "edges": {
@@ -56,11 +58,5 @@ describe('When UserGuide mounts', () => {
         const display= mount(<ReactJson src={exampleJSON} theme="summerfruit:inverted" displayDataTypes={false} displayObjectSize={false} name={"schema"}/>)
         expect(exampleSchema).toHaveLength(1);
         expect(exampleSchema.html()).toBe(display.html())
-
     });
-
-
-
-
-
 });
