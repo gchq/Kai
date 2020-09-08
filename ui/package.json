@@ -8,8 +8,7 @@
     "client": "react-scripts start",
     "server": "node server/middleware.js",
     "build": "react-scripts build",
-    "test": "jest",
-    "test-cov": "jest \"--coverage\"",
+    "test": "jest \"--coverage\"",
     "deploy": "aws s3 sync build/ s3://kai-ui",
     "eject": "react-scripts eject"
   },
