@@ -101,16 +101,8 @@ export default class AddGraph extends React.Component<{}, IState> {
         }
     }
 
-    private async setFiles(files: Array<File>) {
-        this.setState({
-            files: files
-        });
-    }
-
     private async getSchema(files: Array<File>) {
-        const file = await files[0].text();
-        return file
-
+        return await files[0].text();
     }
 
     public render() {
