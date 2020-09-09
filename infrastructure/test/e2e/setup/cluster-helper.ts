@@ -18,9 +18,10 @@ import * as cp from "child_process";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { SecurityGroupHelper } from "./security-group-helper";
-import { IUser, IUserToken, UserHelper } from "./user-helper";
+import { IUserToken, UserHelper } from "./user-helper";
 
 interface IClusterOutputs {
+    clusterName: string;
     restApiEndpoint: string;
     kubeConfigCommand: string;
     userPool: IUserPool;
@@ -34,7 +35,6 @@ export interface IUserPool {
 
 export class ClusterHelper {
     private readonly _uuid: string = uuidv4();
-    //private readonly _uuid: string = "acf9b1ce-eae5-446d-80ff-5ed02eff425d";
     private readonly _stackName: string = "KaiE2eTesting-" + this._uuid;
     private readonly _outputsFileName: string = this._stackName + "-outputs.json";
     private readonly _testUser: string = this._stackName + "-TestUser";
@@ -42,6 +42,7 @@ export class ClusterHelper {
     private readonly _userHelper: UserHelper = new UserHelper(this._stackName);
     private readonly _userTokens: Record<string, IUserToken> = {};
 
+    private _clusterName: string;
     private _restApiEndpoint: string;
     private _userPool: IUserPool;
     private _securityGroupId: string | void;
@@ -63,6 +64,7 @@ export class ClusterHelper {
 
             this._restApiEndpoint = clusterOutputs.restApiEndpoint;
             this._userPool = clusterOutputs.userPool;
+            this._clusterName = clusterOutputs.clusterName;
 
             await this.createUsers(users);
 
@@ -76,7 +78,7 @@ export class ClusterHelper {
             await this._securityGroupHelper.deleteSecurityGroup(this._securityGroupId);
         }
 
-        const destroyCommand="cdk destroy --context stackName=" + this._stackName + " --force";
+        const destroyCommand = "cdk destroy --context stackName=" + this._stackName + " --force";
         console.log("Destroying stack: " + this._stackName + " using command: " + destroyCommand);
         cp.execSync(destroyCommand);
     }
@@ -93,6 +95,7 @@ export class ClusterHelper {
     private parseOutputsFile(): IClusterOutputs {
         const json = JSON.parse(fs.readFileSync(this._outputsFileName, "utf8"));
 
+        let clusterName;
         let kubeConfigCommand;
         let restApiEndpoint;
         let userPoolId;
@@ -102,6 +105,7 @@ export class ClusterHelper {
             for (const key in json[this._stackName]) {
                 if (key.startsWith("GraphPlatformEksClusterConfigCommand")) {
                     kubeConfigCommand = json[this._stackName][key];
+                    clusterName = this.extractClusterNameFrom(kubeConfigCommand);
                 }
                 if (key.search(this._stackName.replace(/-/g, "")) > -1 && key.search("KaiRestApi") > -1 && key.search("RestApiEndpoint") > -1) {
                     restApiEndpoint = json[this._stackName][key];
@@ -116,6 +120,7 @@ export class ClusterHelper {
         }
 
         if (!kubeConfigCommand
+               || !clusterName
                || !restApiEndpoint
                || !userPoolId
                || !userPoolClientId) {
@@ -123,6 +128,7 @@ export class ClusterHelper {
         }
 
         return {
+            clusterName: clusterName,
             kubeConfigCommand: kubeConfigCommand,
             restApiEndpoint: restApiEndpoint,
             userPool: {
@@ -130,6 +136,16 @@ export class ClusterHelper {
                 userPoolClientId: userPoolClientId
             }
         };
+    }
+
+    private extractClusterNameFrom(kubeConfigCommand: string): string {
+        const kubeConfigCommandArray: string[] = kubeConfigCommand.split(" ");
+        const clusterNameIndex = kubeConfigCommandArray.findIndex(item => item == "--name");
+        return (clusterNameIndex > 0 && kubeConfigCommandArray.length > clusterNameIndex + 1) ? kubeConfigCommandArray[clusterNameIndex + 1] : "";
+    }
+
+    public get clusterName(): string {
+        return this._clusterName;
     }
 
     public get restApiEndpoint(): string {

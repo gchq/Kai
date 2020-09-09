@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-import axios, { AxiosResponse, Method } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import { IUserToken } from "../setup/user-helper";
+
+const graphDeploymentCheckIntervalMilliseconds: number = 10 * 1000;
+const graphDeletionCheckIntervalMilliseconds: number = 10 * 1000;
+
 
 export interface IResponse {
     status: number,
@@ -45,8 +49,12 @@ export class RestApiClient {
         return this.callApi("post", this._graphs, userName, data);
     }
 
-    public async awaitGraphDeployment(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
+    public deleteGraph(userName: string, graphName: string): Promise<IResponse> {
+        const url = this._graphs + "/" + graphName;
+        return this.callApi("delete", url, userName, undefined);
+    }
 
+    public async awaitGraphDeployment(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
         const startTime = new Date().getTime();
         while (new Date().getTime() - startTime < timeoutMilliseconds) {
             const deploymentStatus: string | undefined = await this.getGraph(userName, graphName).then(
@@ -71,23 +79,37 @@ export class RestApiClient {
                     break;
                 }
             }
-            await new Promise(r => setTimeout(r, 10000));
+            await new Promise(r => setTimeout(r, graphDeploymentCheckIntervalMilliseconds));
         }
         console.log("Timed out awaiting graph deployment");
         return false;
     }
 
+
+    public async awaitGraphDeletion(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
+        const startTime = new Date().getTime();
+        while (new Date().getTime() - startTime < timeoutMilliseconds) {
+            const deleted: boolean | undefined = await this.getGraph(userName, graphName).then(
+                (response: IResponse) => {
+                    console.log(JSON.stringify(response));
+                    return (response.status == 404);
+                }
+            );
+            if (deleted) {
+                return true;
+            }
+            await new Promise(r => setTimeout(r, graphDeletionCheckIntervalMilliseconds));
+        }
+        console.log("Timed out awaiting graph deletion");
+        return false;
+    }
+
+
     private callApi(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): Promise<IResponse> {
-        return axios({
-            method: method,
-            responseType: "json",
-            headers: {"Authorization": this._userTokens[userName].token},
-            baseURL: this._restApiEndpoint,
-            url: url,
-            data: data
-        }).then(
+        return axios(
+            this.createRequestConfig(method, url, userName, data)
+        ).then(
             (response: AxiosResponse) => {
-                console.log("response: " + JSON.stringify(response));
                 return {
                     status: response.status,
                     data: <Record<string, undefined>>response.data
@@ -108,5 +130,19 @@ export class RestApiClient {
                 }
             }
         );
+    }
+
+    private createRequestConfig(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): AxiosRequestConfig {
+        const config: AxiosRequestConfig = {
+            method: method,
+            responseType: "json",
+            headers: {"Authorization": this._userTokens[userName].token},
+            baseURL: this._restApiEndpoint,
+            url: url
+        };
+        if (data) {
+            config.data = data;
+        }
+        return config;
     }
 }

@@ -117,7 +117,6 @@ export class SecurityGroupHelper {
                 }
             ]
         };
-        console.log("Creating security group with params: " + JSON.stringify(params));
         return this._ec2.createSecurityGroup(params).promise();
     }
 
@@ -138,13 +137,11 @@ export class SecurityGroupHelper {
                 }
             ]
         };
-        console.log("Adding security group ingress using params: " + JSON.stringify(params));
         return this._ec2.authorizeSecurityGroupIngress(params).promise();
     }
 
     public async deleteSecurityGroup(securityGroupId: string): Promise<void> {
         console.log("Deleting security group: " + securityGroupId);
-
         const params = {
             GroupId: securityGroupId
         };

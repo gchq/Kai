@@ -1,0 +1,9 @@
+{
+  "KaiE2eTesting-219c3390-c223-44fc-9053-a70938c5fbaa": {
+    "GraphPlatformEksClusterGetTokenCommand724EA184": "aws eks get-token --cluster-name GraphPlatformEksClusterEC709737-c2df08d35abe4fbb975dc164d04cb798 --region eu-west-1 --role-arn arn:aws:iam::201927885435:role/KaiE2eTesting-219c3390-c2-GraphPlatformMasterRole4-PFFE89NI6PPH",
+    "KaiUserPoolKaiUserPoolClientId8700017C": "61ocjg2ugt40m6652qslk8a2il",
+    "GraphPlatformEksClusterConfigCommand4BC7A266": "aws eks update-kubeconfig --name GraphPlatformEksClusterEC709737-c2df08d35abe4fbb975dc164d04cb798 --region eu-west-1 --role-arn arn:aws:iam::201927885435:role/KaiE2eTesting-219c3390-c2-GraphPlatformMasterRole4-PFFE89NI6PPH",
+    "KaiUserPoolKaiUserPoolId209760ED": "eu-west-1_QseDfscON",
+    "KaiRestApiKaiE2eTesting219c3390c22344fc9053a70938c5fbaaKaiRestApi5E2AA5A0RestApiEndpoint40217498": "https://vk35jraa9l.execute-api.eu-west-1.amazonaws.com/prod/"
+  }
+}

@@ -80,7 +80,6 @@ export class UserHelper {
             UserPoolId: userPoolId,
             Username: user.userName
         };
-        console.log("Creating user with params: " +  JSON.stringify(params));
         return this._cognitoIdentityServiceProvider.adminCreateUser(params).promise();
     }
 
@@ -91,7 +90,6 @@ export class UserHelper {
             Username: user.userName,
             Permanent: true
         };
-        console.log("Setting password with params: " +  JSON.stringify(params));
         return this._cognitoIdentityServiceProvider.adminSetUserPassword(params).promise();
     }
 
@@ -104,7 +102,6 @@ export class UserHelper {
                 "ALLOW_REFRESH_TOKEN_AUTH"
             ]
         };
-        console.log("Enabling Admin User Password Authentication with params: " +  JSON.stringify(params));
         return this._cognitoIdentityServiceProvider.updateUserPoolClient(params).promise();
     }
 
@@ -118,7 +115,6 @@ export class UserHelper {
                 PASSWORD: user.password
             }
         };
-        console.log("Authenticating: " +  JSON.stringify(params));
         return this._cognitoIdentityServiceProvider.adminInitiateAuth(params).promise();
     }
 }

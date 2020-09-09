@@ -20,19 +20,19 @@ def handler(event, context):
     request_body = json.loads(event["body"])
 
     # Check request is valid
-    graph_name = request_body["graphName"]
-    schema = request_body["schema"]
-
-    if not is_graph_name_valid(graph_name):
+    if "graphName" not in request_body or not is_graph_name_valid(request_body["graphName"]):
         return {
             "statusCode": 400,
             "body": "graphName is a required field which must made up of alphanumeric characters"
         }
-    if schema is None:
+    if "schema" not in request_body or request_body["schema"] is None:
         return {
             "statusCode": 400,
             "body": "schema is a required field"
         }
+
+    graph_name = request_body["graphName"]
+    schema = request_body["schema"]
 
     # Get variables from env
     queue_url = os.getenv("sqs_queue_url")
