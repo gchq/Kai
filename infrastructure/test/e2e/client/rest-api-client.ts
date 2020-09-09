@@ -20,7 +20,6 @@ import { IUserToken } from "../setup/user-helper";
 const graphDeploymentCheckIntervalMilliseconds: number = 10 * 1000;
 const graphDeletionCheckIntervalMilliseconds: number = 10 * 1000;
 
-
 export interface IResponse {
     status: number,
     data: Record<string, undefined>
@@ -59,7 +58,7 @@ export class RestApiClient {
         while (new Date().getTime() - startTime < timeoutMilliseconds) {
             const deploymentStatus: string | undefined = await this.getGraph(userName, graphName).then(
                 (response: IResponse) => {
-                    console.log(JSON.stringify(response.data));
+                    console.log("Awaiting graph deployment, received response: " + JSON.stringify(response.data));
                     if (response.data["currentState"]) {
                         return response.data["currentState"];
                     } else {
@@ -91,7 +90,7 @@ export class RestApiClient {
         while (new Date().getTime() - startTime < timeoutMilliseconds) {
             const deleted: boolean | undefined = await this.getGraph(userName, graphName).then(
                 (response: IResponse) => {
-                    console.log(JSON.stringify(response));
+                    console.log("Awaiting graph deletion, received response: " + JSON.stringify(response));
                     return (response.status == 404);
                 }
             );

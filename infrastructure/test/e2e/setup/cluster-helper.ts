@@ -105,9 +105,11 @@ export class ClusterHelper {
             for (const key in json[this._stackName]) {
                 if (key.startsWith("GraphPlatformEksClusterConfigCommand")) {
                     kubeConfigCommand = json[this._stackName][key];
-                    clusterName = this.extractClusterNameFrom(kubeConfigCommand);
                 }
-                if (key.search(this._stackName.replace(/-/g, "")) > -1 && key.search("KaiRestApi") > -1 && key.search("RestApiEndpoint") > -1) {
+                if (key.startsWith("GraphPlatformKaiEksClusterName")) {
+                    clusterName = json[this._stackName][key];
+                }
+                if (key.includes(this._stackName.replace(/-/g, "")) && key.includes("KaiRestApi") && key.includes("RestApiEndpoint")) {
                     restApiEndpoint = json[this._stackName][key];
                 }
                 if (key.startsWith("KaiUserPoolKaiUserPoolId")) {
@@ -136,12 +138,6 @@ export class ClusterHelper {
                 userPoolClientId: userPoolClientId
             }
         };
-    }
-
-    private extractClusterNameFrom(kubeConfigCommand: string): string {
-        const kubeConfigCommandArray: string[] = kubeConfigCommand.split(" ");
-        const clusterNameIndex = kubeConfigCommandArray.findIndex(item => item == "--name");
-        return (clusterNameIndex > 0 && kubeConfigCommandArray.length > clusterNameIndex + 1) ? kubeConfigCommandArray[clusterNameIndex + 1] : "";
     }
 
     public get clusterName(): string {
