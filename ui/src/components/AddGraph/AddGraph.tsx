@@ -30,7 +30,7 @@ interface IState {
         administrators: Array<string>,
         schemaJson: string,
     }
-    notifications: Notifications,
+    errors: Notifications,
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -52,7 +52,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                 administrators: [],
                 schemaJson: "",
             },
-            notifications: new Notifications(),
+            errors: new Notifications(),
         }
 
     }
@@ -90,14 +90,20 @@ export default class AddGraph extends React.Component<{}, IState> {
 
     private async submitNewGraph() {
         const {graphName, administrators, schemaJson} = this.state.newGraph;
-        const schema = new Schema(schemaJson);
-        const notifications: Notifications = schema.validation();
+        const errors: Notifications = new Notifications()
+        if(graphName.length === 0){
+            errors.addError("Graph Name is empty"); 
+        }
 
-        if (notifications.isEmpty()) {
+        const schema = new Schema(schemaJson);
+        const schemaErrors: Notifications = schema.validation();
+        errors.concat(schemaErrors);
+
+        if (errors.isEmpty()) {
             await new CreateGraphRepo().create(graphName, administrators, schema);
 
         } else {
-            this.setState({notifications: notifications});
+            this.setState({errors: errors});
         }
     }
 
@@ -122,9 +128,9 @@ export default class AddGraph extends React.Component<{}, IState> {
 
                     <Container component="main" maxWidth="xs">
                         <CssBaseline/>
-                        {!this.state.notifications.isEmpty() &&
+                        {!this.state.errors.isEmpty() &&
                         <Alert variant="outlined"
-                               severity="error">Error(s): {this.state.notifications.errorMessage()}</Alert>}
+                               severity="error">Error(s): {this.state.errors.errorMessage()}</Alert>}
                         <div className={this.classes.paper}>
 
                             <form className={this.classes.form} noValidate>

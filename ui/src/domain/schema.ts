@@ -1,9 +1,8 @@
 import { Notifications } from './notifications';
 
 export class Schema {
-
     private schema: any;
-    
+
     constructor(schema: string) {
         this.schema = schema;
     }
@@ -14,6 +13,10 @@ export class Schema {
 
     public validation(): Notifications {
         const notes: Notifications = new Notifications();
+        if (this.schema.length === 0) {
+            notes.addError('Schema is empty');
+            return notes;
+        }
 
         if (!this.schemaIsValidJson(notes)) {
             return notes;
