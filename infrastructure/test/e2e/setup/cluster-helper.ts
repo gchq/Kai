@@ -81,6 +81,9 @@ export class ClusterHelper {
         const destroyCommand = "cdk destroy --context stackName=" + this._stackName + " --force";
         console.log("Destroying stack: " + this._stackName + " using command: " + destroyCommand);
         cp.execSync(destroyCommand);
+
+        /* Delete the outputs file */
+        fs.unlinkSync(this._outputsFileName);
     }
 
     private async createUsers(users: string[]): Promise<void> {
