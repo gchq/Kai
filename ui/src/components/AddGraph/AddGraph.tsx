@@ -91,13 +91,13 @@ export default class AddGraph extends React.Component<{}, IState> {
                 <Grid style={{ marginTop: 30 }} container justify="center">
                     <Container component="main" maxWidth="xs">
                         <CssBaseline />
-                        {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
-                        {!this.state.errors.isEmpty() && (
-                            <Alert variant="outlined" severity="error">Error(s): {this.state.errors.errorMessage()}</Alert>
-                        )}
                         <div className={this.classes.paper}>
                             <form className={this.classes.form} noValidate>
                                 <Grid container spacing={2}>
+                                    {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
+                                    {!this.state.errors.isEmpty() && (
+                                        <Alert variant="outlined" severity="error">Error(s): {this.state.errors.errorMessage()}</Alert>
+                                    )}
                                     <Grid item xs={12}>
                                         <TextField
                                             variant="outlined"
