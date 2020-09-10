@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 import React from 'react';
-import AddGraph from '../../src/components/AddGraph/AddGraph';
+import AddGraph from '../../../src/components/AddGraph/AddGraph';
 import { DropzoneArea } from 'material-ui-dropzone';
 
 const wrapper = mount(<AddGraph />);
