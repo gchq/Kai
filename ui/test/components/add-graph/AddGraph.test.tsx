@@ -131,7 +131,7 @@ describe('On Submit Request', () => {
     it('should display success message in the NotificationAlert', async () => {
         CreateGraphRepo.mockImplementationOnce(() => {
             return {
-                create: jest.fn(),
+                create: () => {},
             };
         });
 
