@@ -2,9 +2,11 @@ import React from 'react';
 import { mount, ReactWrapper } from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
+import { resolve } from 'dns';
+import { Graph } from '../../../src/domain/graph';
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
 
-xdescribe('When ExampleTable mounts', () => {
+describe('When ExampleTable mounts', () => {
     const wrapper = mount(<ViewGraph />);
     const rows = wrapper.find('tbody').find('tr');
 
@@ -65,7 +67,23 @@ describe('Get Graphs Request', () => {
 
         expect(wrapper.find('#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
     });
-    it('should not display Error AlertNotification when GetGraphs request successful', () => {
+    it('should not display Error AlertNotification when GetGraphs request successful', async () => {
+
+        GetAllGraphsRepo.mockImplementationOnce(() => {
+            return {
+                getAll: () => { return new Promise ((resolve, reject) => {
+                    resolve([new Graph('roadTraffic', 'DEPLOYED')])
+                })},
+            };
+        });
+
+        const wrapper = mount(<ViewGraph/>);
+        await wrapper.update()
+        const table = wrapper.find('table')
+    
+        expect(table).toHaveLength(1);
+        expect(table.text()).toBe('Graph NameCurrent StateDeleteroadTrafficDEPLOYED')
+        expect(wrapper.find('#notification-alert').length).toBe(0);
         
     });
 });

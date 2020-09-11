@@ -54,7 +54,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
             <main style={{ marginTop: 30 }}>
                 <Toolbar />
                 <Box width="50%" m="auto">
-                    <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />
+                    {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />}
                     <TableContainer>
                         <Table className={this.classes.table} aria-label="simple table" >
 
