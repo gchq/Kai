@@ -1,6 +1,7 @@
 import { Notifications } from './notifications';
 
 export class Schema {
+    
     private schema: any;
 
     constructor(schema: string) {

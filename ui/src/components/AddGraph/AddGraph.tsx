@@ -17,7 +17,6 @@ interface IState {
     schemaFieldDisable: boolean;
     newGraph: {
         graphName: string;
-        administrators: Array<string>;
         schemaJson: string;
     };
     outcome: AlertType | undefined;
@@ -41,7 +40,6 @@ export default class AddGraph extends React.Component<{}, IState> {
             files: [],
             newGraph: {
                 graphName: '',
-                administrators: [],
                 schemaJson: '',
             },
             outcome: undefined,
@@ -51,7 +49,7 @@ export default class AddGraph extends React.Component<{}, IState> {
     }
 
     private async submitNewGraph() {
-        const { graphName, administrators, schemaJson } = this.state.newGraph;
+        const { graphName, schemaJson } = this.state.newGraph;
         const errors: Notifications = new Notifications();
         if (graphName.length === 0) {
             errors.addError('Graph Name is empty');
@@ -63,8 +61,9 @@ export default class AddGraph extends React.Component<{}, IState> {
 
         if (errors.isEmpty()) {
             try {
-                await new CreateGraphRepo().create(graphName, administrators, schema);
+                await new CreateGraphRepo().create(graphName, [], schema);
                 this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `${graphName} was successfully added` });
+                this.resetForm()
             } catch (e) {
                 this.setState({ outcome: AlertType.FAILED, outcomeMessage: `Failed to Add '${graphName}' Graph: ${e.message}` });
             }
@@ -73,11 +72,37 @@ export default class AddGraph extends React.Component<{}, IState> {
         }
     }
 
-    private async getSchema(files: Array<File>) {
-        return await files[0].text();
+    private resetForm() {
+        this.setState({
+            files: [],
+            newGraph: {
+                graphName: '',
+                schemaJson: '',
+            },
+        });
+    }
+
+    private async uploadFiles(files: File[]) {
+        this.setState({ files: files });
+        if (files.length > 0) {
+            const schemaFromFile = await files[0].text();
+
+            this.setState({
+                schemaFieldDisable: true,
+                newGraph: {
+                    ...this.state.newGraph,
+                    schemaJson: schemaFromFile,
+                },
+            });
+        } else {
+            this.setState({
+                schemaFieldDisable: false,
+            });
+        }
     }
 
     public render() {
+
         const openDialogBox = () => {
             this.setState({ dialogIsOpen: true });
         };
@@ -100,12 +125,12 @@ export default class AddGraph extends React.Component<{}, IState> {
                                     )}
                                     <Grid item xs={12}>
                                         <TextField
+                                            id="graphName"
+                                            label="Graph Name"
                                             variant="outlined"
                                             value={this.state.newGraph.graphName}
                                             required
                                             fullWidth
-                                            id="graphName"
-                                            label="Graph Name"
                                             name="graphName"
                                             autoComplete="graph-name"
                                             onChange={(event) => {
@@ -140,26 +165,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                             <DialogContent>
                                                 <DropzoneArea
                                                     showPreviews={true}
-                                                    onChange={async (files) => {
-                                                        this.setState({
-                                                            files: files,
-                                                        });
-                                                        if (files.length > 0) {
-                                                            const value = await this.getSchema(files);
-
-                                                            this.setState({
-                                                                schemaFieldDisable: true,
-                                                                newGraph: {
-                                                                    ...this.state.newGraph,
-                                                                    schemaJson: value,
-                                                                },
-                                                            });
-                                                        } else {
-                                                            this.setState({
-                                                                schemaFieldDisable: false,
-                                                            });
-                                                        }
-                                                    }}
+                                                    onChange={async (files) => this.uploadFiles(files)}
                                                     showPreviewsInDropzone={false}
                                                     useChipsForPreview
                                                     previewGridProps={{ container: { spacing: 1, direction: 'row' } }}
@@ -175,10 +181,10 @@ export default class AddGraph extends React.Component<{}, IState> {
 
                                     <Grid item xs={12}>
                                         <TextField
+                                            id="schema"
                                             style={{ width: 400 }}
                                             // disabled={this.state.schemaFieldDisable}
                                             value={this.state.newGraph.schemaJson}
-                                            id="schema"
                                             label="Schema"
                                             required
                                             multiline
@@ -201,17 +207,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                 </Grid>
                 <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
                     <Button
-                        onClick={() => {
-                            this.submitNewGraph();
-                            this.setState({
-                                files: [],
-                                newGraph: {
-                                    ...this.state.newGraph,
-                                    graphName: '',
-                                    schemaJson: '',
-                                },
-                            });
-                        }}
+                        onClick={() => { this.submitNewGraph(); }}
                         type="submit"
                         variant="outlined"
                         color="primary"
