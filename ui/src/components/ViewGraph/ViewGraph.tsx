@@ -4,10 +4,12 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 import { Graph } from '../../domain/graph';
 import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import { NotificationAlert, AlertType } from '../Errors/NotificationAlert';
 
 interface IState {
     graphs: Graph[],
     selectedRow: any,
+    errorMessage: string,
 }
 
 export default class ViewGraph extends React.Component<{}, IState> {
@@ -16,15 +18,18 @@ export default class ViewGraph extends React.Component<{}, IState> {
         this.state = {
             graphs: [],
             selectedRow: '',
+            errorMessage: '',
         }
     }
 
     public async componentDidMount() {
+        let graphs: Graph[] = [];
         try {
-            this.setState({ graphs: await new GetAllGraphsRepo().getAll() });
-        } catch (error) {
-            console.log("Graph not found");
+            graphs = await new GetAllGraphsRepo().getAll();
+        } catch (e) {
+            this.setState({ errorMessage: `Failed to get all graphs: ${e.message}` });
         }
+        this.setState({ graphs: graphs })
     }
 
     private classes: any = makeStyles({
@@ -43,10 +48,13 @@ export default class ViewGraph extends React.Component<{}, IState> {
 
     public render() {
 
+        const { graphs, errorMessage } = this.state;
+
         return (
             <main style={{ marginTop: 30 }}>
                 <Toolbar />
                 <Box width="50%" m="auto">
+                    <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />
                     <TableContainer>
                         <Table className={this.classes.table} aria-label="simple table" >
 
@@ -58,7 +66,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.state.graphs.map((graph: Graph, index) => (
+                                {graphs.map((graph: Graph, index) => (
                                     <TableRow key={graph.getId()} hover role="checkbox"
                                         onClick={() => this.setState({ selectedRow: graph.getId() })} style={{ ...this.getStripedStyle(index) }}>
 

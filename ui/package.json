@@ -9,7 +9,7 @@
     "server": "node server/middleware.js",
     "build": "react-scripts build",
     "test": "jest \"-- --coverage\"",
-    "testwatch": "jest --watchAll",
+    "watch": "jest --watchAll",
     "deploy": "aws s3 sync build/ s3://kai-ui",
     "eject": "react-scripts eject"
   },
