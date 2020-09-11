@@ -1,9 +1,14 @@
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 import React from 'react';
 import AddGraph from '../../../src/components/AddGraph/AddGraph';
 import { DropzoneArea } from 'material-ui-dropzone';
+import { CreateGraphRepo } from '../../../src/rest/repositories/create-graph-repo';
+jest.mock('../../../src/rest/repositories/create-graph-repo');
 
-const wrapper = mount(<AddGraph />);
+let wrapper: ReactWrapper;
+beforeEach(() => wrapper = mount(<AddGraph />));
+afterEach(() => wrapper.unmount())
+
 const exampleJSON = {
     elements: {
         edges: {
@@ -121,3 +126,54 @@ describe('Dropzone behaviour', () => {
         expect(dropZone.props().accept).toBe('application/json');
     });
 });
+
+describe('On Submit Request', () => {
+    it('should display success message in the NotificationAlert', async () => {
+        CreateGraphRepo.mockImplementationOnce(() => {
+            return {
+                create: jest.fn(),
+            };
+        });
+
+        inputGraphName('OK Graph');
+        inputSchema(exampleJSON);
+
+        clickSubmit();
+        await wrapper.update();
+        await wrapper.update();
+
+        expect(wrapper.find('#notification-alert').text()).toBe('OK Graph was successfully added')
+    });
+    it('should display an error message with server error in the NotificationAlert when Request fails', async () => {
+        CreateGraphRepo.mockImplementationOnce(() => {
+            return {
+                create: () => { throw new Error('500 Server Error'); },
+            };
+        });
+
+        inputGraphName('Break Server');
+        inputSchema(exampleJSON);
+
+        clickSubmit();
+
+        expect(wrapper.find('#notification-alert').text()).toBe('Failed to Add \'Break Server\' Graph: 500 Server Error')
+    });
+});
+
+function inputGraphName(graphName: string): void {
+    wrapper
+        .find('input#graph-name')
+        .simulate('change', {
+            target: { value: graphName },
+        });
+}
+
+function inputSchema(schema: object): void {
+    wrapper.find('textarea').simulate('change', {
+        target: { value: JSON.stringify(schema) },
+    });
+}
+
+function clickSubmit(): void {
+    wrapper.find('button').at(2).simulate('click');
+}

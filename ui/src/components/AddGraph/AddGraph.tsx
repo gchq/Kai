@@ -125,7 +125,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                     )}
                                     <Grid item xs={12}>
                                         <TextField
-                                            id="graphName"
+                                            id="graph-name"
                                             label="Graph Name"
                                             variant="outlined"
                                             value={this.state.newGraph.graphName}
