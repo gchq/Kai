@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, IconButton, Toolbar ,Zoom} from '@material-ui/core'
+import { Button, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, IconButton, Toolbar, Zoom } from '@material-ui/core'
 import { Graph } from '../../domain/graph';
 import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
@@ -85,16 +85,18 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 {graphs.length === 0 && <caption>No Graphs. Add a graph or click Refresh if you have just deployed a Graph.</caption>}
                             </Table>
                         </TableContainer>
-                        <Button
-                            id='view-graphs-refresh-button'
-                            onClick={async () => await this.getGraphs()}
-                            type="submit"
-                            variant="outlined"
-                            color="primary"
-                            className={this.classes.submit}
-                        >
-                            <RefreshOutlinedIcon />Refresh Table
+                        <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
+                            <Button
+                                id='view-graphs-refresh-button'
+                                onClick={async () => await this.getGraphs()}
+                                startIcon={<RefreshOutlinedIcon />}
+                                variant="outlined"
+                                color="primary"
+                                className={this.classes.submit}
+                            >
+                                Refresh Table
                         </Button>
+                        </Grid>
                     </Container>
                 </Grid>
             </main>

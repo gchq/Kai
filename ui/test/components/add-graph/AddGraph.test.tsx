@@ -3,6 +3,7 @@ import React from 'react';
 import AddGraph from '../../../src/components/AddGraph/AddGraph';
 import { DropzoneArea } from 'material-ui-dropzone';
 import { CreateGraphRepo } from '../../../src/rest/repositories/create-graph-repo';
+
 jest.mock('../../../src/rest/repositories/create-graph-repo');
 
 let wrapper: ReactWrapper;
@@ -46,7 +47,7 @@ const exampleJSON = {
     },
 };
 
-describe('When AddGraph mounts', () => {
+describe('On Render', () => {
     it('should have a Graph Id text field', () => {
         const textfield = wrapper.find('input');
         expect(textfield.at(0).props().name).toBe('graphName');
@@ -60,63 +61,32 @@ describe('When AddGraph mounts', () => {
         expect(fileButton).toHaveLength(1);
     });
     it('should have a Submit button', () => {
-        const submitButton = wrapper.find('button').at(2).text();
+        const submitButton = wrapper.find('button').at(3).text();
         expect(submitButton).toBe('Add Graph');
     });
 });
-describe('Add graph button', () => {
-    it('should give an error when the graphName and schema field is empty', () => {
-        wrapper.find('button').at(2).simulate('click');
-
-        expect(wrapper.find('div.MuiAlert-message').text()).toBe('Error(s): Graph Name is empty, Schema is empty');
+describe('Add Graph Button', () => {
+    it('should be disabled when Graph Name and Schema fields are empty', () => {
+        expect(wrapper.find('button#add-new-graph-button').props().disabled).toBe(true);
     });
-    it('should give an error when the graphName field is empty', () => {
-        wrapper.find('textarea').simulate('change', {
-            target: { value: JSON.stringify(exampleJSON) },
-        });
-        expect(wrapper.find('textarea').props().value).toBe(JSON.stringify(exampleJSON));
+    it('should be disabled when Graph Name field is empty', () => {
+        inputSchema(exampleJSON);
 
-        wrapper.find('button').at(2).simulate('click');
-
-        expect(wrapper.find('div.MuiAlert-message').text()).toBe('Error(s): Graph Name is empty');
+        expect(wrapper.find('button#add-new-graph-button').props().disabled).toBe(true);
     });
-    it('should give an error when the schema field is empty', () => {
-        wrapper
-            .find('input')
-            .at(0)
-            .simulate('change', {
-                target: { value: 'testGraph' },
-            });
-        expect(wrapper.find('input').at(0).props().value).toBe('testGraph');
+    it('should be disabled when the Schema field is empty', () => {
+        inputGraphName('G');
 
-        wrapper.find('button').at(2).simulate('click');
+        expect(wrapper.find('button#add-new-graph-button').props().disabled).toBe(true);
+    });
+    it('should be enabled when the Graph Name and Schema inputted', () => {
+        inputGraphName('My Graph');
+        inputSchema(exampleJSON);
 
-        expect(wrapper.find('div.MuiAlert-message').text()).toBe('Error(s): Schema is empty');
+        expect(wrapper.find('button#add-new-graph-button').props().disabled).toBe(false);
     });
 });
 describe('Dropzone behaviour', () => {
-    it('should fire onChange handler', () => {
-        const handleDropzoneChange = jest.fn();
-        const dzwrapper = mount(
-            <DropzoneArea
-                showPreviews={true}
-                onChange={handleDropzoneChange}
-                showPreviewsInDropzone={false}
-                useChipsForPreview
-                previewText="Selected files"
-                clearOnUnmount={true}
-                acceptedFiles={['application/json']}
-                filesLimit={1}
-            />
-        );
-        // find the DropzoneArea node
-        const dropzoneAreaWrapper = dzwrapper.find(DropzoneArea);
-        // call its onChange prop
-        dropzoneAreaWrapper.prop('onChange')();
-        // check handleDropzoneChange has been called
-        expect(handleDropzoneChange).toHaveBeenCalled();
-    });
-
     it('should have an input that accepts files', () => {
         const dropZone = wrapper.find('input').at(1);
         expect(dropZone.props().type).toBe('file');
@@ -129,11 +99,7 @@ describe('Dropzone behaviour', () => {
 
 describe('On Submit Request', () => {
     it('should display success message in the NotificationAlert', async () => {
-        CreateGraphRepo.mockImplementationOnce(() => {
-            return {
-                create: () => {},
-            };
-        });
+        mockAddGraphRepoWithFunction(() => { });
 
         inputGraphName('OK Graph');
         inputSchema(exampleJSON);
@@ -145,11 +111,7 @@ describe('On Submit Request', () => {
         expect(wrapper.find('#notification-alert').text()).toBe('OK Graph was successfully added');
     });
     it('should display an error message with server error in the NotificationAlert when Request fails', async () => {
-        CreateGraphRepo.mockImplementationOnce(() => {
-            return {
-                create: () => { throw new Error('500 Server Error'); },
-            };
-        });
+        mockAddGraphRepoWithFunction(() => { throw new Error('500 Server Error'); });
 
         inputGraphName('Break Server');
         inputSchema(exampleJSON);
@@ -172,8 +134,17 @@ function inputSchema(schema: object): void {
     wrapper.find('textarea').simulate('change', {
         target: { value: JSON.stringify(schema) },
     });
+    expect(wrapper.find('textarea').props().value).toBe(JSON.stringify(schema));
 }
 
 function clickSubmit(): void {
-    wrapper.find('button').at(2).simulate('click');
+    wrapper.find('button#add-new-graph-button').simulate('click');
+}
+
+function mockAddGraphRepoWithFunction(f: () => void): void {
+    CreateGraphRepo.mockImplementationOnce(() => {
+        return {
+            create: f,
+        };
+    });
 }

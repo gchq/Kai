@@ -92,7 +92,7 @@ const NavigationAppbar: React.FC = (props: any) => {
         switch(sidebarName) {
           case 'Add Graph':
             return (<AddCircleOutlineIcon/>);
-          case 'View Graph':
+          case 'View Graphs':
             return (<VisibilityIcon/>);
           case 'User Guide':
             return (<LocalLibraryIcon/>);

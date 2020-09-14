@@ -28,7 +28,7 @@ describe('Navigation Appbar Component', () => {
     it('should display menu in Navbar', () => {
         const cols = [
             { name: 'Add Graph' },
-            { name: 'View Graph' },
+            { name: 'View Graphs' },
             { name: 'User Guide' }
         ];
         const NavLi = wrapper.find('li').at(1);

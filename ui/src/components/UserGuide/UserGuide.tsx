@@ -119,9 +119,9 @@ export default class UserGuide extends React.Component<{}, {}> {
                         </CardContent>
 
                         <CardActions style={{ justifyContent: 'center' }}>
-                            <Button variant="outlined" color="primary" target="_blank" href="https://gchq.github.io/gaffer-doc/summaries/getting-started.html">
-                                <GitHubIcon />Gaffer Documentation
-                                </Button>
+                            <Button startIcon={<GitHubIcon />} variant="outlined" color="primary" target="_blank" href="https://gchq.github.io/gaffer-doc/summaries/getting-started.html">
+                                Gaffer Documentation
+                            </Button>
                         </CardActions>
                     </Card>
                 </Grid>
