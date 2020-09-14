@@ -89,55 +89,39 @@ test("should be able to pass in the autoscaling properties", () => {
     createDB(stack, 3, 300, 50, 6, 600, 60);
 
     // Then
-    expectCDK(stack).to(haveResource("AWS::ApplicationAutoScaling::ScalableTarget", {
-        MaxCapacity: 300,
-        MinCapacity: 3,
-        "ResourceId": {
-            "Fn::Join": [
-                "",
-                [
-                    "table/",
-                    {
-                        "Ref": "TestDBGraphDynamoTable31F34179"
-                    }
-                ]
-            ]
-        }
-    }));
+    expectScalingMinAndMaxSettings(stack, 3, 300, "TestDBGraphDynamoTable31F34179");
+    expectScalingPolicySettings(stack, 50, "TestDBGraphDynamoTableReadScalingTargetTrackingC37072E9");
 
-    expectCDK(stack).to(haveResource("AWS::ApplicationAutoScaling::ScalableTarget", {
-        MaxCapacity: 600,
-        MinCapacity: 6,
-        "ResourceId": {
-            "Fn::Join": [
-                "",
-                [
-                    "table/",
-                    {
-                        "Ref": "TestDBNamespaceDynamoTableCA36710A"
-                    }
-                ]
-            ]
-        }
-    }));
-
-    expectCDK(stack).to(haveResourceLike("AWS::ApplicationAutoScaling::ScalingPolicy", {
-        "PolicyName": "TestDBGraphDynamoTableReadScalingTargetTrackingC37072E9",
-        "TargetTrackingScalingPolicyConfiguration": {
-            "PredefinedMetricSpecification": {
-                "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
-            },
-            "TargetValue": 50
-        }
-    }));
-
-    expectCDK(stack).to(haveResourceLike("AWS::ApplicationAutoScaling::ScalingPolicy", {
-        "PolicyName": "TestDBNamespaceDynamoTableReadScalingTargetTracking61132725",
-        "TargetTrackingScalingPolicyConfiguration": {
-            "PredefinedMetricSpecification": {
-                "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
-            },
-            "TargetValue": 60
-        }
-    }));
+    expectScalingMinAndMaxSettings(stack, 6, 600, "TestDBNamespaceDynamoTableCA36710A");
+    expectScalingPolicySettings(stack, 60, "TestDBNamespaceDynamoTableReadScalingTargetTracking61132725");
 });
+
+function expectScalingMinAndMaxSettings(stack: Stack, min: number, max: number, tableRef: string): void {
+    expectCDK(stack).to(haveResource("AWS::ApplicationAutoScaling::ScalableTarget", {
+        MaxCapacity: max,
+        MinCapacity: min,
+        "ResourceId": {
+            "Fn::Join": [
+                "",
+                [
+                    "table/",
+                    {
+                        "Ref": tableRef
+                    }
+                ]
+            ]
+        }
+    }));
+}
+
+function expectScalingPolicySettings(stack: Stack, utilizationPercent: number, policyName: string): void {
+    expectCDK(stack).to(haveResourceLike("AWS::ApplicationAutoScaling::ScalingPolicy", {
+        "PolicyName": policyName,
+        "TargetTrackingScalingPolicyConfiguration": {
+            "PredefinedMetricSpecification": {
+                "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+            },
+            "TargetValue": utilizationPercent
+        }
+    }));
+}
