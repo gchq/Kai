@@ -62,7 +62,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 <TableRow style={{ background: '#F4F2F2' }}>
                                     <TableCell>Graph Name</TableCell>
                                     <TableCell align="right">Current State</TableCell>
-                                    <TableCell align="right">Delete</TableCell>
+                                    <TableCell align="right">Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
