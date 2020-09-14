@@ -4,10 +4,17 @@
     "vpcId": "DEFAULT",
     "extraIngressSecurityGroups": "",
     "globalTags": {},
-    "graphDatabaseProps": {
-      "minCapacity": 1,
-      "maxCapacity": 25,
-      "targetUtilizationPercent": 80
+    "databaseProps": {
+      "graphTableScalingProps": {
+        "minCapacity": 1,
+        "maxCapacity": 25,
+        "targetUtilizationPercent": 80
+      },
+      "namespaceTableScalingProps": {
+        "minCapacity": 1,
+        "maxCapacity": 25,
+        "targetUtilizationPercent": 80
+      }
     }
   }
 }
