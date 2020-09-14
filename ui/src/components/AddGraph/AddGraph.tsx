@@ -52,12 +52,9 @@ export default class AddGraph extends React.Component<{}, IState> {
 
     private async submitNewGraph() {
         const { graphName, schemaJson } = this.state.newGraph;
-        const errors: Notifications = new Notifications();
-       
         const schema = new Schema(schemaJson);
-        const schemaErrors: Notifications = schema.validation();
-        errors.concat(schemaErrors);
-
+        
+        const errors: Notifications = schema.validation();
         if (errors.isEmpty()) {
             try {
                 await new CreateGraphRepo().create(graphName, [], schema);
@@ -67,7 +64,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                 this.setState({ outcome: AlertType.FAILED, outcomeMessage: `Failed to Add '${graphName}' Graph: ${e.message}` });
             }
         } else {
-            this.setState({ errors: errors });
+            this.setState({ errors });
         }
     }
 

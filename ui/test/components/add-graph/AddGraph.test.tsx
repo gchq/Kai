@@ -96,7 +96,18 @@ describe('Dropzone behaviour', () => {
         expect(dropZone.props().accept).toBe('application/json');
     });
 });
+describe('Schema validation integration', () => {
+    it('should display validation errors as an Alert Notification', () => {
+        inputGraphName('OK Graph');
+        inputSchema({ blah: 'blahhhhh' });
 
+        clickSubmit();
+
+        const expectedMessage = 'Error(s): Elements is missing from schema, ' +
+            'Types is missing from schema, [\"blah\"] are invalid schema root properties';
+        expect(wrapper.find('div.MuiAlert-message').text()).toBe(expectedMessage);
+    });
+})
 describe('On Submit Request', () => {
     it('should display success message in the NotificationAlert', async () => {
         mockAddGraphRepoWithFunction(() => { });
