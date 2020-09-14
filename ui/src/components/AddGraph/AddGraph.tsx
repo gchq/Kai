@@ -5,6 +5,7 @@ import { Notifications } from '../../domain/notifications';
 import { CreateGraphRepo } from '../../rest/repositories/create-graph-repo';
 import { Alert } from '@material-ui/lab';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import { DropzoneArea } from 'material-ui-dropzone';
 import ClearIcon from '@material-ui/icons/Clear';
 import { TransitionProps } from '@material-ui/core/transitions';
@@ -213,7 +214,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                         color="primary"
                         className={this.classes.submit}
                     >
-                        Add Graph
+                        <AddCircleOutlineOutlinedIcon />Add Graph
                     </Button>
                 </Grid>
             </main>

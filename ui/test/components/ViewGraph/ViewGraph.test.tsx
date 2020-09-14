@@ -2,60 +2,45 @@ import React from 'react';
 import { mount, ReactWrapper } from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
-import { resolve } from 'dns';
 import { Graph } from '../../../src/domain/graph';
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
 
 describe('When ExampleTable mounts', () => {
-    const wrapper = mount(<ViewGraph />);
-    const rows = wrapper.find('tbody').find('tr');
-
-    it('should display only 1 table element', () => {
-        const table = wrapper.find('table');
-        expect(table).toHaveLength(1);
-    });
-
-    it('should display only 3 columns in the table element', () => {
-        const tableHead = wrapper.find('th');
-        expect(tableHead).toHaveLength(3);
-    });
-
-    it('should display Graph Id and Current State Columns', () => {
-        const cols = [
-            { name: 'Graph Name' },
-            { name: 'Current State' },
-            { name: 'Delete' }
-        ];
-        const tableHead = wrapper.find('th');
-        tableHead.forEach((th, idx) => {
-            expect(th.text()).toEqual(cols[idx].name);
+    it('should display Table Headers and Graphs when GetGraphs successful', async () => {
+        GetAllGraphsRepo.mockImplementationOnce(() => {
+            return {
+                getAll: () => {
+                    return new Promise((resolve, reject) => {
+                        resolve([new Graph('testId1', 'deployed')])
+                    })
+                },
+            };
         });
-    });
 
-    it('should only have 1 table body', () => {
-        const tableBody = wrapper.find('tbody');
-        expect(tableBody).toHaveLength(1);
-    });
+        const wrapper = mount(<ViewGraph />);
+        await wrapper.update();
+        await wrapper.update();
 
-    it('should get all the graphs and display it in the table', () => {
-        rows.forEach(() => {
-            const cells = rows.find('td');
-            expect(cells.at(0).text()).toEqual("testId1");
-            expect(cells.at(1).text()).toEqual("deployed");
-            expect(cells.at(2).text()).toEqual("Delete");
+        expect(wrapper.find('thead').text()).toBe('Graph NameCurrent StateActions');
+        expect(wrapper.find('tbody').text()).toBe('testId1deployed');
+        expect(wrapper.find('caption').length).toBe(0);
+    });
+    it('should display No Graphs caption when ', async () => {
+        GetAllGraphsRepo.mockImplementationOnce(() => {
+            return {
+                getAll: () => {
+                    return new Promise((resolve, reject) => {
+                        resolve([])
+                    })
+                },
+            };
         });
-    });
 
-    it('should have Delete button in each row', () => {
-        rows.forEach(() => {
-            const cells = rows.find('td');
-            expect(cells.at(0).find('svg')).toHaveLength(1);
-            expect(cells.at(1).find('svg')).toHaveLength(1);
-            expect(cells.at(2).find('svg')).toHaveLength(1);
-        });
+        const wrapper = mount(<ViewGraph />);
+        await wrapper.update();
+
+        expect(wrapper.find('caption').text()).toBe('No Graphs. Add a graph or click Refresh if you have just deployed a Graph.');
     });
-});
-describe('Get Graphs Request', () => {
     it('should display Error Message in AlertNotification when GetGraphs request fails', () => {
         GetAllGraphsRepo.mockImplementationOnce(() => {
             return {
@@ -68,22 +53,22 @@ describe('Get Graphs Request', () => {
         expect(wrapper.find('#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
     });
     it('should not display Error AlertNotification when GetGraphs request successful', async () => {
-
         GetAllGraphsRepo.mockImplementationOnce(() => {
             return {
-                getAll: () => { return new Promise ((resolve, reject) => {
-                    resolve([new Graph('roadTraffic', 'DEPLOYED')])
-                })},
+                getAll: () => {
+                    return new Promise((resolve, reject) => {
+                        resolve([new Graph('roadTraffic', 'DEPLOYED')])
+                    })
+                },
             };
         });
 
-        const wrapper = mount(<ViewGraph/>);
+        const wrapper = mount(<ViewGraph />);
         await wrapper.update()
+
         const table = wrapper.find('table')
-    
         expect(table).toHaveLength(1);
-        expect(table.text()).toBe('Graph NameCurrent StateDeleteroadTrafficDEPLOYED')
+        expect(table.find('tbody').text()).toBe('roadTrafficDEPLOYED')
         expect(wrapper.find('#notification-alert').length).toBe(0);
-        
     });
 });
