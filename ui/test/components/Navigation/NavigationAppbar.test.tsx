@@ -1,18 +1,17 @@
-import {mount, shallow, configure} from 'enzyme';
+import { mount } from 'enzyme';
 import NavigationAppbar from '../../../src/components/Navigation/NavigationAppbar';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-
 
 describe('Navigation Appbar Component', () => {
 
     const wrapper = mount(
         <MemoryRouter>
-            <NavigationAppbar/>
-        </MemoryRouter> );
-   
+            <NavigationAppbar />
+        </MemoryRouter>);
+
     it('should display appbar ', () => {
-        const appbar = wrapper.find('h6')
+        const appbar = wrapper.find('h6');
         expect(appbar).toHaveLength(1);
         expect(appbar.text()).toEqual('Graph As Service');
     });
@@ -28,9 +27,9 @@ describe('Navigation Appbar Component', () => {
 
     it('should display menu in Navbar', () => {
         const cols = [
-            {name: 'Add Graph'},
-            {name: 'View Graph'},
-            {name: 'User Guide'}
+            { name: 'Add Graph' },
+            { name: 'View Graph' },
+            { name: 'User Guide' }
         ];
         const NavLi = wrapper.find('li').at(1);
         NavLi.forEach((li, idx) => {
@@ -43,9 +42,9 @@ describe('Navigation Appbar Component', () => {
 
     it('should have navigation link in each list item', () => {
         const Target = [
-            {href: '/AddGraph'},
-            {href: '/ViewGraph'},
-            {href: '/UserGuide'}
+            { href: '/AddGraph' },
+            { href: '/ViewGraph' },
+            { href: '/UserGuide' }
         ];
         const NavUl = wrapper.find('ul').at(1);
 
@@ -53,6 +52,6 @@ describe('Navigation Appbar Component', () => {
             const anchor = NavUl.find('a').at(idx);
             const getAttribute = anchor.getDOMNode().getAttribute('href');
             expect(getAttribute).toBe(Target[idx].href)
-        })
+        });
     });
 });
