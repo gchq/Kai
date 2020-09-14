@@ -24,6 +24,10 @@ export default class ViewGraph extends React.Component<{}, IState> {
     }
 
     public async componentDidMount() {
+        this.getGraphs();
+    }
+
+    private async getGraphs() {
         try {
             const graphs: Graph[] = await new GetAllGraphsRepo().getAll();
             this.setState({ graphs })
@@ -82,7 +86,8 @@ export default class ViewGraph extends React.Component<{}, IState> {
                             </Table>
                         </TableContainer>
                         <Button
-                            onClick={() => { }}
+                            id='view-graphs-refresh-button'
+                            onClick={async () => await this.getGraphs()}
                             type="submit"
                             variant="outlined"
                             color="primary"

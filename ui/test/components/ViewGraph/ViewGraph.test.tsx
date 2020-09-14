@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, ReactWrapper } from 'enzyme';
+import { mount } from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
 import { Graph } from '../../../src/domain/graph';
@@ -7,15 +7,7 @@ jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
 
 describe('When ExampleTable mounts', () => {
     it('should display Table Headers and Graphs when GetGraphs successful', async () => {
-        GetAllGraphsRepo.mockImplementationOnce(() => {
-            return {
-                getAll: () => {
-                    return new Promise((resolve, reject) => {
-                        resolve([new Graph('testId1', 'deployed')])
-                    })
-                },
-            };
-        });
+        mockGetGraphsToReturn([new Graph('testId1', 'deployed')]);
 
         const wrapper = mount(<ViewGraph />);
         await wrapper.update();
@@ -26,15 +18,7 @@ describe('When ExampleTable mounts', () => {
         expect(wrapper.find('caption').length).toBe(0);
     });
     it('should display No Graphs caption when ', async () => {
-        GetAllGraphsRepo.mockImplementationOnce(() => {
-            return {
-                getAll: () => {
-                    return new Promise((resolve, reject) => {
-                        resolve([])
-                    })
-                },
-            };
-        });
+        mockGetGraphsToReturn([]);
 
         const wrapper = mount(<ViewGraph />);
         await wrapper.update();
@@ -53,22 +37,39 @@ describe('When ExampleTable mounts', () => {
         expect(wrapper.find('#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
     });
     it('should not display Error AlertNotification when GetGraphs request successful', async () => {
-        GetAllGraphsRepo.mockImplementationOnce(() => {
-            return {
-                getAll: () => {
-                    return new Promise((resolve, reject) => {
-                        resolve([new Graph('roadTraffic', 'DEPLOYED')])
-                    })
-                },
-            };
-        });
+        mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYED')]);
 
         const wrapper = mount(<ViewGraph />);
-        await wrapper.update()
+        await wrapper.update();
 
-        const table = wrapper.find('table')
+        const table = wrapper.find('table');
         expect(table).toHaveLength(1);
-        expect(table.find('tbody').text()).toBe('roadTrafficDEPLOYED')
+        expect(table.find('tbody').text()).toBe('roadTrafficDEPLOYED');
         expect(wrapper.find('#notification-alert').length).toBe(0);
     });
+    it('should call GetGraphs again when refresh button clicked', async () => {
+        mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYING')]);
+
+        const wrapper = mount(<ViewGraph />);
+        await wrapper.update();
+        expect(wrapper.find('tbody').text()).toBe('roadTrafficDEPLOYING');
+
+        mockGetGraphsToReturn([new Graph('roadTraffic', 'FINISHED DEPLOYMENT')]);
+        wrapper.find('button#view-graphs-refresh-button').simulate('click');
+        await wrapper.update();
+        
+        expect(wrapper.find('tbody').text()).toBe('roadTrafficFINISHED DEPLOYMENT');
+    });
 });
+
+function mockGetGraphsToReturn(graphs: Graph[]):void {
+    GetAllGraphsRepo.mockImplementationOnce(() => {
+        return {
+            getAll: () => {
+                return new Promise((resolve, reject) => {
+                    resolve(graphs)
+                })
+            },
+        };
+    });
+}
