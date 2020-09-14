@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
 import { Graph } from '../../../src/domain/graph';
+
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
 
 describe('When ExampleTable mounts', () => {
