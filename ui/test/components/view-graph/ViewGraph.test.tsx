@@ -24,7 +24,7 @@ describe('When ExampleTable mounts', () => {
         const wrapper = mount(<ViewGraph />);
         await wrapper.update();
 
-        expect(wrapper.find('caption').text()).toBe('No Graphs. Add a graph or click Refresh if you have just deployed a Graph.');
+        expect(wrapper.find('caption').text()).toBe('No Graphs.');
     });
     it('should display Error Message in AlertNotification when GetGraphs request fails', () => {
         GetAllGraphsRepo.mockImplementationOnce(() => {
