@@ -82,7 +82,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                         </TableRow>
                                     ))}
                                 </TableBody>
-                                {graphs.length === 0 && <caption>No Graphs. Add a graph or click Refresh if you have just deployed a Graph.</caption>}
+                                {graphs.length === 0 && <caption>No Graphs.</caption>}
                             </Table>
                         </TableContainer>
                         <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
