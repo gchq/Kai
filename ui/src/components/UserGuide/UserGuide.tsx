@@ -1,54 +1,11 @@
 import React from 'react';
-import {Button, Card, CardActions, CardContent, Grid, makeStyles, Toolbar, Typography} from "@material-ui/core";
+import { Button, Card, CardActions, CardContent, Grid, makeStyles, Toolbar, Typography } from "@material-ui/core";
 import ReactJson from "react-json-view";
+import GitHubIcon from '@material-ui/icons/GitHub';
 
-
-interface IState {
-    schemaJson: {},
-}
-
-export default class UserGuide extends React.Component <{}, IState> {
+export default class UserGuide extends React.Component<{}, {}> {
     constructor(props: object) {
         super(props);
-        this.state = {
-            schemaJson: {
-                "elements": {
-                    "edges": {
-                        "BasicEdge": {
-                            "source": "vertex",
-                            "destination": "vertex",
-                            "directed": "true",
-                            "properties": {
-                                "count": "count"
-                            }
-                        }
-                    }
-                },
-                "types": {
-                    "types": {
-                        "vertex": {
-                            "class": "java.lang.String"
-                        },
-                        "count": {
-                            "class": "java.lang.Integer",
-                            "aggregateFunction": {
-                                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-                            }
-                        },
-                        "true": {
-                            "description": "A simple boolean that must always be true.",
-                            "class": "java.lang.Boolean",
-                            "validateFunctions": [
-                                {
-                                    "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
-                                }
-                            ]
-                        }
-                    }
-                }}
-        }
-
-
     }
 
     private classes: any = makeStyles((theme) => ({
@@ -62,21 +19,57 @@ export default class UserGuide extends React.Component <{}, IState> {
         card: {
             maxWidth: 345,
         },
-
     }));
 
+    private getExampleSchema(): object {
+        return {
+            "elements": {
+                "edges": {
+                    "BasicEdge": {
+                        "source": "vertex",
+                        "destination": "vertex",
+                        "directed": "true",
+                        "properties": {
+                            "count": "count"
+                        }
+                    }
+                }
+            },
+            "types": {
+                "types": {
+                    "vertex": {
+                        "class": "java.lang.String"
+                    },
+                    "count": {
+                        "class": "java.lang.Integer",
+                        "aggregateFunction": {
+                            "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+                        }
+                    },
+                    "true": {
+                        "description": "A simple boolean that must always be true.",
+                        "class": "java.lang.Boolean",
+                        "validateFunctions": [
+                            {
+                                "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
 
     public render() {
 
         return (
             <main>
-                <Toolbar/>
+                <Toolbar />
                 <Grid container justify="center"
-                      className={this.classes.root}
-                      style={{marginTop: 30}}
+                    className={this.classes.root}
+                    style={{ marginTop: 30 }}
                 >
-                    <Card className={this.classes.card} style={{maxWidth:800}}>
-
+                    <Card className={this.classes.card} style={{ maxWidth: 800 }}>
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="h2">
                                 Add Graphs
@@ -87,7 +80,6 @@ export default class UserGuide extends React.Component <{}, IState> {
                                 In the Schema textarea, type in a valid schema with elements and types.
                                 </Typography>
                             <Typography variant="body2" color="textSecondary" component="p">
-
                                 You can import a schema by clicking the document icon.
                                 You can only import a single JSON file.
                                 You can remove your uploaded schema by clicking on the clear icon next to the name of your file in the selected files section.
@@ -102,13 +94,18 @@ export default class UserGuide extends React.Component <{}, IState> {
                             <Typography variant="body2" color="textSecondary" component="p">
                                 Note: Make sure your schema has elements and types and is surrounded by curly brackets({"{}"}).
                             </Typography>
+                        </CardContent>
+
+                        <CardContent>
                             <Typography gutterBottom variant="h5" component="h2">
                                 View Graphs
                             </Typography>
                             <Typography variant="body2" color="textSecondary" component="p">
                                 View your graphs in the View Graphs section.
                             </Typography>
+                        </CardContent>
 
+                        <CardContent>
                             <Typography gutterBottom variant="h5" component="h2">
                                 Schema
                             </Typography>
@@ -118,20 +115,16 @@ export default class UserGuide extends React.Component <{}, IState> {
                             <Typography variant="body2" color="textSecondary" component="p">
                                 Example Schema:
                             </Typography>
-                            <ReactJson src={this.state.schemaJson} theme="summerfruit:inverted" displayDataTypes={false} displayObjectSize={false} name={"schema"}/>
-
+                            <ReactJson src={this.getExampleSchema()} theme="summerfruit:inverted" displayDataTypes={false} displayObjectSize={false} name={"schema"} />
                         </CardContent>
-                        <CardActions style={{justifyContent: 'center'}}>
-                            <Button variant="outlined"
-                                    color="primary"
-                                target="_blank" href="https://gchq.github.io/gaffer-doc/summaries/getting-started.html">Gaffer Documentation</Button>
 
+                        <CardActions style={{ justifyContent: 'center' }}>
+                            <Button startIcon={<GitHubIcon />} variant="outlined" color="primary" target="_blank" href="https://gchq.github.io/gaffer-doc/summaries/getting-started.html">
+                                Gaffer Documentation
+                            </Button>
                         </CardActions>
                     </Card>
-
-
                 </Grid>
-
             </main>
         )
     }
