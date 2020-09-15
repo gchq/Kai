@@ -122,7 +122,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                 <Grid container spacing={2}>
                                     {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
                                     {!this.state.errors.isEmpty() && (
-                                        <Alert variant="outlined" severity="error">Error(s): {this.state.errors.errorMessage()}</Alert>
+                                        <NotificationAlert alertType={AlertType.FAILED} message={`Error(s): ${this.state.errors.errorMessage()}`} />
                                     )}
                                     <Grid item xs={12}>
                                         <TextField

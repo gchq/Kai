@@ -114,7 +114,7 @@ describe('Schema validation integration', () => {
 
         const expectedMessage = 'Error(s): Elements is missing from schema, ' +
             'Types is missing from schema, [\"blah\"] are invalid schema root properties';
-        expect(wrapper.find('div.MuiAlert-message').text()).toBe(expectedMessage);
+        expect(wrapper.find('#notification-alert').text()).toBe(expectedMessage);
     });
 })
 describe('On Submit Request', () => {
