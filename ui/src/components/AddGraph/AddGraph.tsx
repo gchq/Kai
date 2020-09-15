@@ -146,7 +146,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                     </Grid>
                                     <Grid item xs={12} container direction="row" justify="flex-end" alignItems="center">
                                         <Tooltip TransitionComponent={Zoom} title='Add Schema From File'>
-                                            <IconButton onClick={openDialogBox}>
+                                            <IconButton id='attach-file-button' onClick={openDialogBox}>
                                                 <AttachFileIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -160,7 +160,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                                 <ClearIcon />
                                             </IconButton>
                                         </Tooltip>
-                                        <Dialog
+                                        <Dialog id='dropzone'
                                             open={this.state.dialogIsOpen}
                                             TransitionComponent={Transition}
                                             keepMounted
@@ -170,7 +170,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                             aria-describedby="alert-dialog-slide-description"
                                         >
                                             <Grid container direction="row" justify="flex-end" alignItems="flex-start">
-                                                <IconButton onClick={closeDialogBox}>
+                                                <IconButton id='close-dropzone-button' onClick={closeDialogBox}>
                                                     <ClearIcon />
                                                 </IconButton>
                                             </Grid>

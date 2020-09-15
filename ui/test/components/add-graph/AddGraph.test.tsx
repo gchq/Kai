@@ -1,7 +1,6 @@
 import { mount, ReactWrapper } from 'enzyme';
 import React from 'react';
 import AddGraph from '../../../src/components/AddGraph/AddGraph';
-import { DropzoneArea } from 'material-ui-dropzone';
 import { CreateGraphRepo } from '../../../src/rest/repositories/create-graph-repo';
 
 jest.mock('../../../src/rest/repositories/create-graph-repo');
@@ -87,13 +86,23 @@ describe('Add Graph Button', () => {
     });
 });
 describe('Dropzone behaviour', () => {
-    it('should have an input that accepts files', () => {
+    it('should have an input that accepts JSON files', () => {
         const dropZone = wrapper.find('input').at(1);
         expect(dropZone.props().type).toBe('file');
-    });
-    it('should only accept json files', () => {
-        const dropZone = wrapper.find('input').at(1);
         expect(dropZone.props().accept).toBe('application/json');
+    });
+    it('should show and hide when AttachFile icon is clicked', () => {
+        const component = mount(<AddGraph />)
+        expect(component.find('div#dropzone').props().style?.visibility).toBe('hidden');
+
+        clickAttachFile(component);
+
+        expect(component.find('div#dropzone').props().style?.visibility).toBe(undefined);
+
+        clickCloseDropzone(component);
+
+        // TODO: Fix the expection, dropzone should hide
+        // expect(component.find('div#dropzone').props()).toBe({});
     });
 });
 describe('Schema validation integration', () => {
@@ -146,6 +155,14 @@ function inputSchema(schema: object): void {
         target: { value: JSON.stringify(schema) },
     });
     expect(wrapper.find('textarea').props().value).toBe(JSON.stringify(schema));
+}
+
+function clickAttachFile(wrapper: ReactWrapper): void {
+    wrapper.find('button#attach-file-button').simulate('click');
+}
+
+function clickCloseDropzone(wrapper: ReactWrapper): void {
+    wrapper.find('button#close-dropzone-button').simulate('click');
 }
 
 function clickSubmit(): void {
