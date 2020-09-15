@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography, MenuList, MenuItem, ListItemText,Drawer, Divider, ListItem, List, ListItemIcon, Avatar, ListItemAvatar} from '@material-ui/core';
-import { green } from '@material-ui/core/colors';
+import { AppBar, Toolbar, Typography, ListItemText, Drawer, Divider, ListItem, List, ListItemIcon, Avatar, ListItemAvatar } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
@@ -17,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginRight: theme.spacing(2),
         },
         title: {
-            marginRight:20,
+            marginRight: 20,
         },
         drawer: {
             width: 240,
@@ -29,11 +28,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         drawerPaper: {
             width: drawerWidth,
-          },
-        drawerContainer: {
-        overflow: 'auto',
         },
-          // necessary for content to be below app bar
+        drawerContainer: {
+            overflow: 'auto',
+        },
+        // necessary for content to be below app bar
         toolbar: theme.mixins.toolbar,
         drawerHeader: {
             display: 'flex',
@@ -56,8 +55,8 @@ const useStyles = makeStyles((theme: Theme) =>
             boxShadow: "0px 0px 0px 0px",
             zIndex: theme.zIndex.drawer + 1,
         },
-        listItem: {  
-            color: '#696666' 
+        listItem: {
+            color: '#696666'
         },
         listItemText: {
             '& span, & svg': {
@@ -68,38 +67,26 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const NavigationAppbar: React.FC = (props: any) => {
-    
-    const classes = useStyles();
-    const [isOpen, setIsOpen] = useState(false);
-    const toggleDrawer = (open: boolean) => (
-        event: React.KeyboardEvent | React.MouseEvent,
-    ) => {
-        if (
-            event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' ||
-                (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-            return;
-        }
 
-        setIsOpen(open);
-    };
+    const classes = useStyles();
 
     const activeRoute = (routeName: any) => {
         return props.location.pathname === routeName ? true : false;
     }
+
     const getSideNavIcon = (sidebarName: any) => {
-        switch(sidebarName) {
-          case 'Add Graph':
-            return (<AddCircleOutlineIcon/>);
-          case 'View Graphs':
-            return (<VisibilityIcon/>);
-          case 'User Guide':
-            return (<LocalLibraryIcon/>);
-          default:
-            return null;
+        switch (sidebarName) {
+            case 'Add Graph':
+                return (<AddCircleOutlineIcon />);
+            case 'View Graphs':
+                return (<VisibilityIcon />);
+            case 'User Guide':
+                return (<LocalLibraryIcon />);
+            default:
+                return null;
         }
-      }
+    }
+    
     return (
         <div className={classes.root}>
             <AppBar position="fixed" className={classes.appBar}>
@@ -107,49 +94,49 @@ const NavigationAppbar: React.FC = (props: any) => {
                     <Typography variant="h6" className={classes.title}  >
                         Graph As Service
                     </Typography>
-                    </Toolbar>
+                </Toolbar>
             </AppBar>
-            
+
             <Drawer
                 className={classes.drawer}
                 variant="permanent"
                 classes={{
-                paper: classes.drawerPaper,
+                    paper: classes.drawerPaper,
                 }}>
-                <Toolbar />    
+                <Toolbar />
                 <div className={classes.drawerContainer}>
                     <List>
                         <ListItem className={classes.listItem} >
                             <ListItemAvatar>
                                 <Avatar>
-                                    <PersonIcon/>
+                                    <PersonIcon />
                                 </Avatar>
                             </ListItemAvatar>
-                           
-                            <ListItemText primary="User" secondary="someuser@mail.com"/>
+
+                            <ListItemText primary="User" secondary="someuser@mail.com" />
                         </ListItem>
                     </List>
-                <Divider />
+                    <Divider />
                     <List >
                         {Routes.map((prop, key) => {
                             return (
                                 <NavLink to={prop.path}
-                                            style={{ color: 'inherit', textDecoration: 'inherit'}}
-                                            key={key}>
+                                    style={{ color: 'inherit', textDecoration: 'inherit' }}
+                                    key={key}>
                                     <ListItem className={classes.listItem} selected={activeRoute(prop.path)}>
-                                    <ListItemIcon>
-                                        {getSideNavIcon(prop.sidebarName)}
-                                    </ListItemIcon>    
-                                         <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
+                                        <ListItemIcon>
+                                            {getSideNavIcon(prop.sidebarName)}
+                                        </ListItemIcon>
+                                        <ListItemText classes={{ primary: classes.listItemText }} primary={prop.sidebarName} />
                                     </ListItem>
                                 </NavLink>
                             );
                         })}
                     </List>
-                <Divider />
+                    <Divider />
                 </div>
             </Drawer>
-            
+
         </div>
     );
 };
