@@ -1,6 +1,12 @@
 import { Schema } from '../../src/domain/schema';
 
 describe('Schema Validation', () => {
+    it('should return schema is empty when schema is empty', () => {
+        const notifications = new Schema('').validation();
+
+        expect(notifications.errorMessage()).toBe('Schema is empty');
+    });
+    
     it('should return invalid JSON notifications when string is not JSON format', () => {
         const invalidJsonString = 'invalid: blahJson';
 
