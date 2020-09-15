@@ -137,3 +137,19 @@ Example request body:
 
 #### DELETE /graphs/{graphName}
 Deletes a graph deployment from the platform. This endpoint is asynchronous meaning that it will respond before the graph deployment is removed. Once the graph deployment is removed, the graph will be removed from the backend database. If the requested graphName is not present or is not in the backend database at the start, a 400 error is returned. If the user is not an administrator a 403 response is returned. Otherwise a 202 status code is returned.
+
+
+### The Namespaces resource
+The Namespaces resource enables creation, updating, deletion and retrieval of Kubernetes namespaces managed by Kai.
+
+#### GET /namespaces
+TODO
+
+#### GET /namespaces/{namespaceName}
+TODO
+
+#### POST /namespaces/{namespaceName}
+TODO
+
+#### DELETE /namespaces/{namespaceName}
+TODO

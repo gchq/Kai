@@ -49,7 +49,7 @@ def handler(event, context):
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Graph " + graph_name + " does not exist. It may have already been deleted"
+                "body": "Graph " + graph_name + " does not exist. It may have already have been deleted"
             }
         else:
             return {

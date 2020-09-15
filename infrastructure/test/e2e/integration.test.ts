@@ -279,7 +279,27 @@ describe("Deleting a graph by an administrator", () => {
 
 });
 
+describe.only("Creating a namespace", () => {
+
+    test("GET /namespaces returns success and an empty array when there are no namespaces deployed.", async() => {
+        const response: IResponse = await client.getNamespaces(user1);
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual([]);
+    });
+
+
+    test("POST /namespaces successfully creates a non-public namespace", async() => {
+        const data: Record<string, unknown> = {
+            "namespaceName": "test-namespace-1",
+            "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+            "public": false
+        };
+        const response: IResponse = await client.createNamespace(user1, data);
+        expect(response.status).toBe(201);
+        expect(response.data).toEqual("");
+    });
+});
 
 afterAll(async() => {
-    await clusterHelper.destroyCluster();
+    //await clusterHelper.destroyCluster();
 });

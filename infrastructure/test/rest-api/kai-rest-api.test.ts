@@ -30,119 +30,280 @@ function createRestAPI(stack: cdk.Stack, id = "Test"): rest.KaiRestApi {
         partitionKey: {name: "testKey", type: AttributeType.STRING}
     });
 
+    const namespaceTable = new Table(stack, "testNamespaceTable", {
+        partitionKey: {name: "testNamespaceKey", type: AttributeType.STRING}
+    });
+
     return new rest.KaiRestApi(stack, id, {
+        "clusterName": "clusterName",
         "graphTable": table,
+        "namespaceTable": namespaceTable,
         "userPoolArn": "userPoolArn",
         "userPoolId": "userPoolId"
     });
 }
 
-test("should create new REST API", () => {
+describe("REST API Creation", () => {
+
+    test("should create new REST API", () => {
+        // Given
+        const stack = new cdk.Stack();
+
+        // When
+        createRestAPI(stack);
+
+        // Then
+        expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi"));
+    });
+
+    test("The REST API's name should be derived from the parent construct's id", () => {
+        // Given
+        const stack = new cdk.Stack();
+
+        // When
+        createRestAPI(stack, "NameTest");
+
+        // Then
+        expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi", {
+            Name: "NameTestRestApi"
+        }));
+    });
+});
+
+describe("/graphs resource", () => {
+
+    describe("/graphs endpoint contains expected resources", () => {
+
+        test("The Rest API should have a graphs resource which can be POSTed to", () => {
+            expectStackContainsResource("POST", "graphs", "TestTestRestApigraphs6F3DCBD4");
+        });
+
+        test("The Graph resource should handle GET requests on it's root", () => {
+            expectStackContainsResource("GET", "graphs", "TestTestRestApigraphs6F3DCBD4");
+        });
+
+        test("The specific Graph resource should handle GET requests", () => {
+            expectStackContainsResource("GET", "graphs", "TestTestRestApigraphsgraphNameB9AC8DA7");
+        });
+
+        test("The specific Graph resource should handle DELETE requests", () => {
+            expectStackContainsResource("DELETE", "graphs", "TestTestRestApigraphsgraphNameB9AC8DA7");
+        });
+    });
+
+    describe("stack contains expected graphs lambda functions", () => {
+
+        test("Should create a lambda function to serve GET graph requests", () => {
+            expectStackContainsLambda("get_graph_request.handler");
+        });
+
+        test("Should create a lambda function to serve POST graph requests", () => {
+            expectStackContainsLambda("add_graph_request.handler");
+        });
+
+        test("Should create a lambda function to serve DELETE graph requests", () => {
+            expectStackContainsLambda("delete_graph_request.handler");
+        });
+    });
+
+    describe("stack contains expected queues", () => {
+
+        test("should create a queue for DeleteGraph messages to be sent to workers", () => {
+            expectStackContainsQueueWithTimeout(DELETE_GRAPH_TIMEOUT.toSeconds());
+        });
+
+        test("should create a queue for AddGraph messages to be sent to workers", () => {
+            expectStackContainsQueueWithTimeout(ADD_GRAPH_TIMEOUT.toSeconds());
+        });
+    });
+
+    describe("stack contains expected lambda function policy statements", () => {
+
+        test("Should allow GetGraphsLambda to read from backend database", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    readDatabasePolicyStatementFor("testAF53AC38")
+                ],
+                "TestGetGraphsHandlerServiceRoleDefaultPolicy233C6E93",
+                "TestGetGraphsHandlerServiceRole2564883C"
+            );
+        });
+
+        test("Should allow AddGraphsLambda to list Cognito User pool, read write to backend database and send messages to add graph worker queue", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    listCognitoIdpUsersPolicyStatement,
+                    readWriteDatabasePolicyStatementFor("testAF53AC38"),
+                    sendMessagesPolicyStatementFor("TestAddGraphQueue2C2BD89D")
+                ],
+                "TestAddGraphHandlerServiceRoleDefaultPolicyA73C8E7F",
+                "TestAddGraphHandlerServiceRole6EB73DAD"
+            );
+        });
+
+        test("Should allow DeleteGraphsLambda to read write to backend database and send messages to delete graph worker queue", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    readWriteDatabasePolicyStatementFor("testAF53AC38"),
+                    sendMessagesPolicyStatementFor("TestDeleteGraphQueue040902EA")
+                ],
+                "TestDeleteGraphHandlerServiceRoleDefaultPolicyF464B975",
+                "TestDeleteGraphHandlerServiceRole22483873"
+            );
+        });
+    });
+});
+
+
+describe("/namespaces resource", () => {
+
+    describe("/namespaces endpoint contains expected resources", () => {
+
+        test("The Rest API should have a namespaces resource which can be POSTed to", () => {
+            expectStackContainsResource("POST", "namespaces", "TestTestRestApinamespaces31F7A7B3");
+        });
+
+        test("The Namespace resource should handle GET requests on it's root", () => {
+            expectStackContainsResource("GET", "graphs", "TestTestRestApinamespaces31F7A7B3");
+        });
+
+        test("The specific Namespace resource should handle GET requests", () => {
+            expectStackContainsResource("GET", "namespaces", "TestTestRestApinamespacesnamespaceName79793E79");
+        });
+
+        test("The specific Namespace resource should handle POST requests", () => {
+            expectStackContainsResource("POST", "namespaces", "TestTestRestApinamespacesnamespaceName79793E79");
+        });
+
+        test("The specific Namespace resource should handle DELETE requests", () => {
+            expectStackContainsResource("DELETE", "namespaces", "TestTestRestApinamespacesnamespaceName79793E79");
+        });
+    });
+
+    describe("stack contains expected namespaces lambda functions", () => {
+
+        test("Should create a lambda function to serve GET namespace requests", () => {
+            expectStackContainsLambda("get_namespace_request.handler");
+        });
+
+        test("Should create a lambda function to serve POST namespace requests", () => {
+            expectStackContainsLambda("add_namespace_request.handler");
+            expectStackContainsLambda("update_namespace_request.handler");
+        });
+
+        test("Should create a lambda function to serve DELETE namespace requests", () => {
+            expectStackContainsLambda("delete_namespace_request.handler");
+        });
+    });
+
+    describe("stack contains expected lambda function policy statements", () => {
+
+        test("Should allow GetNamespaceLambda to read from backend database", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    readDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                ],
+                "TestGetNamespacesHandlerServiceRoleDefaultPolicyF20D0FFE",
+                "TestGetNamespacesHandlerServiceRole466B809A"
+            );
+        });
+
+        test("Should allow AddNamespaceLambda to list Cognito user pool and read and write to backend database", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    listCognitoIdpUsersPolicyStatement,
+                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                ],
+                "TestAddNamespaceHandlerServiceRoleDefaultPolicy9BE6DA76",
+                "TestAddNamespaceHandlerServiceRoleCEA1F08E"
+            );
+        });
+
+        test("Should allow UpdateNamespaceLambda to list Cognito user pool and read and write to backend database", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    listCognitoIdpUsersPolicyStatement,
+                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                ],
+                "TestUpdateNamespaceHandlerServiceRoleDefaultPolicyE3559E88",
+                "TestUpdateNamespaceHandlerServiceRole89EA6CC5"
+            );
+        });
+
+        test("Should allow DeleteNamespaceLambda to read and write to backend database", () => {
+            expectLambdaContainsPolicyStatements(
+                [
+                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                ],
+                "TestDeleteNamespaceHandlerServiceRoleDefaultPolicy8CAEB25A",
+                "TestDeleteNamespaceHandlerServiceRoleAABA8A00"
+            );
+        });
+    });
+});
+
+
+describe("Resource access controls", () => {
+
+    test("All Rest API Methods should be configured with the KaiRestAuthorizer", () => {
+        // Given
+        const stack = new cdk.Stack();
+
+        // When
+        createRestAPI(stack);
+
+        // Then
+        const apiGatewayMethodCount = stack.node.findAll().filter(isApiGatewayMethod).length;
+
+        expectCDK(stack).to(countResourcesLike("AWS::ApiGateway::Method", apiGatewayMethodCount, {
+            AuthorizationType: "COGNITO_USER_POOLS",
+            AuthorizerId: {
+                Ref: "TestKaiRestApiAuthorizerB0CFBC9B"
+            }
+        }));
+    });
+});
+
+
+function expectStackContainsResource(method: string, path: string, resourceId: string): void {
     // Given
     const stack = new cdk.Stack();
 
     // When
     createRestAPI(stack);
 
-    // Then
-    expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi"));
-});
-
-test("The REST API's name should be derived from the parent construct's id", () => {
-    // Given
-    const stack = new cdk.Stack();
-    
-    // When
-    createRestAPI(stack, "NameTest");
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::ApiGateway::RestApi", {
-        Name: "NameTestRestApi"
-    }));
-});
-
-test("The Rest API should have a graph resource which can be POSTed to", () => {
-    // Given
-    const stack = new cdk.Stack();
-    
-    // When
-    createRestAPI(stack);
- 
     // Then
     expectCDK(stack).to(haveResource("AWS::ApiGateway::Resource", {
-        PathPart: "graphs"
+        PathPart: path
     }));
 
     expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
-        HttpMethod: "POST",
+        HttpMethod: method,
         ResourceId: {
-            Ref: "TestTestRestApigraphs6F3DCBD4"
+            Ref: resourceId
         },
         RestApiId: {
             Ref: "TestTestRestApiF3AB3CBC"
         }
     }));
-});
+}
 
-test("The Graph resource should handle GET requests on it's root", () => {
+
+function expectStackContainsLambda(lambdaHandler: string): void {
     // Given
     const stack = new cdk.Stack();
-     
-    // When
-    createRestAPI(stack);
 
-    // Then
-    expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
-        HttpMethod: "GET",
-        ResourceId: {
-            Ref: "TestTestRestApigraphs6F3DCBD4"
-        },
-        RestApiId: {
-            Ref: "TestTestRestApiF3AB3CBC"
-        }
-    }));
-});
-
-test("The REST API should have a resource which can GET specific graphs", () => {
-    // Given
-    const stack = new cdk.Stack();
-   
-    // When
-    createRestAPI(stack);
- 
-    // Then
-    expectCDK(stack).to(haveResource("AWS::ApiGateway::Resource", {
-        PathPart: "{graphName}",
-        ParentId: {
-            "Ref": "TestTestRestApigraphs6F3DCBD4"
-        }
-    }));
-
-    expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
-        HttpMethod: "GET",
-        ResourceId: {
-            Ref: "TestTestRestApigraphs6F3DCBD4"
-        },
-        RestApiId: {
-            Ref: "TestTestRestApiF3AB3CBC"
-        }
-    }));
-});
-
-test("Should create a lambda function to serve GET requests", () => {
-    // Given
-    const stack = new cdk.Stack();
-        
     // When
     createRestAPI(stack);
 
     // Then
     expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "get_graph_request.handler"
+        Handler: lambdaHandler
     }));
-});
+}
 
-test("Should allow GetGraphs Lambda to read from backend database", () => {
+
+function expectLambdaContainsPolicyStatements(statements: Record<string, unknown>[], policyName: string, roleRef: string): void {
     // Given
     const stack = new cdk.Stack();
 
@@ -152,61 +313,20 @@ test("Should allow GetGraphs Lambda to read from backend database", () => {
     // Then
     expectCDK(stack).to(haveResource("AWS::IAM::Policy", {
         "PolicyDocument": {
-            "Statement": [
-                {
-                    "Action": [
-                        "dynamodb:BatchGetItem",
-                        "dynamodb:GetRecords",
-                        "dynamodb:GetShardIterator",
-                        "dynamodb:Query",
-                        "dynamodb:GetItem",
-                        "dynamodb:Scan"
-                    ],
-                    "Effect": "Allow",
-                    "Resource": [
-                        {
-                            "Fn::GetAtt": [
-                                "testAF53AC38",
-                                "Arn"
-                            ]
-                        },
-                        {
-                            "Ref": "AWS::NoValue"
-                        }
-                    ]
-                }
-            ],
+            "Statement": statements,
             "Version": "2012-10-17"
         },
-        "PolicyName": "TestGetGraphsHandlerServiceRoleDefaultPolicy233C6E93",
+        "PolicyName": policyName,
         "Roles": [
             {
-                "Ref": "TestGetGraphsHandlerServiceRole2564883C"
+                "Ref": roleRef
             }
         ]
     }));
-});
+}
 
-test("The specific Graph resource should handle DELETE requests", () => {
-    // Given
-    const stack = new cdk.Stack();
-     
-    // When
-    createRestAPI(stack);
 
-    // Then
-    expectCDK(stack).to(haveResourceLike("AWS::ApiGateway::Method", {
-        HttpMethod: "DELETE",
-        ResourceId: {
-            Ref: "TestTestRestApigraphsgraphNameB9AC8DA7"
-        },
-        RestApiId: {
-            Ref: "TestTestRestApiF3AB3CBC"
-        }
-    }));
-});
-
-test("Should create a queue for DeleteGraph messages to be sent to workers", () => {
+function expectStackContainsQueueWithTimeout(timeout: number): void {
     // Given
     const stack = new cdk.Stack();
 
@@ -215,218 +335,91 @@ test("Should create a queue for DeleteGraph messages to be sent to workers", () 
 
     // Then
     expectCDK(stack).to(haveResource("AWS::SQS::Queue", {
-        VisibilityTimeout: DELETE_GRAPH_TIMEOUT.toSeconds()
+        VisibilityTimeout: timeout
     }));
-});
+}
 
-test("Should create a lambda to send messages to the deleteGraph queue", () => {
-    // Given
-    const stack = new cdk.Stack();
 
-    // When
-    createRestAPI(stack);
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "delete_graph_request.handler"
-    }));
-});
-
-test("Should allow the Delete Graph Lambda to read/write to the backend database and Send messages to the Queue", () => {
-    // Given
-    const stack = new cdk.Stack();
-
-    // When
-    createRestAPI(stack);
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::IAM::Policy", {
-        "PolicyDocument": {
-            "Statement": [
-                {
-                    "Action": [
-                        "dynamodb:BatchGetItem",
-                        "dynamodb:GetRecords",
-                        "dynamodb:GetShardIterator",
-                        "dynamodb:Query",
-                        "dynamodb:GetItem",
-                        "dynamodb:Scan",
-                        "dynamodb:BatchWriteItem",
-                        "dynamodb:PutItem",
-                        "dynamodb:UpdateItem",
-                        "dynamodb:DeleteItem"
-                    ],
-                    "Effect": "Allow",
-                    "Resource": [
-                        {
-                            "Fn::GetAtt": [
-                                "testAF53AC38",
-                                "Arn"
-                            ]
-                        },
-                        {
-                            "Ref": "AWS::NoValue"
-                        }
-                    ]
-                },
-                {
-                    "Action": [
-                        "sqs:SendMessage",
-                        "sqs:GetQueueAttributes",
-                        "sqs:GetQueueUrl"
-                    ],
-                    "Effect": "Allow",
-                    "Resource": {
-                        "Fn::GetAtt": [
-                            "TestDeleteGraphQueue040902EA",
-                            "Arn"
-                        ]
-                    }
-                }
-            ],
-            "Version": "2012-10-17"
-        },
-        "PolicyName": "TestDeleteGraphHandlerServiceRoleDefaultPolicyF464B975",
-        "Roles": [
+function readDatabasePolicyStatementFor(table: string): Record<string, unknown> {
+    return {
+        "Action": [
+            "dynamodb:BatchGetItem",
+            "dynamodb:GetRecords",
+            "dynamodb:GetShardIterator",
+            "dynamodb:Query",
+            "dynamodb:GetItem",
+            "dynamodb:Scan"
+        ],
+        "Effect": "Allow",
+        "Resource": [
             {
-                "Ref": "TestDeleteGraphHandlerServiceRole22483873"
+                "Fn::GetAtt": [
+                    table,
+                    "Arn"
+                ]
+            },
+            {
+                "Ref": "AWS::NoValue"
             }
         ]
-    }));
-});
+    };
+}
 
-test("should create a queue for AddGraph messages to be sent to workers", () => {
-    // Given
-    const stack = new cdk.Stack();
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
 
-    // When
-    new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table,
-        "userPoolArn": "userPoolArn",
-        "userPoolId": "userPoolId"
-    });
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::SQS::Queue", {
-        VisibilityTimeout: ADD_GRAPH_TIMEOUT.toSeconds()
-    }));
-});
-
-test("should create lambda to write messages to the Add Graph Queue", () => {
-    // Given
-    const stack = new cdk.Stack();
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
-
-    // When
-    new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table,
-        "userPoolArn": "userPoolArn",
-        "userPoolId": "userPoolId"
-    });
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::Lambda::Function", {
-        Handler: "add_graph_request.handler"
-    }));
-});
-
-test("should allow AddGraphLambda to write messages to queue, list Cognito users and read/write to Dynamodb", () => {
-    // Given
-    const stack = new cdk.Stack();
-    const table = new Table(stack, "test", {
-        partitionKey: {name: "test", type: AttributeType.STRING}
-    });
-
-    // When
-    new rest.KaiRestApi(stack, "Test", {
-        "graphTable": table,
-        "userPoolArn": "userPoolArn",
-        "userPoolId": "userPoolId"
-    });
-
-    // Then
-    expectCDK(stack).to(haveResource("AWS::IAM::Policy", {
-        "PolicyDocument": {
-            "Statement": [
-                {
-                    "Action": "cognito-idp:ListUsers",
-                    "Effect": "Allow",
-                    "Resource": "userPoolArn"
-                },
-                {
-                    "Action": [
-                        "dynamodb:BatchGetItem",
-                        "dynamodb:GetRecords",
-                        "dynamodb:GetShardIterator",
-                        "dynamodb:Query",
-                        "dynamodb:GetItem",
-                        "dynamodb:Scan",
-                        "dynamodb:BatchWriteItem",
-                        "dynamodb:PutItem",
-                        "dynamodb:UpdateItem",
-                        "dynamodb:DeleteItem"
-                    ],
-                    "Effect": "Allow",
-                    "Resource": [
-                        {
-                            "Fn::GetAtt": [
-                                "testAF53AC38",
-                                "Arn"
-                            ]
-                        },
-                        {
-                            "Ref": "AWS::NoValue"
-                        }
-                    ]
-                },
-                {
-                    "Action": [
-                        "sqs:SendMessage",
-                        "sqs:GetQueueAttributes",
-                        "sqs:GetQueueUrl"
-                    ],
-                    "Effect": "Allow",
-                    "Resource": {
-                        "Fn::GetAtt": [
-                            "TestAddGraphQueue2C2BD89D",
-                            "Arn"
-                        ]
-                    }
-                }
-            ],
-            "Version": "2012-10-17"
-        },
-        "PolicyName": "TestAddGraphHandlerServiceRoleDefaultPolicyA73C8E7F",
-        "Roles": [
+function readWriteDatabasePolicyStatementFor(table: string): Record<string, unknown> {
+    return {
+        "Action": [
+            "dynamodb:BatchGetItem",
+            "dynamodb:GetRecords",
+            "dynamodb:GetShardIterator",
+            "dynamodb:Query",
+            "dynamodb:GetItem",
+            "dynamodb:Scan",
+            "dynamodb:BatchWriteItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+        ],
+        "Effect": "Allow",
+        "Resource": [
             {
-                "Ref": "TestAddGraphHandlerServiceRole6EB73DAD"
+                "Fn::GetAtt": [
+                    table,
+                    "Arn"
+                ]
+            },
+            {
+                "Ref": "AWS::NoValue"
             }
-        ] 
-    }));
-});
+        ]
+    };
+}
 
-test("All Rest API Methods should be configured with the KaiRestAuthorizer", () => {
-    // Given
-    const stack = new cdk.Stack();
 
-    // When
-    createRestAPI(stack);
-
-    // Then
-    const apiGatewayMethodCount = stack.node.findAll().filter(isApiGatewayMethod).length;
-
-    expectCDK(stack).to(countResourcesLike("AWS::ApiGateway::Method", apiGatewayMethodCount, {
-        AuthorizationType: "COGNITO_USER_POOLS",
-        AuthorizerId: {
-            Ref: "TestKaiRestApiAuthorizerB0CFBC9B"
+function sendMessagesPolicyStatementFor(queue: string): Record<string, unknown> {
+    return {
+        "Action": [
+            "sqs:SendMessage",
+            "sqs:GetQueueAttributes",
+            "sqs:GetQueueUrl"
+        ],
+        "Effect": "Allow",
+        "Resource": {
+            "Fn::GetAtt": [
+                queue,
+                "Arn"
+            ]
         }
-    }));
-});
+    };
+}
+
+
+const listCognitoIdpUsersPolicyStatement = {
+    "Action": "cognito-idp:ListUsers",
+    "Effect": "Allow",
+    "Resource": "userPoolArn"
+};
+
 
 function isApiGatewayMethod(construct: cdk.IConstruct): boolean {
     return (construct instanceof api.Method);

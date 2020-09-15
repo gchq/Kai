@@ -25,92 +25,146 @@ import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
 import { KaiRestAuthorizer } from "./authentication/kai-rest-authorizer";
 
 export class KaiRestApi extends cdk.Construct {
-    private readonly _addGraphQueue: sqs.Queue;
-    private readonly _deleteGraphQueue: sqs.Queue;
-    private readonly _getGraphsLambda: lambda.Function;
-    private readonly _deleteGraphLambda: lambda.Function;
+    private readonly _lambdas: lambda.AssetCode;
+    private readonly _lambdaTimeout: cdk.Duration;
+    private readonly _methodOptions: api.MethodOptions;
+    private readonly _restApi: api.RestApi;
+    private readonly _props: KaiRestApiProps;
+    private readonly _listCognitoUserPoolPolicyStatement: PolicyStatement;
+
+    private _addGraphQueue: sqs.Queue;
+    private _deleteGraphQueue: sqs.Queue;
+    private _getGraphsLambda: lambda.Function;
+    private _deleteGraphLambda: lambda.Function;
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
+
+        this._props = props;
+
         // REST API
-        const restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
-        const graphsResource = restApi.root.addResource("graphs");
-        const graph = graphsResource.addResource("{graphName}");
+        this._restApi = new api.RestApi(this, this.node.uniqueId + "RestApi"); // Could add a default 404 handler here
 
         // Create MethodOptions to secure access to the RestApi methods using the Cognito user pool
-        const methodOptions = new KaiRestAuthorizer(this, "KaiRestApiAuthorizer", {
-            restApiId: restApi.restApiId,
-            userPoolArn: props.userPoolArn
+        this._methodOptions = new KaiRestAuthorizer(this, "KaiRestApiAuthorizer", {
+            restApiId: this._restApi.restApiId,
+            userPoolArn: this._props.userPoolArn
         }).methodOptions;
 
-        // Service Functions all share the same code and timeout 
-        const lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
-        const lambdaTimeout = cdk.Duration.seconds(30);
+        // Create Policy Statement enabling user pool listing
+        this._listCognitoUserPoolPolicyStatement = new PolicyStatement({
+            actions: [ "cognito-idp:ListUsers" ],
+            resources: [ this._props.userPoolArn ]
+        });
+
+        // Service Functions all share the same code and timeout
+        this._lambdas = new lambda.AssetCode(path.join(__dirname, "lambdas"));
+        this._lambdaTimeout = cdk.Duration.seconds(30);
+
+        // Create the API Resources
+        this.createGraphsResource();
+        this.createNamespacesResource();
+    }
+
+    private createGraphsResource(): void {
+        const graphsResource = this._restApi.root.addResource("graphs");
+        const graph = graphsResource.addResource("{graphName}");
 
         // POST handlers
-        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", { 
+        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", {
             visibilityTimeout: ADD_GRAPH_TIMEOUT
         });
 
-        const addGraphLambda = new lambda.Function(this, "AddGraphHandler", {
-            runtime: lambda.Runtime.PYTHON_3_7,
-            code: lambdas,
-            handler: "add_graph_request.handler",
-            timeout: lambdaTimeout,
-            environment: {
-                sqs_queue_url: this.addGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName,
-                user_pool_id: props.userPoolId
-            }
-        });
+        const addGraphLambdaEnvironment = {
+            sqs_queue_url: this.addGraphQueue.queueUrl,
+            graph_table_name: this._props.graphTable.tableName,
+            user_pool_id: this._props.userPoolId
+        };
 
-        addGraphLambda.addToRolePolicy(new PolicyStatement({
-            actions: [ "cognito-idp:ListUsers" ],
-            resources: [ props.userPoolArn ]
-        }));
+        const addGraphLambda = this.createLambda("AddGraphHandler", "add_graph_request.handler", addGraphLambdaEnvironment);
 
-        props.graphTable.grantReadWriteData(addGraphLambda);
+        addGraphLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
+
+        this._props.graphTable.grantReadWriteData(addGraphLambda);
         this.addGraphQueue.grantSendMessages(addGraphLambda);
-        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda), methodOptions);
+        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda), this._methodOptions);
 
         // DELETE handlers
-        this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", { 
+        this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", {
             visibilityTimeout: DELETE_GRAPH_TIMEOUT
         });
 
-        this._deleteGraphLambda = new lambda.Function(this, "DeleteGraphHandler", {
-            runtime: lambda.Runtime.PYTHON_3_7,
-            code: lambdas,
-            handler: "delete_graph_request.handler",
-            timeout: lambdaTimeout,
-            environment: {
-                sqs_queue_url: this.deleteGraphQueue.queueUrl,
-                graph_table_name: props.graphTable.tableName,
-                user_pool_id: props.userPoolId
-            }
-        });
+        const deleteGraphLambdaEnvironment = {
+            sqs_queue_url: this.deleteGraphQueue.queueUrl,
+            graph_table_name: this._props.graphTable.tableName,
+            user_pool_id: this._props.userPoolId
+        };
 
-        props.graphTable.grantReadWriteData(this._deleteGraphLambda);
+        this._deleteGraphLambda = this.createLambda("DeleteGraphHandler", "delete_graph_request.handler", deleteGraphLambdaEnvironment);
+
+        this._props.graphTable.grantReadWriteData(this._deleteGraphLambda);
         this.deleteGraphQueue.grantSendMessages(this._deleteGraphLambda);
-        graph.addMethod("DELETE", new api.LambdaIntegration(this._deleteGraphLambda), methodOptions);
+        graph.addMethod("DELETE", new api.LambdaIntegration(this._deleteGraphLambda), this._methodOptions);
+
+        const getGraphLambdaEnvironment = {
+            graph_table_name: this._props.graphTable.tableName,
+            user_pool_id: this._props.userPoolId
+        };
 
         // GET handlers
-        this._getGraphsLambda = new lambda.Function(this, "GetGraphsHandler", {
-            runtime: lambda.Runtime.PYTHON_3_7,
-            code: lambdas,
-            handler: "get_graph_request.handler",
-            timeout: lambdaTimeout,
-            environment: {
-                graph_table_name: props.graphTable.tableName,
-                user_pool_id: props.userPoolId
-            }
-        });
+        this._getGraphsLambda = this.createLambda("GetGraphsHandler", "get_graph_request.handler", getGraphLambdaEnvironment);
 
-        props.graphTable.grantReadData(this._getGraphsLambda);
+        this._props.graphTable.grantReadData(this._getGraphsLambda);
         // Both GET and GET all are served by the same lambda
         const getGraphIntegration = new api.LambdaIntegration(this._getGraphsLambda);
-        graphsResource.addMethod("GET", getGraphIntegration, methodOptions);
-        graph.addMethod("GET", getGraphIntegration, methodOptions);
+        graphsResource.addMethod("GET", getGraphIntegration, this._methodOptions);
+        graph.addMethod("GET", getGraphIntegration, this._methodOptions);
+    }
+
+
+    private createNamespacesResource(): void {
+        const namespacesResource = this._restApi.root.addResource("namespaces");
+        const namespace = namespacesResource.addResource("{namespaceName}");
+
+        const namespaceLambdaEnvironment = {
+            cluster_name: this._props.clusterName,
+            namespace_table_name: this._props.namespaceTable.tableName,
+            user_pool_id: this._props.userPoolId
+        };
+
+        // Add
+        const addNamespaceLambda = this.createLambda("AddNamespaceHandler", "add_namespace_request.handler", namespaceLambdaEnvironment);
+        addNamespaceLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
+        this._props.namespaceTable.grantReadWriteData(addNamespaceLambda);
+        namespacesResource.addMethod("POST", new api.LambdaIntegration(addNamespaceLambda), this._methodOptions);
+
+        // Get
+        const getNamespacesLambda = this.createLambda("GetNamespacesHandler", "get_namespace_request.handler", namespaceLambdaEnvironment);
+        this._props.namespaceTable.grantReadData(getNamespacesLambda);
+        const getNamespaceIntegration = new api.LambdaIntegration(getNamespacesLambda);
+        namespacesResource.addMethod("GET", getNamespaceIntegration, this._methodOptions);
+        namespace.addMethod("GET", getNamespaceIntegration, this._methodOptions);
+
+        // Update
+        const updateNamespaceLambda = this.createLambda("UpdateNamespaceHandler", "update_namespace_request.handler", namespaceLambdaEnvironment);
+        updateNamespaceLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
+        this._props.namespaceTable.grantReadWriteData(updateNamespaceLambda);
+        namespace.addMethod("POST", new api.LambdaIntegration(updateNamespaceLambda), this._methodOptions);
+
+        // Delete
+        const deleteNamespaceLambda = this.createLambda("DeleteNamespaceHandler", "delete_namespace_request.handler", namespaceLambdaEnvironment);
+        this._props.namespaceTable.grantReadWriteData(deleteNamespaceLambda);
+        namespace.addMethod("DELETE", new api.LambdaIntegration(deleteNamespaceLambda), this._methodOptions);
+    }
+
+    private createLambda(id: string, handler: string, environment: {[key: string]: string}): lambda.Function {
+        return new lambda.Function(this, id, {
+            runtime: lambda.Runtime.PYTHON_3_7,
+            code: this._lambdas,
+            handler: handler,
+            timeout: this._lambdaTimeout,
+            environment: environment
+        });
     }
 
     public get addGraphQueue(): sqs.Queue { 

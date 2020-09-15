@@ -44,7 +44,9 @@ export class AppStack extends cdk.Stack {
 
         // REST API
         const kaiRest = new KaiRestApi(this, "KaiRestApi", {
+            clusterName: platform.eksCluster.clusterName,
             graphTable: database.graphTable,
+            namespaceTable: database.namespaceTable,
             userPoolArn: userPool.userPoolArn,
             userPoolId: userPool.userPoolId
         });

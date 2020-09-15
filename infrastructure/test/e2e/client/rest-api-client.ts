@@ -27,6 +27,7 @@ export interface IResponse {
 
 export class RestApiClient {
     private readonly _graphs = "/graphs";
+    private readonly _namespaces = "/namespaces";
     private readonly _restApiEndpoint: string;
     private readonly _userTokens: Record<string, IUserToken>;
 
@@ -103,6 +104,28 @@ export class RestApiClient {
         return false;
     }
 
+    public getNamespaces(userName: string): Promise<IResponse> {
+        return this.callApi("get", this._namespaces, userName, undefined);
+    }
+
+    public getNamespace(userName: string, namespaceName: string): Promise<IResponse> {
+        const url = this._namespaces + "/" + namespaceName;
+        return this.callApi("get", url, userName, undefined);
+    }
+
+    public createNamespace(userName: string, data: Record<string, unknown>): Promise<IResponse> {
+        return this.callApi("post", this._namespaces, userName, data);
+    }
+
+    public updateNamespace(userName: string, namespaceName: string, data: Record<string, unknown>): Promise<IResponse> {
+        const url = this._namespaces + "/" + namespaceName;
+        return this.callApi("post", url, userName, data);
+    }
+
+    public deleteNamespace(userName: string, namespaceName: string): Promise<IResponse> {
+        const url = this._namespaces + "/" + namespaceName;
+        return this.callApi("delete", url, userName, undefined);
+    }
 
     private callApi(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): Promise<IResponse> {
         return axios(
