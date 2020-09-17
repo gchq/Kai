@@ -223,7 +223,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                         onClick={() => { this.submitNewGraph(); }}
                         startIcon={<AddCircleOutlineOutlinedIcon />}
                         type="submit"
-                        variant="outlined"
+                        variant="contained"
                         color="primary"
                         className={this.classes.submit}
                         disabled={this.disableSubmitButton()}

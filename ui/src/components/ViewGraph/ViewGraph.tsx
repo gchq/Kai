@@ -90,7 +90,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 id='view-graphs-refresh-button'
                                 onClick={async () => await this.getGraphs()}
                                 startIcon={<RefreshOutlinedIcon />}
-                                variant="outlined"
+                                variant="contained"
                                 color="primary"
                                 className={this.classes.submit}
                             >

@@ -1,6 +1,14 @@
 $base-color: #f3f3f3;
 
 body {
-    background-color: $base-color;
     font-family: 'Lucida Sans', Verdana, sans-serif;
+}
+
+.MuiButton-contained {
+    background-color: #607D8B;
+    box-shadow: none;
+    &:hover {
+        background-color: #49606b;
+        box-shadow: none;
+    }
 }
