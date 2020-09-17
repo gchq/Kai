@@ -3,8 +3,6 @@ import { Button, Container, CssBaseline, Dialog, DialogContent, Grid, IconButton
 import { Schema } from '../../domain/schema';
 import { Notifications } from '../../domain/notifications';
 import { CreateGraphRepo } from '../../rest/repositories/create-graph-repo';
-import { Alert } from '@material-ui/lab';
-import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import { DropzoneArea } from 'material-ui-dropzone';
 import { TransitionProps } from '@material-ui/core/transitions';
