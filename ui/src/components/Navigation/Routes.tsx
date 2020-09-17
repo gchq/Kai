@@ -2,8 +2,6 @@
 import ViewGraph from "../ViewGraph/ViewGraph";
 import AddGraph from "../AddGraph/AddGraph";
 import UserGuide from "../UserGuide/UserGuide";
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 
 const Routes = [
     {
@@ -13,7 +11,7 @@ const Routes = [
     },
     {
         path: '/ViewGraph',
-        sidebarName: 'View Graph',
+        sidebarName: 'View Graphs',
         component: ViewGraph
     },
     {

@@ -5,4 +5,5 @@ module.exports = {
     semi: true,
     singleQuote: true,
     bracketSpacing: true,
+    eslintIntegration: true,
 }

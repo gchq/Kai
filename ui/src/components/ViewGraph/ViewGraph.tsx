@@ -1,15 +1,16 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import { Grid, Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Toolbar } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles';
+import { Button, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, IconButton, Toolbar, Zoom } from '@material-ui/core'
 import { Graph } from '../../domain/graph';
-import { DeleteGraphRepo } from '../../rest/repositories/delete-graph-repo';
 import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
-import CreateIcon from '@material-ui/icons/Create';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
+import { NotificationAlert, AlertType } from '../Errors/NotificationAlert';
 
 interface IState {
     graphs: Graph[],
     selectedRow: any,
+    errorMessage: string,
 }
 
 export default class ViewGraph extends React.Component<{}, IState> {
@@ -18,17 +19,23 @@ export default class ViewGraph extends React.Component<{}, IState> {
         this.state = {
             graphs: [],
             selectedRow: '',
+            errorMessage: '',
         }
     }
 
     public async componentDidMount() {
+        this.getGraphs();
+    }
+
+    private async getGraphs() {
         try {
-            this.setState({ graphs: await new GetAllGraphsRepo().getAll() });
+            const graphs: Graph[] = await new GetAllGraphsRepo().getAll();
+            this.setState({ graphs })
         } catch (e) {
-            console.log(e.message);
+            this.setState({ errorMessage: `Failed to get all graphs: ${e.message}` });
         }
     }
-    
+
     private classes: any = makeStyles({
         root: {
             width: '100%',
@@ -39,47 +46,60 @@ export default class ViewGraph extends React.Component<{}, IState> {
         },
     });
 
-    private getStripedStyle = (index:any) => {
-        return { background: index % 2 ? '#fafafa' : '#fafafa' };
-    }
-
     public render() {
+
+        const { graphs, errorMessage } = this.state;
+
         return (
-           <main style={{marginTop:30}}>
-               <Toolbar />
-                <Box width="50%" m="auto">
-                    <TableContainer>
-                        <Table className={this.classes.table} aria-label="simple table" >
-                    
-                            <TableHead>
-                                <TableRow style = {{background: '#F4F2F2'}}>
-                                    <TableCell>Graph Name</TableCell>
-                                    <TableCell align="right">Current State</TableCell>
-                                    <TableCell align="right">Delete</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                            
-                                {this.state.graphs.map((graph: Graph, index) => (
-                                    <TableRow key={graph.getId()} hover role="checkbox"
-                                            onClick={() => this.setState({selectedRow: graph.getId()})} style = {{ ...this.getStripedStyle(index)}}>
+            <main style={{ marginTop: 30 }}>
+                <Toolbar />
+                <Grid container justify="center">
+                    <Container component="main" maxWidth="sm">
+                        {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />}
+                        <TableContainer>
+                            <Table size='medium' className={this.classes.table} aria-label="Graphs Table" >
 
-                                        <TableCell component="th" scope="row">{graph.getId()}</TableCell>
-                                        <TableCell align="right">{graph.getStatus()}</TableCell>
-                                        <TableCell align="right">
-                                            <IconButton>
-                                                <DeleteOutlineOutlinedIcon/>
-                                            </IconButton>
-                                        </TableCell>
+                                <TableHead>
+                                    <TableRow style={{ background: '#F4F2F2' }}>
+                                        <TableCell>Graph Name</TableCell>
+                                        <TableCell align="right">Current State</TableCell>
+                                        <TableCell align="right">Actions</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-           </main>
-            
+                                </TableHead>
 
-        ); 
+                                <TableBody>
+                                    {graphs.map((graph: Graph, index) => (
+                                        <TableRow key={graph.getId()} hover>
+                                            <TableCell component="th" scope="row">{graph.getId()}</TableCell>
+                                            <TableCell align="right">{graph.getStatus()}</TableCell>
+                                            <TableCell align="right">
+                                                <Tooltip TransitionComponent={Zoom} title={`Delete ${graph.getId()}`}>
+                                                    <IconButton>
+                                                        <DeleteOutlineOutlinedIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                                {graphs.length === 0 && <caption>No Graphs.</caption>}
+                            </Table>
+                        </TableContainer>
+                        <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
+                            <Button
+                                id='view-graphs-refresh-button'
+                                onClick={async () => await this.getGraphs()}
+                                startIcon={<RefreshOutlinedIcon />}
+                                variant="outlined"
+                                color="primary"
+                                className={this.classes.submit}
+                            >
+                                Refresh Table
+                        </Button>
+                        </Grid>
+                    </Container>
+                </Grid>
+            </main>
+        );
     }
 }

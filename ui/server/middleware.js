@@ -4,25 +4,28 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// console.log that your server is up and running
 app.listen(port, () => console.log(`Listening on port ${port}`));
+app.use(express.json());
 
 // Get all graphs
 app.get('/graphs', (req, res) => {
-    res.send([ {
-        "graphName": "roadTraffic",
-        "currentState": "DEPLOYED"
-    }, {
-        "graphName": "basicGraph",
-        "currentState": "DEPLOYED"
-    }]);
+    res.send([
+        {
+            graphName: 'roadTraffic',
+            currentState: 'DEPLOYED',
+        },
+        {
+            graphName: 'basicGraph',
+            currentState: 'DEPLOYED',
+        },
+    ]);
 });
 
 // Get graph by ID
 app.get('/graphs/:graphName', (req, res) => {
     res.send({
-        "graphName": req.params.graphName,
-        "currentState": "DEPLOYED"
+        graphName: req.params.graphName,
+        currentState: 'DEPLOYED',
     });
 });
 
@@ -32,6 +35,10 @@ app.delete('/graphs/:graphName', (req, res) => {
 });
 
 //Create Graph
-app.post('/graphs', (req,res) =>{
-    res.status(201).end();
+app.post('/graphs', (req, res) => {
+    if (req.body.graphName === 'fail') {
+        res.status(500).end();
+    } else {
+        res.status(201).end();
+    }
 });
