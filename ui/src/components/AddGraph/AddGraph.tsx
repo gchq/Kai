@@ -256,6 +256,21 @@ export default class AddGraph extends React.Component<{}, IState> {
                         </Button>
                     </Grid>
                 </Grid>
+
+                <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
+                    <Button
+                        id='add-new-graph-button'
+                        onClick={() => { this.submitNewGraph(); }}
+                        startIcon={<AddCircleOutlineOutlinedIcon />}
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        className={this.classes.submit}
+                        disabled={this.disableSubmitButton()}
+                    >
+                        Add Graph
+                    </Button>
+                </Grid>
             </main>
         );
     }
