@@ -8,6 +8,7 @@ import { StylesProvider } from '@material-ui/styles';
 import GlobalStyles from '../src/components/GlobalStyles';
 import './styles/_App.scss';
 
+
 ReactDOM.render(
     <React.StrictMode>
         <StylesProvider injectFirst>
