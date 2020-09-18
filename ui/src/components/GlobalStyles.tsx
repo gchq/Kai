@@ -17,9 +17,6 @@ const GlobalStyles = withStyles({
           height: '100%',
           width: '100%'
         },
-        a: {
-          textDecoration: 'none'
-        },
         '#root': {
           height: '100%',
           width: '100%'
