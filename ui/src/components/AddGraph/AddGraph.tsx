@@ -111,17 +111,20 @@ export default class AddGraph extends React.Component<{}, IState> {
 
         return (
             <main>
+                {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
+                {!this.state.errors.isEmpty() && (
+                    <NotificationAlert alertType={AlertType.FAILED} message={`Error(s): ${this.state.errors.errorMessage()}`} />
+                )}
                 <Toolbar />
-                <Grid style={{ marginTop: 30 }} container justify="center">
+                
+                <Grid container justify="center" >
+             
                     <Container component="main" maxWidth="xs">
                         <CssBaseline />
                         <div className={this.classes.paper}>
                             <form className={this.classes.form} noValidate>
                                 <Grid container spacing={2}>
-                                    {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
-                                    {!this.state.errors.isEmpty() && (
-                                        <NotificationAlert alertType={AlertType.FAILED} message={`Error(s): ${this.state.errors.errorMessage()}`} />
-                                    )}
+                              
                                     <Grid item xs={12}>
                                         <TextField
                                             id="graph-name"
@@ -213,9 +216,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                             </form>
                         </div>
                     </Container>
-                </Grid>
-
-                <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
+                    <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
                     <Button
                         id='add-new-graph-button'
                         onClick={() => { this.submitNewGraph(); }}
@@ -229,6 +230,9 @@ export default class AddGraph extends React.Component<{}, IState> {
                         Add Graph
                     </Button>
                 </Grid>
+                </Grid>
+
+               
             </main>
         );
     }
