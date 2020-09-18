@@ -271,6 +271,9 @@ export default class AddGraph extends React.Component<{}, IState> {
                         Add Graph
                     </Button>
                 </Grid>
+                </Grid>
+
+               
             </main>
         );
     }
