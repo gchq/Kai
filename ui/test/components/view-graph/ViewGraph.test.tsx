@@ -3,10 +3,10 @@ import { mount } from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
 import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
 import { Graph } from '../../../src/domain/graph';
-import {DeleteGraphRepo} from '../../../src/rest/repositories/delete-graph-repo'
+import { DeleteGraphRepo } from '../../../src/rest/repositories/delete-graph-repo'
 
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
-jest.mock('../../../src/rest/repositories/delete-graph-repo')
+// jest.mock('../../../src/rest/repositories/delete-graph-repo');
 
 describe('When ExampleTable mounts', () => {
     it('should display Table Headers and Graphs when GetGraphs successful', async () => {
@@ -60,29 +60,45 @@ describe('When ExampleTable mounts', () => {
         mockGetGraphsToReturn([new Graph('roadTraffic', 'FINISHED DEPLOYMENT')]);
         component.find('button#view-graphs-refresh-button').simulate('click');
         await component.update();
-        
+
         expect(component.find('tbody').text()).toBe('roadTrafficFINISHED DEPLOYMENT');
     });
-    it('should send a delete request when the delete button has been clicked', async() => {
+    it('should send a delete request when the delete button has been clicked', async () => {
+        DeleteGraphRepo.prototype.delete = jest.fn();
         mockGetGraphsToReturn([new Graph('peaches', 'ACTIVE')]);
 
         const component = mount(<ViewGraph />);
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('peachesACTIVE');
-        
+
         component.find('tbody').find('button#view-graphs-delete-button-0').simulate('click');
         await component.update();
-    
-        expect(DeleteGraphRepo).toHaveBeenCalledTimes(1);
-    })
+
+        expect(DeleteGraphRepo.prototype.delete).toHaveBeenLastCalledWith('peaches');
+    });
+    it('should send a delete request for correct graphId from many graphs when the delete button has been clicked', async () => {
+        DeleteGraphRepo.prototype.delete = jest.fn();
+        mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'INACTIVE')]);
+
+        const component = mount(<ViewGraph />);
+        await component.update();
+        await component.update();
+        expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
+
+        component.find('tbody').find('button#view-graphs-delete-button-1').simulate('click');
+        await component.update();
+
+        expect(DeleteGraphRepo.prototype.delete).toHaveBeenLastCalledWith('pears');
+    });
 });
-function mockGetGraphsToReturn(graphs: Graph[]):void {
+
+function mockGetGraphsToReturn(graphs: Graph[]): void {
     GetAllGraphsRepo.mockImplementationOnce(() => {
         return {
             getAll: () => {
                 return new Promise((resolve, reject) => {
-                    resolve(graphs)
+                    resolve(graphs);
                 })
             },
         };
