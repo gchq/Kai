@@ -25,15 +25,18 @@ import { IResponse, RestApiClient } from "./client/rest-api-client";
 import schemaObject from "./config/schema.json";
 
 const clusterHelper: ClusterHelper = new ClusterHelper();
-const clusterSetupTimeoutMilliseconds: number = 30 * 60 * 1000;
-const graphDeploymentTimeoutMilliseconds: number = 10 * 60 * 1000;
-const graphDeletionTimeoutMilliseconds: number = 10 * 60 * 1000;
 const minuteMilliseconds: number = 60 * 1000;
+const clusterSetupTimeoutMilliseconds: number = 30 * minuteMilliseconds;
+const graphDeploymentTimeoutMilliseconds: number = 10 * minuteMilliseconds;
+const graphDeletionTimeoutMilliseconds: number = 10 * minuteMilliseconds;
+const namespaceDeploymentTimeoutMilliseconds: number = 2 * minuteMilliseconds;
+const namespaceDeletionTimeoutMilliseconds: number = 2 * minuteMilliseconds;
 const user1 = "user1";
 const user2 = "user2";
 const user3 = "user3";
 const testGraph1 = "testGraph1";
 const testGraph2 = "testGraph2";
+const testNamespace1 = "test-namespace-1";
 
 let client: RestApiClient;
 let loadBalancerHelper: LoadBalancerHelper;
@@ -241,7 +244,7 @@ describe("Deleting a graph", () => {
         const response: IResponse = await client.deleteGraph(user1, testGraph1);
         expect(response.status).toBe(202);
         expect(response.data).toEqual("");
-        expect(await client.awaitGraphDeletion(user1, testGraph1, graphDeploymentTimeoutMilliseconds)).toBe(true);
+        expect(await client.awaitGraphDeletion(user1, testGraph1, graphDeletionTimeoutMilliseconds)).toBe(true);
         expect(await volumeHelper.checkVolumesForGraphHaveBeenDeleted(testGraph1)).toBeTruthy();
         expect(await loadBalancerHelper.getApplicationLoadBalancersForGraph(testGraph1)).toHaveLength(0);
         expect(await loadBalancerHelper.getTargetGroupsForGraph(testGraph1)).toHaveLength(0);
@@ -271,7 +274,7 @@ describe("Deleting a graph by an administrator", () => {
         const response: IResponse = await client.deleteGraph(user3, testGraph1);
         expect(response.status).toBe(202);
         expect(response.data).toEqual("");
-        expect(await client.awaitGraphDeletion(user3, testGraph1, graphDeploymentTimeoutMilliseconds)).toBe(true);
+        expect(await client.awaitGraphDeletion(user3, testGraph1, graphDeletionTimeoutMilliseconds)).toBe(true);
         expect(await volumeHelper.checkVolumesForGraphHaveBeenDeleted(testGraph1)).toBeTruthy();
         expect(await loadBalancerHelper.getApplicationLoadBalancersForGraph(testGraph1)).toHaveLength(0);
         expect(await loadBalancerHelper.getTargetGroupsForGraph(testGraph1)).toHaveLength(0);
@@ -279,7 +282,7 @@ describe("Deleting a graph by an administrator", () => {
 
 });
 
-describe.only("Creating a namespace", () => {
+describe("Creating a namespace", () => {
 
     test("GET /namespaces returns success and an empty array when there are no namespaces deployed.", async() => {
         const response: IResponse = await client.getNamespaces(user1);
@@ -288,17 +291,240 @@ describe.only("Creating a namespace", () => {
     });
 
 
-    test("POST /namespaces successfully creates a non-public namespace", async() => {
+    test("POST /namespaces successfully creates a namespace", async() => {
         const data: Record<string, unknown> = {
-            "namespaceName": "test-namespace-1",
+            "namespaceName": testNamespace1,
             "administrators": [ clusterHelper.userTokens[user3].user.userName ],
-            "public": false
+            "isPublic": false
         };
         const response: IResponse = await client.createNamespace(user1, data);
         expect(response.status).toBe(201);
         expect(response.data).toEqual("");
+        expect(await client.awaitNamespaceDeployment(user1, testNamespace1, namespaceDeploymentTimeoutMilliseconds)).toBe(true);
+    }, (namespaceDeploymentTimeoutMilliseconds + (2 * minuteMilliseconds)));
+
+
+    test("POST /namespaces returns 400 when namespace already exists", async() => {
+        const data: Record<string, unknown> = {
+            "namespaceName": testNamespace1,
+            "administrators": [],
+            "isPublic": false
+        };
+        const response: IResponse = await client.createNamespace(user1, data);
+        expect(response.status).toBe(400);
+        expect(response.data).toEqual("Namespace " + testNamespace1 + " already exists, Namespace names must be unique.");
+    });
+
+
+    test("GET /namespaces/{namespaceName} returns 200 success and the namespace data when called by a user configured as a namespace administrator.", async() => {
+        const response: IResponse = await client.getNamespace(user3, testNamespace1);
+        expect(response.status).toBe(200);
+        expect(response.data).toMatchObject({
+            namespaceName: testNamespace1,
+            administrators: [
+                clusterHelper.userTokens[user1].user.userName,
+                clusterHelper.userTokens[user3].user.userName
+            ],
+            currentState: "DEPLOYED",
+            isPublic: false
+        });
+    });
+
+    describe("GET /namespaces/{namespaceName} failure tests", () => {
+
+        test("GET /namespaces/{namespaceName} returns 403 forbidden when called by a user not permitted to view the namespace", async() => {
+            const response: IResponse = await client.getNamespace(user2, testNamespace1);
+            expect(response.status).toBe(403);
+            expect(response.data).toEqual("User: " + clusterHelper.userTokens[user2].user.userName + " is not authorized to retrieve namespace: " + testNamespace1);
+        });
+
+        test("GET /namespaces/{namespaceName} returns 404 for a namespace name not found", async() => {
+            const response: IResponse = await client.getNamespace(user1, "made-up-namespace");
+            expect(response.status).toBe(404);
+            expect(response.data).toEqual("made-up-namespace was not found");
+        });
+    });
+
+
+    test("UPDATE /namespaces/{namespaceName} returns 200 and successfully updates the namespace when called by the creating user.", async() => {
+        const data: Record<string, unknown> = {
+            "administrators": [
+                clusterHelper.userTokens[user2].user.userName
+            ],
+            "isPublic": true
+        };
+        const response: IResponse = await client.updateNamespace(user1, testNamespace1, data);
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual("");
+
+        const getResponse: IResponse = await client.getNamespace(user1, testNamespace1);
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.data).toMatchObject({
+            namespaceName: testNamespace1,
+            administrators: [
+                clusterHelper.userTokens[user1].user.userName,
+                clusterHelper.userTokens[user2].user.userName
+            ],
+            currentState: "DEPLOYED",
+            isPublic: true
+        });
+    });
+
+
+    test("POST /namespaces/{namespaceName} returns 200 and successfully updates the namespace when called by an administrator.", async() => {
+        const data: Record<string, unknown> = {
+            "administrators": [],
+            "isPublic": false
+        };
+        const response: IResponse = await client.updateNamespace(user2, testNamespace1, data);
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual("");
+
+        const getResponse: IResponse = await client.getNamespace(user2, testNamespace1);
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.data).toMatchObject({
+            namespaceName: testNamespace1,
+            administrators: [
+                clusterHelper.userTokens[user2].user.userName
+            ],
+            currentState: "DEPLOYED",
+            isPublic: false
+        });
+    });
+
+
+    describe("POST /namespaces/{namespaceName} failure tests", () => {
+
+        test("POST /namespaces/{namespaceName} returns 404 when namespace name not found", async() => {
+            const data: Record<string, unknown> = {
+                "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+                "isPublic": false
+            };
+            const response: IResponse = await client.updateNamespace(user2, "not-found-namespace-1", data);
+            expect(response.status).toBe(404);
+            expect(response.data).toEqual("not-found-namespace-1 was not found");
+        });
+
+        test("POST /namespaces/{namespaceName} returns 400 when namespace name is not valid", async() => {
+            const data: Record<string, unknown> = {
+                "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+                "isPublic": false
+            };
+            const response: IResponse = await client.updateNamespace(user2, "InvalidNamespaceName", data);
+            expect(response.status).toBe(400);
+            expect(response.data).toEqual("namespaceName is a required field which must be a valid DNS label as defined in rfc-1123");
+        });
+
+        test("POST /namespaces/{namespaceName} returns a 400 error when attempting to configure administrators not registered in the Cognito UserPool.", async() => {
+            const data: Record<string, unknown> = {
+                "administrators": [ "InvalidCognitoUser" ],
+                "isPublic": true
+            };
+            const response: IResponse = await client.updateNamespace(user2, testNamespace1, data);
+            expect(response.status).toBe(400);
+            expect(response.data).toMatch("Not all of the supplied administrators are valid Cognito users:");
+        });
+
+        test("POST /namespaces/{namespaceName} returns 403 forbidden when called by a user without permission to update the namespace.", async() => {
+            const data: Record<string, unknown> = {
+                "administrators": [],
+                "isPublic": true
+            };
+            const response: IResponse = await client.updateNamespace(user1, testNamespace1, data);
+            expect(response.status).toBe(403);
+            expect(response.data).toEqual("User: " + clusterHelper.userTokens[user1].user.userName + " is not authorized to update namespace: " + testNamespace1);
+        });
+    });
+
+
+
+
+
+    describe("DELETE /namespaces/{namespaceName} failure tests", () => {
+
+        test("DELETE /namespaces/{namespaceName} returns 400 when namespace name not valid", async() => {
+            const response: IResponse = await client.deleteNamespace(user2, "InvalidNamespaceName");
+            expect(response.status).toBe(400);
+            expect(response.data).toEqual("namespaceName is a required field which must be a valid DNS label");
+        });
+
+        test("DELETE /namespaces/{namespaceName} returns 400 when namespace name not found", async() => {
+            const response: IResponse = await client.deleteNamespace(user2, "not-found-namespace-1");
+            expect(response.status).toBe(400);
+            expect(response.data).toEqual("Namespace not-found-namespace-1 does not exist. It may have already have been deleted");
+        });
+
+        test("DELETE /namespaces/{namespaceName} returns 403 forbidden when called by a user without permission to update the namespace.", async() => {
+            const response: IResponse = await client.deleteNamespace(user1, testNamespace1);
+            expect(response.status).toBe(403);
+            expect(response.data).toEqual("User: " + clusterHelper.userTokens[user1].user.userName + " is not authorized to delete namespace: " + testNamespace1);
+        });
+    });
+
+
+    test("DELETE /namespaces/{namespaceName} returns 202 success and successfully deletes the namespace when called by the creating user.", async() => {
+        const response: IResponse = await client.deleteNamespace(user2, testNamespace1);
+        expect(response.status).toBe(202);
+        expect(response.data).toEqual("");
+        expect(await client.awaitNamespaceDeletion(user2, testNamespace1, namespaceDeletionTimeoutMilliseconds)).toBe(true);
+    }, (namespaceDeletionTimeoutMilliseconds + (2 * minuteMilliseconds)));
+
+    test("POST /namespaces successfully creates a non-public namespace", async() => {
+        const data: Record<string, unknown> = {
+            "namespaceName": testNamespace1,
+            "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+            "isPublic": false
+        };
+        const response: IResponse = await client.createNamespace(user1, data);
+        expect(response.status).toBe(201);
+        expect(response.data).toEqual("");
+        expect(await client.awaitNamespaceDeployment(user1, testNamespace1, namespaceDeploymentTimeoutMilliseconds)).toBe(true);
+    }, (namespaceDeploymentTimeoutMilliseconds + (2 * minuteMilliseconds)));
+
+    test("DELETE /namespaces/{namespaceName} returns 202 success and successfully deletes the namespace when called by an administrator.", async() => {
+        const response: IResponse = await client.deleteNamespace(user1, testNamespace1);
+        expect(response.status).toBe(202);
+        expect(response.data).toEqual("");
+        expect(await client.awaitNamespaceDeletion(user3, testNamespace1, namespaceDeletionTimeoutMilliseconds)).toBe(true);
+    }, (namespaceDeletionTimeoutMilliseconds + (2 * minuteMilliseconds)));
+
+
+    describe("POST /namespaces failure tests", () => {
+
+        test("POST /namespaces returns 400 when namespace name not supplied", async() => {
+            const data: Record<string, unknown> = {
+                "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+                "isPublic": false
+            };
+            const response: IResponse = await client.createNamespace(user1, data);
+            expect(response.status).toBe(400);
+            expect(response.data).toEqual("namespaceName is a required field which must be a valid DNS label as defined in rfc-1123");
+        });
+
+        test("POST /namespaces returns 400 when namespace name is not valid", async() => {
+            const data: Record<string, unknown> = {
+                "namespaceName": "InvalidNamespaceName",
+                "administrators": [ clusterHelper.userTokens[user3].user.userName ],
+                "isPublic": false
+            };
+            const response: IResponse = await client.createNamespace(user1, data);
+            expect(response.status).toBe(400);
+            expect(response.data).toEqual("namespaceName is a required field which must be a valid DNS label as defined in rfc-1123");
+        });
+
+        test("POST /namespaces returns a 400 error when attempting to configure administrators not registered in the Cognito UserPool.", async() => {
+            const data: Record<string, unknown> = {
+                "namespaceName": testNamespace1,
+                "administrators": [ "InvalidCognitoUser" ],
+                "isPublic": false
+            };
+            const response: IResponse = await client.createNamespace(user1, data);
+            expect(response.status).toBe(400);
+            expect(response.data).toMatch("Not all of the supplied administrators are valid Cognito users:");
+        });
     });
 });
+
 
 afterAll(async() => {
     //await clusterHelper.destroyCluster();

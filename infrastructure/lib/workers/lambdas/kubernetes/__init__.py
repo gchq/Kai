@@ -98,3 +98,11 @@ class KubernetesClient:
             cmd.append(selector)
 
         CommandHelper.run_command(cmd, release_name)
+
+    def create_namespace(self, namespace_name):
+        cmd = [ self.__KUBECTL_CMD, "create", "namespace", namespace_name, "--kubeconfig", self.kubeconfig ]
+        return CommandHelper.run_command(cmd, namespace_name)
+
+    def delete_namespace(self, namespace_name):
+        cmd = [ self.__KUBECTL_CMD, "delete", "namespace", namespace_name, "--kubeconfig", self.kubeconfig ]
+        return CommandHelper.run_command(cmd, namespace_name)

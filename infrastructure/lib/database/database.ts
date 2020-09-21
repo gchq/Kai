@@ -67,6 +67,6 @@ export class Database extends cdk.Construct {
     }
 
     public get namespaceTable(): dynamo.Table {
-        return this._graphTable;
+        return this._namespaceTable;
     }
 }

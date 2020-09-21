@@ -6,7 +6,7 @@ import string
 
 import boto3
 import kubernetes
-from graph import Graph
+from table import TableItem
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 
 cluster_name = os.getenv("cluster_name")
-graph_table_name = os.getenv("graph_table_name")
+graph_table_name = os.getenv("table_name")
 
 def generate_password(length=8):
     """
@@ -107,8 +107,8 @@ def deploy_graph(helm_client, body, security_groups):
     schema = body["schema"]
     expected_status = body["expectedStatus"]
 
-    # Create Graph to log progress of deployment
-    graph = Graph(graph_table_name, release_name)
+    # Create TableItem to log progress of deployment
+    graph = TableItem(graph_table_name, "releaseName", release_name)
 
     if not graph.check_status(expected_status):
         logger.warn("Deployment of %s abandoned as graph had unexpected status", graph_name)

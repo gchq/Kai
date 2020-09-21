@@ -21,7 +21,7 @@ import * as sqs from "@aws-cdk/aws-sqs";
 import * as path from "path";
 import { PolicyStatement } from "@aws-cdk/aws-iam";
 import { KaiRestApiProps } from "./kai-rest-api-props";
-import { DELETE_GRAPH_TIMEOUT, ADD_GRAPH_TIMEOUT } from "../constants";
+import { ADD_GRAPH_TIMEOUT, ADD_NAMESPACE_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_NAMESPACE_TIMEOUT } from "../constants";
 import { KaiRestAuthorizer } from "./authentication/kai-rest-authorizer";
 
 export class KaiRestApi extends cdk.Construct {
@@ -36,6 +36,9 @@ export class KaiRestApi extends cdk.Construct {
     private _deleteGraphQueue: sqs.Queue;
     private _getGraphsLambda: lambda.Function;
     private _deleteGraphLambda: lambda.Function;
+
+    private _addNamespaceQueue: sqs.Queue;
+    private _deleteNamespaceQueue: sqs.Queue;
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
@@ -127,15 +130,22 @@ export class KaiRestApi extends cdk.Construct {
         const namespace = namespacesResource.addResource("{namespaceName}");
 
         const namespaceLambdaEnvironment = {
-            cluster_name: this._props.clusterName,
             namespace_table_name: this._props.namespaceTable.tableName,
             user_pool_id: this._props.userPoolId
         };
 
         // Add
-        const addNamespaceLambda = this.createLambda("AddNamespaceHandler", "add_namespace_request.handler", namespaceLambdaEnvironment);
+        this._addNamespaceQueue = new sqs.Queue(this, "AddNamespaceQueue", {
+            visibilityTimeout: ADD_NAMESPACE_TIMEOUT
+        });
+
+        const addNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, namespaceLambdaEnvironment);
+        addNamespaceLambdaEnvironment["sqs_queue_url"] = this.addNamespaceQueue.queueUrl;
+
+        const addNamespaceLambda = this.createLambda("AddNamespaceHandler", "add_namespace_request.handler", addNamespaceLambdaEnvironment);
         addNamespaceLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
         this._props.namespaceTable.grantReadWriteData(addNamespaceLambda);
+        this.addNamespaceQueue.grantSendMessages(addNamespaceLambda);
         namespacesResource.addMethod("POST", new api.LambdaIntegration(addNamespaceLambda), this._methodOptions);
 
         // Get
@@ -152,8 +162,16 @@ export class KaiRestApi extends cdk.Construct {
         namespace.addMethod("POST", new api.LambdaIntegration(updateNamespaceLambda), this._methodOptions);
 
         // Delete
-        const deleteNamespaceLambda = this.createLambda("DeleteNamespaceHandler", "delete_namespace_request.handler", namespaceLambdaEnvironment);
+        this._deleteNamespaceQueue = new sqs.Queue(this, "DeleteNamespaceQueue", {
+            visibilityTimeout: DELETE_NAMESPACE_TIMEOUT
+        });
+
+        const deleteNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, namespaceLambdaEnvironment);
+        deleteNamespaceLambdaEnvironment["sqs_queue_url"] = this.deleteNamespaceQueue.queueUrl;
+
+        const deleteNamespaceLambda = this.createLambda("DeleteNamespaceHandler", "delete_namespace_request.handler", deleteNamespaceLambdaEnvironment);
         this._props.namespaceTable.grantReadWriteData(deleteNamespaceLambda);
+        this.deleteNamespaceQueue.grantSendMessages(deleteNamespaceLambda);
         namespace.addMethod("DELETE", new api.LambdaIntegration(deleteNamespaceLambda), this._methodOptions);
     }
 
@@ -181,5 +199,13 @@ export class KaiRestApi extends cdk.Construct {
 
     public get deleteGraphLambda(): lambda.Function {
         return this._deleteGraphLambda;
+    }
+
+    public get addNamespaceQueue(): sqs.Queue {
+        return this._addNamespaceQueue;
+    }
+
+    public get deleteNamespaceQueue(): sqs.Queue {
+        return this._deleteNamespaceQueue;
     }
 }

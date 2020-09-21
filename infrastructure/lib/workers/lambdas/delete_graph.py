@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import time
-from graph import Graph
+from table import TableItem
 from kubernetes import HelmClient, KubernetesClient
 
 logger = logging.getLogger()
@@ -11,7 +11,7 @@ logger.setLevel(logging.INFO)
 os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 
 cluster_name = os.getenv("cluster_name")
-graph_table_name = os.getenv("graph_table_name")
+graph_table_name = os.getenv("table_name")
 
 
 def uninstall_release(helm_client, kubernetes_client, body):
@@ -19,10 +19,10 @@ def uninstall_release(helm_client, kubernetes_client, body):
     Uninstalls a release from the Kubernetes Cluster
     """
     release_name = body["releaseName"]
-    expected_status=body["expectedStatus"]
+    expected_status = body["expectedStatus"]
 
-    # Create a Graph object to track the deletion
-    graph = Graph(graph_table_name, release_name)
+    # Create a TableItem object to track the deletion
+    graph = TableItem(graph_table_name, "releaseName", release_name)
 
     if not graph.check_status(expected_status):
         logger.warn("Graph %s had unexpected status. Abandoning delete", release_name)

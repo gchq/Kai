@@ -20,6 +20,9 @@ import { IUserToken } from "../setup/user-helper";
 const graphDeploymentCheckIntervalMilliseconds: number = 10 * 1000;
 const graphDeletionCheckIntervalMilliseconds: number = 10 * 1000;
 
+const namespaceDeploymentCheckIntervalMilliseconds: number = 10 * 1000;
+const namespaceDeletionCheckIntervalMilliseconds: number = 10 * 1000;
+
 export interface IResponse {
     status: number,
     data: Record<string, undefined>
@@ -126,6 +129,56 @@ export class RestApiClient {
         const url = this._namespaces + "/" + namespaceName;
         return this.callApi("delete", url, userName, undefined);
     }
+
+    public async awaitNamespaceDeployment(userName: string, namespaceName: string, timeoutMilliseconds: number): Promise<boolean> {
+        const startTime = new Date().getTime();
+        while (new Date().getTime() - startTime < timeoutMilliseconds) {
+            const deploymentStatus: string | undefined = await this.getNamespace(userName, namespaceName).then(
+                (response: IResponse) => {
+                    console.log("Awaiting namespace deployment, received response: " + JSON.stringify(response.data));
+                    if (response.data["currentState"]) {
+                        return response.data["currentState"];
+                    } else {
+                        return "NOT SET";
+                    }
+                }
+            );
+            if (deploymentStatus) {
+                switch (deploymentStatus) {
+                case "DEPLOYED": {
+                    return true;
+                }
+                case "DEPLOYMENT_FAILED": {
+                    return false;
+                }
+                default:
+                    break;
+                }
+            }
+            await new Promise(r => setTimeout(r, namespaceDeploymentCheckIntervalMilliseconds));
+        }
+        console.log("Timed out awaiting namespace deployment");
+        return false;
+    }
+
+    public async awaitNamespaceDeletion(userName: string, namespaceName: string, timeoutMilliseconds: number): Promise<boolean> {
+        const startTime = new Date().getTime();
+        while (new Date().getTime() - startTime < timeoutMilliseconds) {
+            const deleted: boolean | undefined = await this.getNamespace(userName, namespaceName).then(
+                (response: IResponse) => {
+                    console.log("Awaiting namespace deletion, received response: " + JSON.stringify(response));
+                    return (response.status == 404);
+                }
+            );
+            if (deleted) {
+                return true;
+            }
+            await new Promise(r => setTimeout(r, namespaceDeletionCheckIntervalMilliseconds));
+        }
+        console.log("Timed out awaiting namespace deletion");
+        return false;
+    }
+
 
     private callApi(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): Promise<IResponse> {
         return axios(

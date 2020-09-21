@@ -1,7 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
 import json
-from kubernetes import KubernetesClient
 from namespace import Namespace
 import os
 from user import User
@@ -9,9 +8,6 @@ from user import User
 namespace = Namespace()
 user = User()
 
-os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
-
-cluster_name = os.getenv("cluster_name")
 
 def handler(event, context):
     params = event["pathParameters"]
@@ -28,7 +24,7 @@ def handler(event, context):
     try:
         namespace_record = namespace.get_namespace(namespace_name)
         requesting_user = user.get_requesting_cognito_user(event)
-        if requesting_user and not namespace_record["public"] and not requesting_user in namespace_record["administrators"]:
+        if requesting_user and not requesting_user in namespace_record["administrators"]:
             return {
                 "statusCode": 403,
                 "body": "User: {} is not authorized to delete namespace: {}".format(requesting_user, namespace_name)
@@ -39,21 +35,36 @@ def handler(event, context):
             "body": "Namespace " + namespace_name + " does not exist. It may have already have been deleted"
         }
 
+
+    queue_url = os.getenv("sqs_queue_url")
+    initial_status = "DELETION_QUEUED"
+
+
     # TODO Ensure there are no graphs deployed within this namespace.
 
     try:
-        if KubernetesClient(cluster_name).delete_namespace(namespace_name):
-            namespace.delete(namespace_name)
+        namespace.update_namespace_status(namespace_name, initial_status)
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
-                "statusCode": 204
+                "statusCode": 400,
+                "body": "Namespace " + namespace_name + " does not exist. It may have already have been deleted"
             }
         else:
             return {
                 "statusCode": 500,
-                "body": "Could not delete namespace: {}".format(namespace_name)
+                "body": json.dumps(e.response["Error"])
             }
-    except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": "Could not delete namespace: {}".format(namespace_name)
-        }
+
+    # Set the status so the worker knows what to expect. This also filters out anything else in the body
+    message = {
+        "namespaceName": namespace_name,
+        "expectedStatus": initial_status
+    }
+
+    sqs = boto3.client("sqs")
+    sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(message))
+
+    return {
+        "statusCode": 202
+    }

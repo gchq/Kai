@@ -26,7 +26,7 @@ def handler(event, context):
     else:
         try:
             namespace_record = namespace.get_namespace(namespace_name)
-            if requesting_user and not namespace_record["public"] and not requesting_user in namespace_record["administrators"]:
+            if requesting_user and not namespace_record["isPublic"] and not requesting_user in namespace_record["administrators"]:
                 return {
                     "statusCode": 403,
                     "body": "User: {} is not authorized to retrieve namespace: {}".format(requesting_user, namespace_name)

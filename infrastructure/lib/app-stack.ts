@@ -19,7 +19,18 @@ import * as sam from "@aws-cdk/aws-sam";
 import { GraphPlatForm } from "./platform/graph-platform";
 import { GraphUninstaller } from "./platform/graph-uninstaller";
 import { KaiRestApi } from "./rest-api/kai-rest-api";
-import { LAMBDA_LAYER_ARN, LAMBDA_LAYER_VERSION, ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_GRAPH_WORKER_BATCH_SIZE, ADD_GRAPH_WORKER_BATCH_SIZE } from "./constants";
+import { 
+    LAMBDA_LAYER_ARN, 
+    LAMBDA_LAYER_VERSION, 
+    ADD_GRAPH_TIMEOUT, 
+    DELETE_GRAPH_TIMEOUT, 
+    DELETE_GRAPH_WORKER_BATCH_SIZE, 
+    ADD_GRAPH_WORKER_BATCH_SIZE,
+    ADD_NAMESPACE_TIMEOUT, 
+    DELETE_NAMESPACE_TIMEOUT, 
+    DELETE_NAMESPACE_WORKER_BATCH_SIZE, 
+    ADD_NAMESPACE_WORKER_BATCH_SIZE 
+} from "./constants";
 import { LayerVersion } from "@aws-cdk/aws-lambda";
 import { Database } from "./database/database";
 import { Worker } from "./workers/worker";
@@ -42,15 +53,6 @@ export class AppStack extends cdk.Stack {
         const databaseProps: DatabaseProps = this.node.tryGetContext("databaseProps");
         const database = new Database(this, "GraphDatabase", databaseProps);
 
-        // REST API
-        const kaiRest = new KaiRestApi(this, "KaiRestApi", {
-            clusterName: platform.eksCluster.clusterName,
-            graphTable: database.graphTable,
-            namespaceTable: database.namespaceTable,
-            userPoolArn: userPool.userPoolArn,
-            userPoolId: userPool.userPoolId
-        });
-
         // Kubectl Lambda layer
         const samApp = new sam.CfnApplication(this, "SamLayer", {
             location: {
@@ -64,6 +66,15 @@ export class AppStack extends cdk.Stack {
 
         const layerVersionArn = samApp.getAtt("Outputs.LayerVersionArn").toString();
         const kubectlLambdaLayer = LayerVersion.fromLayerVersionArn(this, "KubectlLambdaLayer", layerVersionArn);
+
+        // REST API
+        const kaiRest = new KaiRestApi(this, "KaiRestApi", {
+            clusterName: platform.eksCluster.clusterName,
+            graphTable: database.graphTable,
+            namespaceTable: database.namespaceTable,
+            userPoolArn: userPool.userPoolArn,
+            userPoolId: userPool.userPoolId
+        });
 
         // Describe EKS cluster policy statement
         const describeClusterPolicyStatement = new PolicyStatement({
@@ -80,12 +91,12 @@ export class AppStack extends cdk.Stack {
             ]
         });
 
-        // Workers
+        // Graph Workers
         new Worker(this, "AddGraphWorker", {
             cluster: platform.eksCluster,
             queue: kaiRest.addGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            graphTable: database.graphTable,
+            table: database.graphTable,
             handler: "add_graph.handler",
             timeout: ADD_GRAPH_TIMEOUT,
             batchSize: ADD_GRAPH_WORKER_BATCH_SIZE,
@@ -98,13 +109,40 @@ export class AppStack extends cdk.Stack {
             cluster: platform.eksCluster,
             queue: kaiRest.deleteGraphQueue,
             kubectlLayer: kubectlLambdaLayer,
-            graphTable: database.graphTable,
+            table: database.graphTable,
             handler: "delete_graph.handler",
             timeout: DELETE_GRAPH_TIMEOUT,
             batchSize: DELETE_GRAPH_WORKER_BATCH_SIZE,
             policyStatements: [
                 describeClusterPolicyStatement,
                 manageVolumesPolicyStatement
+            ]
+        });
+
+        // Namespace Workers
+        new Worker(this, "AddNamespaceWorker", {
+            cluster: platform.eksCluster,
+            queue: kaiRest.addNamespaceQueue,
+            kubectlLayer: kubectlLambdaLayer,
+            table: database.namespaceTable,
+            handler: "add_namespace.handler",
+            timeout: ADD_NAMESPACE_TIMEOUT,
+            batchSize: ADD_NAMESPACE_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement
+            ]
+        });
+
+        new Worker(this, "DeleteNamespaceWorker", {
+            cluster: platform.eksCluster,
+            queue: kaiRest.deleteNamespaceQueue,
+            kubectlLayer: kubectlLambdaLayer,
+            table: database.namespaceTable,
+            handler: "delete_namespace.handler",
+            timeout: DELETE_NAMESPACE_TIMEOUT,
+            batchSize: DELETE_NAMESPACE_WORKER_BATCH_SIZE,
+            policyStatements: [
+                describeClusterPolicyStatement
             ]
         });
 

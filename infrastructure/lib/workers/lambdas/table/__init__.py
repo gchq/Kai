@@ -4,42 +4,43 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-class Graph:
+class TableItem:
     """
-    Represents a Graph object in a DynamoDB table
+    Represents an item in a DynamoDB table indexed on the property "index_name" with a value of "index_key" and having status defined by the "currentState" property
     """
-    def __init__(self, table_name, release_name):
+    def __init__(self, table_name, index_name, index_key):
         dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
-        self.release_name = release_name
+        self.index_name = index_name
+        self.index_key = index_key
 
     def check_status(self, expected_status):
         """
-        Checks whether the graph has an expected status
+        Checks whether the item in the table has an expected status
         """
         response = self.table.get_item(
             Key={
-                "releaseName": self.release_name
+                self.index_name: self.index_key
             }
         )
         logger.info(response)
 
-        # If the graph does not exist, it cannot have the expected status
-        graph = response["Item"]
-        if graph is None:
+        # If the item does not exist, it cannot have the expected status
+        item = response["Item"]
+        if item is None:
           return False
         
-        status = graph["currentState"]
+        status = item["currentState"]
 
         return status == expected_status
 
     def update_status(self, status):
         """
-        Updates the status of a Graph
+        Updates the status of the item
         """
         self.table.update_item(
             Key={
-                "releaseName": self.release_name
+                self.index_name: self.index_key
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
@@ -49,10 +50,10 @@ class Graph:
 
     def delete(self):
         """
-        Deletes the graph from the Table
+        Deletes the item from the Table
         """
         self.table.delete_item(
         Key={
-            "releaseName": self.release_name
+            self.index_name: self.index_key
         }
     )

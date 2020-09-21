@@ -208,11 +208,12 @@ describe("/namespaces resource", () => {
             );
         });
 
-        test("Should allow AddNamespaceLambda to list Cognito user pool and read and write to backend database", () => {
+        test("Should allow AddNamespaceLambda to list Cognito user pool and read and write to backend database and describe EKS cluster", () => {
             expectLambdaContainsPolicyStatements(
                 [
                     listCognitoIdpUsersPolicyStatement,
-                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E"),
+                    sendMessagesPolicyStatementFor("TestAddNamespaceQueue48ADE38F")
                 ],
                 "TestAddNamespaceHandlerServiceRoleDefaultPolicy9BE6DA76",
                 "TestAddNamespaceHandlerServiceRoleCEA1F08E"
@@ -230,10 +231,11 @@ describe("/namespaces resource", () => {
             );
         });
 
-        test("Should allow DeleteNamespaceLambda to read and write to backend database", () => {
+        test("Should allow DeleteNamespaceLambda to read and write to backend database and describe EKS cluster", () => {
             expectLambdaContainsPolicyStatements(
                 [
-                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E")
+                    readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E"),
+                    sendMessagesPolicyStatementFor("TestDeleteNamespaceQueue1F2373E8")
                 ],
                 "TestDeleteNamespaceHandlerServiceRoleDefaultPolicy8CAEB25A",
                 "TestDeleteNamespaceHandlerServiceRoleAABA8A00"

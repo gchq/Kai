@@ -12,7 +12,7 @@ class Namespace:
 
 
     def is_namespace_name_valid(self, namespace_name):
-        if namespace_name  is None:
+        if namespace_name is None:
             return False
         return re.match("[a-z0-9]([-a-z0-9]*[a-z0-9])?", namespace_name) # Namespace names must conform to the DNS Label RFC-1123 specification
 
@@ -22,7 +22,7 @@ class Namespace:
         if requesting_user is None:
             return namespaces
         else:
-            return list(filter(lambda namespace: namespace["public"] or requesting_user in namespace["administrators"], namespaces))
+            return list(filter(lambda namespace: namespace["isPublic"] or requesting_user in namespace["administrators"], namespaces))
 
 
     def get_namespace(self, namespace_name):
@@ -36,25 +36,40 @@ class Namespace:
         raise Exception
 
 
-    def create_namespace(self, namespace_name, status, public, administrators):
+    def create_namespace(self, namespace_name, isPublic, administrators, status):
         self.table.put_item(
             Item={
                 "namespaceName": namespace_name,
-                "currentState": status,
                 "administrators": administrators,
-                "public": public
+                "isPublic": isPublic,
+                "currentState": status
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("namespaceName").not_exists()
         )
 
 
-    def update_namespace(self, namespace_name, public, administrators):
+    def update_namespace(self, namespace_name, isPublic, administrators):
         self.table.update_item(
-            Item={
-                "namespaceName": namespace_name,
-                "currentState": status,
-                "administrators": administrators,
-                "public": public
+            Key={
+                "namespaceName": namespace_name
+            },
+            UpdateExpression="SET administrators = :administrators, isPublic = :isPublic",
+            ExpressionAttributeValues={
+                ":administrators": administrators,
+                ":isPublic": isPublic
+            },
+            ConditionExpression=boto3.dynamodb.conditions.Attr("namespaceName").exists()
+        )
+
+
+    def update_namespace_status(self, namespace_name, status):
+        self.table.update_item(
+            Key={
+                "namespaceName": namespace_name
+            },
+            UpdateExpression="SET currentState = :state",
+            ExpressionAttributeValues={
+                ":state": status
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("namespaceName").exists()
         )

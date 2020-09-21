@@ -27,7 +27,7 @@ def handler(event, context):
 
     try:
         namespace_record = namespace.get_namespace(namespace_name)
-        if requesting_user and not namespace_record["public"] and not requesting_user in namespace_record["administrators"]:
+        if requesting_user and not requesting_user in namespace_record["administrators"]:
             return {
                 "statusCode": 403,
                 "body": "User: {} is not authorized to update namespace: {}".format(requesting_user, namespace_name)
@@ -49,13 +49,13 @@ def handler(event, context):
                 "body": "Not all of the supplied administrators are valid Cognito users: {}".format(str(administrators))
             }
 
-        if "public" in request_body and request_body["public"].lower() == "true":
-            public = True;
+        if "isPublic" in request_body and request_body["isPublic"]:
+            isPublic = True;
         else:
-            public = False;
+            isPublic = False;
 
         try:
-            namespace.update_namespace(namespace_name, public, administrators)
+            namespace.update_namespace(namespace_name, isPublic, administrators)
             return {
                 "statusCode": 200
             }
@@ -70,7 +70,6 @@ def handler(event, context):
                     "statusCode": 500,
                     "body": json.dumps(e.response["Error"])
                 }
-
 
 
     except Exception as e:

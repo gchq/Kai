@@ -25,7 +25,7 @@ export interface WorkerProps {
     queue: Queue;
     kubectlLayer: ILayerVersion;
     cluster: Cluster;
-    graphTable: Table;
+    table: Table;
     handler: string;
     timeout: Duration;
     batchSize: number;
