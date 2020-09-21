@@ -1,9 +1,9 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import {mount} from 'enzyme';
 import ViewGraph from '../../../src/components/ViewGraph/ViewGraph';
-import { GetAllGraphsRepo } from '../../../src/rest/repositories/get-all-graphs-repo';
-import { Graph } from '../../../src/domain/graph';
-import { DeleteGraphRepo } from '../../../src/rest/repositories/delete-graph-repo'
+import {GetAllGraphsRepo} from '../../../src/rest/repositories/get-all-graphs-repo';
+import {Graph} from '../../../src/domain/graph';
+import {DeleteGraphRepo} from '../../../src/rest/repositories/delete-graph-repo'
 
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
 jest.mock('../../../src/rest/repositories/delete-graph-repo');
@@ -12,7 +12,7 @@ describe('When ExampleTable mounts', () => {
     it('should display Table Headers and Graphs when GetGraphs successful', async () => {
         mockGetGraphsToReturn([new Graph('testId1', 'deployed')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         await component.update();
 
@@ -23,7 +23,7 @@ describe('When ExampleTable mounts', () => {
     it('should display No Graphs caption when ', async () => {
         mockGetGraphsToReturn([]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
 
         expect(component.find('caption').text()).toBe('No Graphs.');
@@ -31,18 +31,20 @@ describe('When ExampleTable mounts', () => {
     it('should display Error Message in AlertNotification when GetGraphs request fails', () => {
         GetAllGraphsRepo.mockImplementationOnce(() => {
             return {
-                getAll: () => { throw new Error('404 Not Found'); },
+                getAll: () => {
+                    throw new Error('404 Not Found');
+                },
             };
         });
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
 
         expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
     });
     it('should not display Error AlertNotification when GetGraphs request successful', async () => {
         mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYED')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
 
         const table = component.find('table');
@@ -53,7 +55,7 @@ describe('When ExampleTable mounts', () => {
     it('should call GetGraphs again when refresh button clicked', async () => {
         mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYING')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         expect(component.find('tbody').text()).toBe('roadTrafficDEPLOYING');
 
@@ -67,7 +69,7 @@ describe('When ExampleTable mounts', () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
         mockGetGraphsToReturn([new Graph('peaches', 'ACTIVE')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('peachesACTIVE');
@@ -81,7 +83,7 @@ describe('When ExampleTable mounts', () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
         mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'INACTIVE')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
@@ -95,7 +97,7 @@ describe('When ExampleTable mounts', () => {
         mockDeleteGraphRepoToThrowError('500 Server Error');
         mockGetGraphsToReturn([new Graph('bananas', 'INACTIVE')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('bananasINACTIVE');
@@ -105,14 +107,11 @@ describe('When ExampleTable mounts', () => {
 
         expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 500 Server Error');
     });
-    it('should change the current status of the graph when the delete button is clicked', async() => {
-        //given that I have a table
-        //when I click teh delete button
-        //then the current status of teh graph should be updated
+    it('should change the current status of the graph when the delete button is clicked', async () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
         mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'INACTIVE')]);
 
-        const component = mount(<ViewGraph />);
+        const component = mount(<ViewGraph/>);
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
@@ -122,14 +121,15 @@ describe('When ExampleTable mounts', () => {
         await component.update();
 
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsDELETION IN PROGRESS')
-
     })
 });
 
 function mockDeleteGraphRepoToThrowError(errorMessage: string) {
     DeleteGraphRepo.mockImplementationOnce(() => {
         return {
-            delete: () => { throw new Error(errorMessage); },
+            delete: () => {
+                throw new Error(errorMessage);
+            },
         };
     });
 }
