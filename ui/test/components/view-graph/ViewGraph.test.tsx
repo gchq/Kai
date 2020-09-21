@@ -6,7 +6,7 @@ import { Graph } from '../../../src/domain/graph';
 import { DeleteGraphRepo } from '../../../src/rest/repositories/delete-graph-repo'
 
 jest.mock('../../../src/rest/repositories/get-all-graphs-repo');
-// jest.mock('../../../src/rest/repositories/delete-graph-repo');
+jest.mock('../../../src/rest/repositories/delete-graph-repo');
 
 describe('When ExampleTable mounts', () => {
     it('should display Table Headers and Graphs when GetGraphs successful', async () => {
@@ -91,7 +91,29 @@ describe('When ExampleTable mounts', () => {
 
         expect(DeleteGraphRepo.prototype.delete).toHaveBeenLastCalledWith('pears');
     });
+    it('should ... when delete request returns server error', async () => {
+        mockDeleteGraphRepoToThrowError('500 Server Error');
+        mockGetGraphsToReturn([new Graph('bananas', 'INACTIVE')]);
+
+        const component = mount(<ViewGraph />);
+        await component.update();
+        await component.update();
+        expect(component.find('tbody').text()).toBe('bananasINACTIVE');
+
+        component.find('tbody').find('button#view-graphs-delete-button-0').simulate('click');
+        await component.update();
+
+        expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 500 Server Error');
+    });
 });
+
+function mockDeleteGraphRepoToThrowError(errorMessage: string) {
+    DeleteGraphRepo.mockImplementationOnce(() => {
+        return {
+            delete: () => { throw new Error(errorMessage); },
+        };
+    });
+}
 
 function mockGetGraphsToReturn(graphs: Graph[]): void {
     GetAllGraphsRepo.mockImplementationOnce(() => {
