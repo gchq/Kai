@@ -58,6 +58,14 @@ export default class ViewGraph extends React.Component<{}, IState> {
             this.setState({ errorMessage: `Failed to get all graphs: ${e.message}` });
         }
     }
+    private async updateGraph(index: number,graphName: string) {
+        const oldGraphs = this.state.graphs;
+        const newGraph =[new Graph(graphName, "DELETION IN PROGRESS")];
+        const updatedGraphs =oldGraphs.map(obj => newGraph.find(o => o.getId() === obj.getId()) || obj);
+        this.setState({graphs: updatedGraphs})
+
+
+    }
 
     private classes: any = makeStyles({
         root: {
@@ -99,7 +107,11 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                                 <Tooltip TransitionComponent={Zoom} title={`Delete ${graph.getId()}`}>
                                                     <IconButton
                                                         id={'view-graphs-delete-button-' + index}
-                                                        onClick={async () => await this.deleteGraph(graph.getId())}
+                                                        onClick={
+                                                            async () => {await this.deleteGraph(graph.getId());
+                                                            this.updateGraph(index,graph.getId())
+                                                        }
+                                                        }
                                                     >
                                                         <DeleteOutlineOutlinedIcon />
                                                     </IconButton>

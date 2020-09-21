@@ -105,6 +105,25 @@ describe('When ExampleTable mounts', () => {
 
         expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 500 Server Error');
     });
+    it('should change the current status of the graph when the delete button is clicked', async() => {
+        //given that I have a table
+        //when I click teh delete button
+        //then the current status of teh graph should be updated
+        DeleteGraphRepo.prototype.delete = jest.fn();
+        mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'INACTIVE')]);
+
+        const component = mount(<ViewGraph />);
+        await component.update();
+        await component.update();
+        expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
+
+        component.find('tbody').find('button#view-graphs-delete-button-1').simulate('click');
+        await component.update();
+        await component.update();
+
+        expect(component.find('tbody').text()).toBe('applesACTIVEpearsDELETION IN PROGRESS')
+
+    })
 });
 
 function mockDeleteGraphRepoToThrowError(errorMessage: string) {
