@@ -51,11 +51,13 @@ export default class ViewGraph extends React.Component<{}, IState> {
         const { graphs, errorMessage } = this.state;
 
         return (
-            <main style={{ marginTop: 30 }}>
+            <main>
+          
+                {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />}
                 <Toolbar />
                 <Grid container justify="center">
                     <Container component="main" maxWidth="sm">
-                        {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />}
+                        
                         <TableContainer>
                             <Table size='medium' className={this.classes.table} aria-label="Graphs Table" >
 
@@ -90,7 +92,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 id='view-graphs-refresh-button'
                                 onClick={async () => await this.getGraphs()}
                                 startIcon={<RefreshOutlinedIcon />}
-                                variant="outlined"
+                                variant="contained"
                                 color="primary"
                                 className={this.classes.submit}
                             >

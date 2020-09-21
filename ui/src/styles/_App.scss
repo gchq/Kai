@@ -1,6 +1,32 @@
 $base-color: #f3f3f3;
 
 body {
-    background-color: $base-color;
     font-family: 'Lucida Sans', Verdana, sans-serif;
 }
+main {
+    width: 100%;
+    margin-top: 30px;
+}
+
+.MuiAppBar-colorPrimary {
+    background-color: #607D8B;
+    box-shadow: none;  
+}
+
+.MuiButton-contained {
+    background-color: #607D8B;
+    box-shadow: none;
+    &:hover {
+        background-color: #49606b;
+        box-shadow: none;
+    }
+}
+
+#notification-alert {
+    position: absolute;
+    top: 65px;
+    border-radius: 0;
+    width: 100%;
+}
+
+
