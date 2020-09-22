@@ -195,7 +195,6 @@ export default class AddGraph extends React.Component<{}, IState> {
                                         <TextField
                                             id="schema"
                                             style={{ width: 400 }}
-                                            // disabled={this.state.schemaFieldDisable}
                                             value={this.state.newGraph.schemaJson}
                                             label="Schema"
                                             required
