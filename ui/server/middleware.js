@@ -1,12 +1,9 @@
 const express = require('express');
-
 // app
 const app = express();
 const port = process.env.PORT || 5000;
-
 app.listen(port, () => console.log(`Listening on port ${port}`));
 app.use(express.json());
-
 // Get all graphs
 app.get('/graphs', (req, res) => {
     res.send([
@@ -28,12 +25,10 @@ app.get('/graphs/:graphName', (req, res) => {
         currentState: 'DEPLOYED',
     });
 });
-
 // Delete graph by ID
 app.delete('/graphs/:graphName', (req, res) => {
     res.status(202).end();
 });
-
 //Create Graph
 app.post('/graphs', (req, res) => {
     if (req.body.graphName === 'fail') {

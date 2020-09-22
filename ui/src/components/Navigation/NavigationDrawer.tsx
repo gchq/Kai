@@ -1,31 +1,25 @@
-import React, { useState } from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
+import React, {useState} from 'react';
+import {NavLink, withRouter} from 'react-router-dom';
 import Routes from './Routes';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography, IconButton, Drawer, MenuList, MenuItem, ListItemText } from '@material-ui/core';
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {AppBar, Drawer, IconButton, ListItemText, MenuItem, MenuList, Toolbar, Typography} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
-            //flexGrow: 1,
-        },
         menuButton: {
             marginRight: theme.spacing(2),
         },
         title: {
-            //flexGrow: 1,
             marginRight: 20,
         },
         drawer: {
             width: 240,
-            //flexShrink: 0,
         },
         drawerHeader: {
             display: 'flex',
             alignItems: 'center',
             padding: theme.spacing(0, 1),
-            // necessary for content to be below app bar
             ...theme.mixins.toolbar,
             justifyContent: 'flex-end',
         },
@@ -38,9 +32,6 @@ const useStyles = makeStyles((theme: Theme) =>
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
-        },
-        listItem: {
-            //width: 240,
         },
         listItemText: {
             '& span, & svg': {
@@ -70,7 +61,7 @@ const NavigationDrawer: React.FC = (props: any) => {
 
     return (
         <div>
-            <div className={classes.root}>
+            <div>
                 <AppBar position="static" className={classes.appBar}>
                     <Toolbar>
                         <IconButton
@@ -88,7 +79,8 @@ const NavigationDrawer: React.FC = (props: any) => {
                     </Toolbar>
                 </AppBar>
             </div>
-            <Drawer classes={{ paper: classes.drawer }} open={isOpen} onClose={toggleDrawer(false)}>
+
+            <Drawer classes={{paper: classes.drawer}} open={isOpen} onClose={toggleDrawer(false)}>
                 <div
                     className={classes.fullList}
                     role="presentation"
