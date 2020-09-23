@@ -2,20 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
-import {BrowserRouter} from 'react-router-dom';
-import {CssBaseline} from '@material-ui/core';
-import {StylesProvider} from '@material-ui/styles';
+import { BrowserRouter } from 'react-router-dom';
+import { CssBaseline } from '@material-ui/core';
+import { StylesProvider } from '@material-ui/styles';
 import GlobalStyles from '../src/components/GlobalStyles';
-import './styles/_App.scss'
-
+import './styles/_App.scss';
 
 ReactDOM.render(
     <React.StrictMode>
         <StylesProvider injectFirst>
-            <GlobalStyles/>
+            <GlobalStyles />
             <BrowserRouter>
-                <CssBaseline/>
-                <App/>
+                <CssBaseline />
+                <App />
             </BrowserRouter>
         </StylesProvider>
     </React.StrictMode>,

@@ -3,7 +3,6 @@ import { IAllGraphsResponse } from '../http-message-interfaces/response-interfac
 import { Graph } from '../../domain/graph';
 
 export class GetAllGraphsRepo {
-    
     public async getAll(): Promise<Graph[]> {
         const response: IApiResponse<IAllGraphsResponse> = await RestClient.get();
 

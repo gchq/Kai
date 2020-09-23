@@ -3,7 +3,6 @@ import { ICreateGraphRequestBody } from '../http-message-interfaces/request-inte
 import { Schema } from '../../domain/schema';
 
 export class CreateGraphRepo {
-
     public async create(graphName: string, administrators: Array<string>, schema: Schema): Promise<void> {
         const httpRequestBody: ICreateGraphRequestBody = {
             graphName: graphName,

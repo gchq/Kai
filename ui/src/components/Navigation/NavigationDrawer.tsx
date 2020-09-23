@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         fullList: {
             width: 'auto',
-            flexDirection: 'row'
+            flexDirection: 'row',
         },
         appBar: {
             transition: theme.transitions.create(['margin', 'width'], {
@@ -34,24 +34,20 @@ const useStyles = makeStyles((theme: Theme) =>
             }),
         },
         listItemText: {
-
             '& span, & svg': {
                 fontSize: '20px',
-            }
+            },
         },
-    }),
+    })
 );
 
 const NavigationDrawer: React.FC = (props: any) => {
     const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
-    const toggleDrawer = (open: boolean) => (
-        event: React.KeyboardEvent | React.MouseEvent,
-    ) => {
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
             event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' ||
-                (event as React.KeyboardEvent).key === 'Shift')
+            ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
         ) {
             return;
         }
