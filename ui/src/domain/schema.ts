@@ -11,7 +11,7 @@ export class Schema {
         return this.schema;
     }
 
-    public validation(): Notifications {
+    public validate(): Notifications {
         const notes: Notifications = new Notifications();
         if (this.schema.length === 0) {
             notes.addError('Schema is empty');
@@ -59,7 +59,7 @@ export class Schema {
     }
 }
 
-interface ISchema {
+export interface ISchema {
     elements: object;
     types: object;
 }

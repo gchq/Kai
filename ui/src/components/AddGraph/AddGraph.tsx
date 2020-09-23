@@ -64,8 +64,8 @@ export default class AddGraph extends React.Component<{}, IState> {
     private async submitNewGraph() {
         const { graphName, schemaJson } = this.state.newGraph;
         const schema = new Schema(schemaJson);
-
-        const errors: Notifications = schema.validation();
+        
+        const errors: Notifications = schema.validate();
         if (errors.isEmpty()) {
             try {
                 await new CreateGraphRepo().create(graphName, [], schema);
