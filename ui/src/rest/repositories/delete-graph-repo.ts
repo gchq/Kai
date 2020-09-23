@@ -1,7 +1,6 @@
 import { RestClient, IApiResponse } from '../rest-client';
 
 export class DeleteGraphRepo {
-    
     public async delete(graphName: string): Promise<void> {
         const response: IApiResponse<undefined> = await RestClient.delete(graphName);
 

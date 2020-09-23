@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         title: {
             //flexGrow: 1,
-            marginRight:20,
+            marginRight: 20,
         },
         drawer: {
             width: 240,
@@ -31,37 +31,32 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         fullList: {
             width: 'auto',
-            flexDirection: 'row'
+            flexDirection: 'row',
         },
         appBar: {
             transition: theme.transitions.create(['margin', 'width'], {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
-
         },
         listItem: {
             //width: 240,
         },
         listItemText: {
-
             '& span, & svg': {
                 fontSize: '20px',
-            }
+            },
         },
-    }),
+    })
 );
 
 const NavigationDrawer: React.FC = (props: any) => {
     const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
-    const toggleDrawer = (open: boolean) => (
-        event: React.KeyboardEvent | React.MouseEvent,
-    ) => {
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
         if (
             event.type === 'keydown' &&
-            ((event as React.KeyboardEvent).key === 'Tab' ||
-                (event as React.KeyboardEvent).key === 'Shift')
+            ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
         ) {
             return;
         }
@@ -71,20 +66,25 @@ const NavigationDrawer: React.FC = (props: any) => {
 
     const activeRoute = (routeName: any) => {
         return props.location.pathname === routeName ? true : false;
-    }
+    };
 
     return (
         <div>
             <div className={classes.root}>
                 <AppBar position="static" className={classes.appBar}>
                     <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+                        <IconButton
+                            edge="start"
+                            className={classes.menuButton}
+                            color="inherit"
+                            aria-label="menu"
+                            onClick={toggleDrawer(true)}
+                        >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h4" className={classes.title}  >
+                        <Typography variant="h4" className={classes.title}>
                             Kai
                         </Typography>
-
                     </Toolbar>
                 </AppBar>
             </div>
@@ -95,17 +95,19 @@ const NavigationDrawer: React.FC = (props: any) => {
                     onClick={toggleDrawer(false)}
                     onKeyDown={toggleDrawer(false)}
                 >
-                    <MenuList >
+                    <MenuList>
                         {Routes.map((prop, key) => {
                             return (
-                                <NavLink to={prop.path}
-                                         style={{ color: 'inherit', textDecoration: 'inherit'}}
-                                         key={key}>
-
+                                <NavLink
+                                    to={prop.path}
+                                    style={{ color: 'inherit', textDecoration: 'inherit' }}
+                                    key={key}
+                                >
                                     <MenuItem className={classes.listItem} selected={activeRoute(prop.path)}>
-
-                                        <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
-
+                                        <ListItemText
+                                            classes={{ primary: classes.listItemText }}
+                                            primary={prop.sidebarName}
+                                        />
                                     </MenuItem>
                                 </NavLink>
                             );

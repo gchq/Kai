@@ -1,5 +1,18 @@
 import React from 'react';
-import { Button, Container, CssBaseline, Dialog, DialogContent, Grid, IconButton, makeStyles, Slide, TextField, Tooltip, Zoom } from '@material-ui/core';
+import {
+    Button,
+    Container,
+    CssBaseline,
+    Dialog,
+    DialogContent,
+    Grid,
+    IconButton,
+    makeStyles,
+    Slide,
+    TextField,
+    Tooltip,
+    Zoom,
+} from '@material-ui/core';
 import { Schema } from '../../domain/schema';
 import { Notifications } from '../../domain/notifications';
 import { CreateGraphRepo } from '../../rest/repositories/create-graph-repo';
@@ -51,15 +64,18 @@ export default class AddGraph extends React.Component<{}, IState> {
     private async submitNewGraph() {
         const { graphName, schemaJson } = this.state.newGraph;
         const schema = new Schema(schemaJson);
-        
+
         const errors: Notifications = schema.validation();
         if (errors.isEmpty()) {
             try {
                 await new CreateGraphRepo().create(graphName, [], schema);
                 this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `${graphName} was successfully added` });
-                this.resetForm()
+                this.resetForm();
             } catch (e) {
-                this.setState({ outcome: AlertType.FAILED, outcomeMessage: `Failed to Add '${graphName}' Graph: ${e.message}` });
+                this.setState({
+                    outcome: AlertType.FAILED,
+                    outcomeMessage: `Failed to Add '${graphName}' Graph: ${e.message}`,
+                });
             }
         } else {
             this.setState({ errors });
@@ -96,12 +112,11 @@ export default class AddGraph extends React.Component<{}, IState> {
     }
 
     private disableSubmitButton(): boolean {
-        const { graphName, schemaJson} = this.state.newGraph;
+        const { graphName, schemaJson } = this.state.newGraph;
         return !graphName || !schemaJson;
     }
 
     public render() {
-
         const openDialogBox = () => {
             this.setState({ dialogIsOpen: true });
         };
@@ -111,20 +126,23 @@ export default class AddGraph extends React.Component<{}, IState> {
 
         return (
             <main>
-                {this.state.outcome && <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />}
+                {this.state.outcome && (
+                    <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />
+                )}
                 {!this.state.errors.isEmpty() && (
-                    <NotificationAlert alertType={AlertType.FAILED} message={`Error(s): ${this.state.errors.errorMessage()}`} />
+                    <NotificationAlert
+                        alertType={AlertType.FAILED}
+                        message={`Error(s): ${this.state.errors.errorMessage()}`}
+                    />
                 )}
                 <Toolbar />
-                
-                <Grid container justify="center" >
-             
+
+                <Grid container justify="center">
                     <Container component="main" maxWidth="xs">
                         <CssBaseline />
                         <div className={this.classes.paper}>
                             <form className={this.classes.form} noValidate>
                                 <Grid container spacing={2}>
-                              
                                     <Grid item xs={12}>
                                         <TextField
                                             id="graph-name"
@@ -146,22 +164,27 @@ export default class AddGraph extends React.Component<{}, IState> {
                                         />
                                     </Grid>
                                     <Grid item xs={12} container direction="row" justify="flex-end" alignItems="center">
-                                        <Tooltip TransitionComponent={Zoom} title='Add Schema From File'>
-                                            <IconButton id='attach-file-button' onClick={openDialogBox}>
+                                        <Tooltip TransitionComponent={Zoom} title="Add Schema From File">
+                                            <IconButton id="attach-file-button" onClick={openDialogBox}>
                                                 <AttachFileIcon />
                                             </IconButton>
                                         </Tooltip>
-                                        <Tooltip TransitionComponent={Zoom} title='Clear Schema'>
-                                            <IconButton onClick={() => this.setState({
-                                                newGraph: {
-                                                    ...this.state.newGraph,
-                                                    schemaJson: '',
-                                                },
-                                            })}>
+                                        <Tooltip TransitionComponent={Zoom} title="Clear Schema">
+                                            <IconButton
+                                                onClick={() =>
+                                                    this.setState({
+                                                        newGraph: {
+                                                            ...this.state.newGraph,
+                                                            schemaJson: '',
+                                                        },
+                                                    })
+                                                }
+                                            >
                                                 <ClearIcon />
                                             </IconButton>
                                         </Tooltip>
-                                        <Dialog id='dropzone'
+                                        <Dialog
+                                            id="dropzone"
                                             open={this.state.dialogIsOpen}
                                             TransitionComponent={Transition}
                                             keepMounted
@@ -171,7 +194,7 @@ export default class AddGraph extends React.Component<{}, IState> {
                                             aria-describedby="alert-dialog-slide-description"
                                         >
                                             <Grid container direction="row" justify="flex-end" alignItems="flex-start">
-                                                <IconButton id='close-dropzone-button' onClick={closeDialogBox}>
+                                                <IconButton id="close-dropzone-button" onClick={closeDialogBox}>
                                                     <ClearIcon />
                                                 </IconButton>
                                             </Grid>
@@ -218,22 +241,22 @@ export default class AddGraph extends React.Component<{}, IState> {
                         </div>
                     </Container>
                     <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
-                    <Button
-                        id='add-new-graph-button'
-                        onClick={() => { this.submitNewGraph(); }}
-                        startIcon={<AddCircleOutlineOutlinedIcon />}
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        className={this.classes.submit}
-                        disabled={this.disableSubmitButton()}
-                    >
-                        Add Graph
-                    </Button>
+                        <Button
+                            id="add-new-graph-button"
+                            onClick={() => {
+                                this.submitNewGraph();
+                            }}
+                            startIcon={<AddCircleOutlineOutlinedIcon />}
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            className={this.classes.submit}
+                            disabled={this.disableSubmitButton()}
+                        >
+                            Add Graph
+                        </Button>
+                    </Grid>
                 </Grid>
-                </Grid>
-
-               
             </main>
         );
     }

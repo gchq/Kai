@@ -1,5 +1,4 @@
 export class Graph {
-    
     private graphName: string;
     private status: string;
 

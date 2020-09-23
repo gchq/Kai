@@ -12,7 +12,7 @@
     "watch": "jest --watchAll",
     "deploy": "aws s3 sync build/ s3://kai-ui",
     "eject": "react-scripts eject",
-    "lint": "./node_modules/.bin/eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint './src/**/*.{ts,tsx}' --fix"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",

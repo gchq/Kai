@@ -12,7 +12,7 @@ export class Notifications {
     public isEmpty(): boolean {
         return this.errors.length === 0;
     }
-    
+
     public getErrors(): Array<string> {
         return this.errors;
     }
