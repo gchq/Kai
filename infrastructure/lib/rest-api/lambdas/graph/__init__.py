@@ -51,13 +51,15 @@ class Graph:
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").exists()
         )
 
+
     def create_graph(self, release_name, graph_name, status, administrators):      
         self.table.put_item(
             Item={
                 "graphName": graph_name,
                 "releaseName": release_name,
                 "currentState": status,
-                "administrators": administrators
+                "administrators": administrators,
+                "endpoints":{}
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
         )

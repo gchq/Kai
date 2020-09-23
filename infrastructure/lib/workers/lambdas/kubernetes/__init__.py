@@ -12,13 +12,15 @@ class CommandHelper:
     def run_command(cmd, release_name):
         succeeded=False
         try:
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, cwd="/tmp")
+            cp = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, text=True, cwd="/tmp")
             succeeded=True
         except subprocess.CalledProcessError as err:
             logger.error("Error during excution of command: %s against release name: %s", cmd, release_name)
             logger.error(err.output)
-
-        return succeeded
+        if succeeded:
+            return(succeeded, cp.stdout)
+        else:
+            return succeeded
 
 
 class KubeConfigurator:
@@ -98,3 +100,11 @@ class KubernetesClient:
             cmd.append(selector)
 
         CommandHelper.run_command(cmd, release_name)
+
+    def get_alb_endpoints(self, release_name):
+        cmd =[self.__KUBECTL_CMD, "get", "ing", "--kubeconfig", self.kubeconfig ]
+        output = CommandHelper.run_command(cmd, release_name)
+        if(type (output) == tuple):
+            return output[1]
+            
+

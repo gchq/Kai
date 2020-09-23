@@ -3,9 +3,11 @@ import logging
 import os
 import random
 import string
+import subprocess
 
 import boto3
 import kubernetes
+from kubernetes import KubernetesClient, KubeConfigurator, CommandHelper
 from graph import Graph
 
 logger = logging.getLogger()
@@ -15,6 +17,7 @@ os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 
 cluster_name = os.getenv("cluster_name")
 graph_table_name = os.getenv("graph_table_name")
+
 
 def generate_password(length=8):
     """
@@ -95,7 +98,17 @@ def create_values(graph_name, schema, security_groups):
         }
     }
 
+def get_endpoints(release_name, graph):
+    kubernetes_client = kubernetes.KubernetesClient(cluster_name)
+    alb_output = kubernetes_client.get_alb_endpoints(release_name)
+    alb_endpoints = alb_output.splitlines()
+    for line in alb_endpoints[1:]:
+        resource_details = line.split()
+        resource_name = resource_details[0] 
+        resource_address = resource_details[2]
+        graph.update_endpoints(resource_name, resource_address)
 
+         
 def deploy_graph(helm_client, body, security_groups):
     """
     Deploys a Gaffer graph onto a Kubernetes cluster using the Gaffer
@@ -128,6 +141,8 @@ def deploy_graph(helm_client, body, security_groups):
     success = helm_client.install_chart(release_name, values=values_file)
 
     if success:
+        # capture endpoints
+        get_endpoints(release_name, graph)
         logger.info("Deployment of " + graph_name + " Succeeded")
         graph.update_status("DEPLOYED")
     else:
@@ -141,7 +156,7 @@ def handler(event, context):
     logger.info(event)
 
     helm_client = kubernetes.HelmClient(cluster_name)
-
+    
     # Get Security Groups
     eks = boto3.client("eks")
     cluster = eks.describe_cluster(name=cluster_name)

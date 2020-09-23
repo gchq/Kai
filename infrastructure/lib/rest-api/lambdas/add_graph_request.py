@@ -75,7 +75,8 @@ def handler(event, context):
         "graphName": graph_name,
         "releaseName": release_name,
         "schema": schema,
-        "expectedStatus": initial_status
+        "expectedStatus": initial_status,
+        "endpoints":{}
     }
 
     sqs = boto3.client("sqs")
