@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
-import {NavLink, withRouter} from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
-import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
-import {AppBar, Drawer, IconButton, ListItemText, MenuItem, MenuList, Toolbar, Typography} from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { AppBar, Drawer, IconButton, ListItemText, MenuItem, MenuList, Toolbar, Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -80,7 +80,7 @@ const NavigationDrawer: React.FC = (props: any) => {
                 </AppBar>
             </div>
 
-            <Drawer classes={{paper: classes.drawer}} open={isOpen} onClose={toggleDrawer(false)}>
+            <Drawer classes={{ paper: classes.drawer }} open={isOpen} onClose={toggleDrawer(false)}>
                 <div
                     className={classes.fullList}
                     role="presentation"
