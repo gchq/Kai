@@ -1,8 +1,7 @@
+import {ISchema} from "../../domain/schema";
+
 export interface ICreateGraphRequestBody {
     graphName: string;
     administrators: Array<string>;
-    schema: {
-        elements: object;
-        types: object;
-    };
+    schema: ISchema
 }
