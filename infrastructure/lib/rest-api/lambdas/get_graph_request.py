@@ -29,16 +29,17 @@ def handler(event, context):
             "body": json.dumps(graph.get_all_graphs(requesting_user))
         }
     else:
-        if not user.is_authorized(requesting_user, graph_name):
-            return {
-                "statusCode": 403,
-                "body": "User: {} is not authorized to retrieve graph: {}".format(requesting_user, graph_name)
-            }
-
         try:
+            graph_record = graph.get_graph(graph_name)
+            if requesting_user and not requesting_user in graph_record["administrators"]:
+                return {
+                    "statusCode": 403,
+                    "body": "User: {} is not authorized to retrieve graph: {}".format(requesting_user, graph_name)
+                }
+
             return {
                 "statusCode": 200,
-                "body": json.dumps(graph.get_graph(graph_name))
+                "body": json.dumps(graph_record)
             }
         except Exception as e:
             return {

@@ -13,6 +13,7 @@ If you have an interest in using Kai in production, please watch this repository
  * `npm run watch`   watch for changes and compile
  * `npm run lint`    run the eslint style checking
  * `npm run test`    perform the jest unit tests
+ * `npm run e2e`     run end to end jest integration tests
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk synth`       emits the synthesized CloudFormation template

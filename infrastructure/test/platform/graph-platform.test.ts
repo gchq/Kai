@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
+/**
+ * @group unit
+ */
+
+import { expect as expectCDK, haveOutput, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as platform from "../../lib/platform/graph-platform";
 
@@ -45,6 +49,22 @@ test("Node group is created", () => {
             "DesiredSize": 2,
             "MaxSize": 10,
             "MinSize": 1
+        }
+    }));
+});
+
+test("Creates custom output containing EKS cluster name", () => {
+    // Given
+    const stack = new cdk.Stack();
+
+    // When
+    new platform.GraphPlatForm(stack, "TestPlatform");
+
+    // Then
+    expectCDK(stack).to(haveOutput({
+        outputName: "TestPlatformKaiEksClusterName4B4EACFB",
+        outputValue: {
+            "Ref": "TestPlatformEksClusterE910E92C"
         }
     }));
 });

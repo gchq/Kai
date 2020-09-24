@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * @group unit
+ */
+
 import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
 import { Stack } from "@aws-cdk/core";
 import { KaiRestAuthorizer } from "../../../lib/rest-api/authentication/kai-rest-authorizer";

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * @group unit
+ */
+
 import { expect as expectCDK, haveResource, haveResourceLike } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import { Cluster, KubernetesVersion } from "@aws-cdk/aws-eks";
@@ -28,7 +32,7 @@ function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandle
     if (extraSGs !== undefined) {
         stack.node.setContext("extraIngressSecurityGroups", extraSGs);
     }
-    const donorCluster = new Cluster(stack, "testCluster", { version: KubernetesVersion.V1_16 });
+    const donorCluster = new Cluster(stack, "testCluster", {version: KubernetesVersion.V1_17});
     const donorQueue = new Queue(stack, "testQueue");
     const table = new Table(stack, "test", {
         partitionKey: {name: "test", type: AttributeType.STRING}

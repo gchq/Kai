@@ -111,6 +111,11 @@ export class GraphPlatForm extends cdk.Construct {
                 }
             }
         });
+
+        /* Add a custom output containing the cluster name */
+        new cdk.CfnOutput(this, "KaiEksClusterName", {
+            value: this.eksCluster.clusterName
+        });
     }
 
     public get eksCluster(): eks.Cluster {
