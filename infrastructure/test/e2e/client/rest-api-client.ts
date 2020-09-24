@@ -179,7 +179,6 @@ export class RestApiClient {
         return false;
     }
 
-
     private callApi(method: Method, url: string, userName: string, data: Record<string, unknown> | undefined): Promise<IResponse> {
         return axios(
             this.createRequestConfig(method, url, userName, data)
