@@ -83,7 +83,9 @@ export class ClusterHelper {
         cp.execSync(destroyCommand);
 
         /* Delete the outputs file */
-        fs.unlinkSync(this._outputsFileName);
+        if (fs.existsSync(this._outputsFileName)) {
+            fs.unlinkSync(this._outputsFileName);
+        }
     }
 
     private async createUsers(users: string[]): Promise<void> {
