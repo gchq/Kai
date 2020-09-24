@@ -1,9 +1,10 @@
 import boto3
-from botocore.exceptions import ClientError
 import json
-from namespace import Namespace
 import os
 import re
+
+from botocore.exceptions import ClientError
+from namespace import Namespace
 from user import User
 
 namespace = Namespace()

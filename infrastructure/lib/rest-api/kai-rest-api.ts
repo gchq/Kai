@@ -31,14 +31,12 @@ export class KaiRestApi extends cdk.Construct {
     private readonly _restApi: api.RestApi;
     private readonly _props: KaiRestApiProps;
     private readonly _listCognitoUserPoolPolicyStatement: PolicyStatement;
-
-    private _addGraphQueue: sqs.Queue;
-    private _deleteGraphQueue: sqs.Queue;
-    private _getGraphsLambda: lambda.Function;
-    private _deleteGraphLambda: lambda.Function;
-
-    private _addNamespaceQueue: sqs.Queue;
-    private _deleteNamespaceQueue: sqs.Queue;
+    private readonly _getGraphsLambda: lambda.Function;
+    private readonly _deleteGraphLambda: lambda.Function;
+    private readonly _addGraphQueue: sqs.Queue = this.createQueue("AddGraphQueue", ADD_GRAPH_TIMEOUT);
+    private readonly _deleteGraphQueue: sqs.Queue = this.createQueue("DeleteGraphQueue", DELETE_GRAPH_TIMEOUT);
+    private readonly _addNamespaceQueue: sqs.Queue = this.createQueue("AddNamespaceQueue", ADD_NAMESPACE_TIMEOUT);
+    private readonly _deleteNamespaceQueue: sqs.Queue = this.createQueue("DeleteNamespaceQueue", DELETE_NAMESPACE_TIMEOUT);
 
     constructor(scope: cdk.Construct, readonly id: string, props: KaiRestApiProps) {
         super(scope, id);
@@ -65,114 +63,121 @@ export class KaiRestApi extends cdk.Construct {
         this._lambdaTimeout = cdk.Duration.seconds(30);
 
         // Create the API Resources
-        this.createGraphsResource();
-        this.createNamespacesResource();
-    }
-
-    private createGraphsResource(): void {
         const graphsResource = this._restApi.root.addResource("graphs");
-        const graph = graphsResource.addResource("{graphName}");
-
-        // POST handlers
-        this._addGraphQueue = new sqs.Queue(this, "AddGraphQueue", {
-            visibilityTimeout: ADD_GRAPH_TIMEOUT
-        });
-
-        const addGraphLambdaEnvironment = {
-            sqs_queue_url: this.addGraphQueue.queueUrl,
-            graph_table_name: this._props.graphTable.tableName,
-            user_pool_id: this._props.userPoolId
-        };
-
-        const addGraphLambda = this.createLambda("AddGraphHandler", "add_graph_request.handler", addGraphLambdaEnvironment);
-
-        addGraphLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
-
-        this._props.graphTable.grantReadWriteData(addGraphLambda);
-        this.addGraphQueue.grantSendMessages(addGraphLambda);
-        graphsResource.addMethod("POST", new api.LambdaIntegration(addGraphLambda), this._methodOptions);
-
-        // DELETE handlers
-        this._deleteGraphQueue = new sqs.Queue(this, "DeleteGraphQueue", {
-            visibilityTimeout: DELETE_GRAPH_TIMEOUT
-        });
-
-        const deleteGraphLambdaEnvironment = {
-            sqs_queue_url: this.deleteGraphQueue.queueUrl,
-            graph_table_name: this._props.graphTable.tableName,
-            user_pool_id: this._props.userPoolId
-        };
-
-        this._deleteGraphLambda = this.createLambda("DeleteGraphHandler", "delete_graph_request.handler", deleteGraphLambdaEnvironment);
-
-        this._props.graphTable.grantReadWriteData(this._deleteGraphLambda);
-        this.deleteGraphQueue.grantSendMessages(this._deleteGraphLambda);
-        graph.addMethod("DELETE", new api.LambdaIntegration(this._deleteGraphLambda), this._methodOptions);
-
-        const getGraphLambdaEnvironment = {
-            graph_table_name: this._props.graphTable.tableName,
-            user_pool_id: this._props.userPoolId
-        };
-
-        // GET handlers
-        this._getGraphsLambda = this.createLambda("GetGraphsHandler", "get_graph_request.handler", getGraphLambdaEnvironment);
-
-        this._props.graphTable.grantReadData(this._getGraphsLambda);
-        // Both GET and GET all are served by the same lambda
-        const getGraphIntegration = new api.LambdaIntegration(this._getGraphsLambda);
-        graphsResource.addMethod("GET", getGraphIntegration, this._methodOptions);
-        graph.addMethod("GET", getGraphIntegration, this._methodOptions);
-    }
-
-
-    private createNamespacesResource(): void {
         const namespacesResource = this._restApi.root.addResource("namespaces");
-        const namespace = namespacesResource.addResource("{namespaceName}");
+        const namespaceResource = namespacesResource.addResource("{namespaceName}");
+        const namespaceGraphsResource = namespaceResource.addResource("graphs");
+        const namespaceGraphResource = namespaceGraphsResource.addResource("{graphName}");
 
+        // Graphs
+        const graphLambdaEnvironment = {
+            graph_table_name: this._props.graphTable.tableName,
+            user_pool_id: this._props.userPoolId
+        };
+
+        const addGraphLambda = this.createAddGraphLambda(graphLambdaEnvironment);
+        this._getGraphsLambda = this.createGetGraphLambda(graphLambdaEnvironment);
+        this._deleteGraphLambda = this.createDeleteGraphLambda(graphLambdaEnvironment);
+
+        const addGraphIntegration = new api.LambdaIntegration(addGraphLambda);
+        const deleteGraphIntegration = new api.LambdaIntegration(this._deleteGraphLambda);
+        const getGraphIntegration = new api.LambdaIntegration(this._getGraphsLambda);
+
+        graphsResource.addMethod("GET", getGraphIntegration, this._methodOptions);
+        namespaceGraphsResource.addMethod("GET", getGraphIntegration, this._methodOptions);
+        namespaceGraphResource.addMethod("GET", getGraphIntegration, this._methodOptions);
+        graphsResource.addMethod("POST", addGraphIntegration, this._methodOptions);
+        namespaceGraphResource.addMethod("DELETE", deleteGraphIntegration, this._methodOptions);
+
+        // Namespaces
         const namespaceLambdaEnvironment = {
             namespace_table_name: this._props.namespaceTable.tableName,
             user_pool_id: this._props.userPoolId
         };
 
-        // Add
-        this._addNamespaceQueue = new sqs.Queue(this, "AddNamespaceQueue", {
-            visibilityTimeout: ADD_NAMESPACE_TIMEOUT
-        });
+        const addNamespaceLambda = this.createAddNamespaceLambda(namespaceLambdaEnvironment);
+        const getNamespaceLambda = this.createGetNamespaceLambda(namespaceLambdaEnvironment);
+        const updateNamespaceLambda = this.createUpdateNamespaceLambda(namespaceLambdaEnvironment);
+        const deleteNamespaceLambda = this.createDeleteNamespaceLambda(namespaceLambdaEnvironment);
 
-        const addNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, namespaceLambdaEnvironment);
+        const addNamespaceIntegration = new api.LambdaIntegration(addNamespaceLambda);
+        const deleteNamespaceIntegration = new api.LambdaIntegration(deleteNamespaceLambda);
+        const getNamespaceIntegration = new api.LambdaIntegration(getNamespaceLambda);
+        const updateNamespaceIntegration = new api.LambdaIntegration(updateNamespaceLambda);
+
+        namespacesResource.addMethod("POST", addNamespaceIntegration, this._methodOptions);
+        namespacesResource.addMethod("GET", getNamespaceIntegration, this._methodOptions);
+        namespaceResource.addMethod("GET", getNamespaceIntegration, this._methodOptions);
+        namespaceResource.addMethod("POST", updateNamespaceIntegration, this._methodOptions);
+        namespaceResource.addMethod("DELETE", deleteNamespaceIntegration, this._methodOptions);
+    }
+
+    private createQueue(id: string, visibilityTimeout: cdk.Duration): sqs.Queue {
+        return new sqs.Queue(this, id, {visibilityTimeout: visibilityTimeout});
+    }
+
+    private createAddNamespaceLambda(environment: {[key: string]: string}): lambda.Function {
+        const addNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, environment);
         addNamespaceLambdaEnvironment["sqs_queue_url"] = this.addNamespaceQueue.queueUrl;
 
         const addNamespaceLambda = this.createLambda("AddNamespaceHandler", "add_namespace_request.handler", addNamespaceLambdaEnvironment);
         addNamespaceLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
         this._props.namespaceTable.grantReadWriteData(addNamespaceLambda);
         this.addNamespaceQueue.grantSendMessages(addNamespaceLambda);
-        namespacesResource.addMethod("POST", new api.LambdaIntegration(addNamespaceLambda), this._methodOptions);
+        return addNamespaceLambda;
+    }
 
-        // Get
-        const getNamespacesLambda = this.createLambda("GetNamespacesHandler", "get_namespace_request.handler", namespaceLambdaEnvironment);
+    private createGetNamespaceLambda(environment: {[key: string]: string}): lambda.Function {
+        const getNamespacesLambda = this.createLambda("GetNamespacesHandler", "get_namespace_request.handler", environment);
         this._props.namespaceTable.grantReadData(getNamespacesLambda);
-        const getNamespaceIntegration = new api.LambdaIntegration(getNamespacesLambda);
-        namespacesResource.addMethod("GET", getNamespaceIntegration, this._methodOptions);
-        namespace.addMethod("GET", getNamespaceIntegration, this._methodOptions);
+        return getNamespacesLambda;
+    }
 
-        // Update
-        const updateNamespaceLambda = this.createLambda("UpdateNamespaceHandler", "update_namespace_request.handler", namespaceLambdaEnvironment);
+    private createUpdateNamespaceLambda(environment: {[key: string]: string}): lambda.Function {
+        const updateNamespaceLambda = this.createLambda("UpdateNamespaceHandler", "update_namespace_request.handler", environment);
         updateNamespaceLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
         this._props.namespaceTable.grantReadWriteData(updateNamespaceLambda);
-        namespace.addMethod("POST", new api.LambdaIntegration(updateNamespaceLambda), this._methodOptions);
+        return updateNamespaceLambda;
+    }
 
-        // Delete
-        this._deleteNamespaceQueue = new sqs.Queue(this, "DeleteNamespaceQueue", {
-            visibilityTimeout: DELETE_NAMESPACE_TIMEOUT
-        });
-
-        const deleteNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, namespaceLambdaEnvironment);
+    private createDeleteNamespaceLambda(environment: {[key: string]: string}): lambda.Function {
+        const deleteNamespaceLambdaEnvironment: {[key: string]: string} = Object.assign({}, environment);
         deleteNamespaceLambdaEnvironment["sqs_queue_url"] = this.deleteNamespaceQueue.queueUrl;
-
+        deleteNamespaceLambdaEnvironment["graph_table_name"] = this._props.graphTable.tableName;
         const deleteNamespaceLambda = this.createLambda("DeleteNamespaceHandler", "delete_namespace_request.handler", deleteNamespaceLambdaEnvironment);
         this._props.namespaceTable.grantReadWriteData(deleteNamespaceLambda);
+        this._props.graphTable.grantReadData(deleteNamespaceLambda);
         this.deleteNamespaceQueue.grantSendMessages(deleteNamespaceLambda);
-        namespace.addMethod("DELETE", new api.LambdaIntegration(deleteNamespaceLambda), this._methodOptions);
+        return deleteNamespaceLambda;
+    }
+
+    private createAddGraphLambda(environment: {[key: string]: string}): lambda.Function {
+        const addGraphLambdaEnvironment: {[key: string]: string} = Object.assign({}, environment);
+        addGraphLambdaEnvironment["sqs_queue_url"] = this.addGraphQueue.queueUrl;
+        addGraphLambdaEnvironment["namespace_table_name"] = this._props.namespaceTable.tableName;
+
+        const addGraphLambda = this.createLambda("AddGraphHandler", "add_graph_request.handler", addGraphLambdaEnvironment);
+        addGraphLambda.addToRolePolicy(this._listCognitoUserPoolPolicyStatement);
+        this._props.graphTable.grantReadWriteData(addGraphLambda);
+        this._props.namespaceTable.grantReadData(addGraphLambda);
+        this.addGraphQueue.grantSendMessages(addGraphLambda);
+        return addGraphLambda;
+    }
+
+    private createGetGraphLambda(environment: {[key: string]: string}): lambda.Function {
+        const getGraphsLambda = this.createLambda("GetGraphsHandler", "get_graph_request.handler", environment);
+        this._props.graphTable.grantReadData(getGraphsLambda);
+        return getGraphsLambda;
+    }
+
+    private createDeleteGraphLambda(environment: {[key: string]: string}): lambda.Function {
+        const deleteGraphLambdaEnvironment: {[key: string]: string} = Object.assign({}, environment);
+        deleteGraphLambdaEnvironment["sqs_queue_url"] = this.deleteGraphQueue.queueUrl;
+
+        const deleteGraphLambda = this.createLambda("DeleteGraphHandler", "delete_graph_request.handler", deleteGraphLambdaEnvironment);
+        this._props.graphTable.grantReadWriteData(deleteGraphLambda);
+        this.deleteGraphQueue.grantSendMessages(deleteGraphLambda);
+        return deleteGraphLambda;
     }
 
     private createLambda(id: string, handler: string, environment: {[key: string]: string}): lambda.Function {

@@ -1,10 +1,13 @@
 import boto3
-from botocore.exceptions import ClientError
 import json
-from namespace import Namespace
 import os
+
+from botocore.exceptions import ClientError
+from graph import Graph
+from namespace import Namespace
 from user import User
 
+graph = Graph()
 namespace = Namespace()
 user = User()
 
@@ -29,18 +32,21 @@ def handler(event, context):
                 "statusCode": 403,
                 "body": "User: {} is not authorized to delete namespace: {}".format(requesting_user, namespace_name)
             }
+        graphs = graph.get_all_graphs(None, namespace_name);
+        if graphs:
+            namespace_graph_names = list(map(lambda graph: graph["graphName"], graphs));
+            return {
+                "statusCode": 400,
+                "body": "Unable to delete Namespace: {}, the graphs: {} deployed to this namespace and must be deleted first.".format(namespace_name, namespace_graph_names)
+            }
     except:
         return {
             "statusCode": 400,
-            "body": "Namespace " + namespace_name + " does not exist. It may have already have been deleted"
+            "body": "Namespace {} does not exist. It may have already have been deleted".format(namespace_name)
         }
-
 
     queue_url = os.getenv("sqs_queue_url")
     initial_status = "DELETION_QUEUED"
-
-
-    # TODO Ensure there are no graphs deployed within this namespace.
 
     try:
         namespace.update_namespace_status(namespace_name, initial_status)

@@ -30,6 +30,7 @@ export class Database extends cdk.Construct {
 
         this._graphTable = new dynamo.Table(this, "GraphDynamoTable", {
             partitionKey: { name: "releaseName", type: dynamo.AttributeType.STRING },
+            sortKey: { name: "namespaceName", type: dynamo.AttributeType.STRING },
             billingMode: dynamo.BillingMode.PROVISIONED,
             removalPolicy: cdk.RemovalPolicy.DESTROY
         });

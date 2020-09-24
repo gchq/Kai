@@ -81,14 +81,6 @@ describe("/graphs resource", () => {
         test("The Graph resource should handle GET requests on it's root", () => {
             expectStackContainsResource("GET", "graphs", "TestTestRestApigraphs6F3DCBD4");
         });
-
-        test("The specific Graph resource should handle GET requests", () => {
-            expectStackContainsResource("GET", "graphs", "TestTestRestApigraphsgraphNameB9AC8DA7");
-        });
-
-        test("The specific Graph resource should handle DELETE requests", () => {
-            expectStackContainsResource("DELETE", "graphs", "TestTestRestApigraphsgraphNameB9AC8DA7");
-        });
     });
 
     describe("stack contains expected graphs lambda functions", () => {
@@ -134,6 +126,7 @@ describe("/graphs resource", () => {
                 [
                     listCognitoIdpUsersPolicyStatement,
                     readWriteDatabasePolicyStatementFor("testAF53AC38"),
+                    readDatabasePolicyStatementFor("testNamespaceTable774FC83E"),
                     sendMessagesPolicyStatementFor("TestAddGraphQueue2C2BD89D")
                 ],
                 "TestAddGraphHandlerServiceRoleDefaultPolicyA73C8E7F",
@@ -163,10 +156,6 @@ describe("/namespaces resource", () => {
             expectStackContainsResource("POST", "namespaces", "TestTestRestApinamespaces31F7A7B3");
         });
 
-        test("The Namespace resource should handle GET requests on it's root", () => {
-            expectStackContainsResource("GET", "graphs", "TestTestRestApinamespaces31F7A7B3");
-        });
-
         test("The specific Namespace resource should handle GET requests", () => {
             expectStackContainsResource("GET", "namespaces", "TestTestRestApinamespacesnamespaceName79793E79");
         });
@@ -177,6 +166,14 @@ describe("/namespaces resource", () => {
 
         test("The specific Namespace resource should handle DELETE requests", () => {
             expectStackContainsResource("DELETE", "namespaces", "TestTestRestApinamespacesnamespaceName79793E79");
+        });
+
+        test("The specific Namespace Graph resource should handle GET requests", () => {
+            expectStackContainsResource("GET", "graphs", "TestTestRestApinamespacesnamespaceNamegraphsgraphName3A7B9642");
+        });
+
+        test("The specific Namespace Graph resource should handle DELETE requests", () => {
+            expectStackContainsResource("DELETE", "graphs", "TestTestRestApinamespacesnamespaceNamegraphsgraphName3A7B9642");
         });
     });
 
@@ -235,6 +232,7 @@ describe("/namespaces resource", () => {
             expectLambdaContainsPolicyStatements(
                 [
                     readWriteDatabasePolicyStatementFor("testNamespaceTable774FC83E"),
+                    readDatabasePolicyStatementFor("testAF53AC38"),
                     sendMessagesPolicyStatementFor("TestDeleteNamespaceQueue1F2373E8")
                 ],
                 "TestDeleteNamespaceHandlerServiceRoleDefaultPolicy8CAEB25A",

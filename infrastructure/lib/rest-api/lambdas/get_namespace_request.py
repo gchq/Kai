@@ -1,6 +1,7 @@
-import os
 import boto3
 import json
+import os
+
 from namespace import Namespace
 from user import User
 

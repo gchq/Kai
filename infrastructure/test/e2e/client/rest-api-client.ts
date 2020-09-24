@@ -43,8 +43,8 @@ export class RestApiClient {
         return this.callApi("get", this._graphs, userName, undefined);
     }
 
-    public getGraph(userName: string, graphName: string): Promise<IResponse> {
-        const url = this._graphs + "/" + graphName;
+    public getNamespaceGraph(userName: string, namespaceName: string, graphName: string): Promise<IResponse> {
+        const url = this._namespaces + "/" + namespaceName + this._graphs + "/" + graphName;
         return this.callApi("get", url, userName, undefined);
     }
 
@@ -52,15 +52,15 @@ export class RestApiClient {
         return this.callApi("post", this._graphs, userName, data);
     }
 
-    public deleteGraph(userName: string, graphName: string): Promise<IResponse> {
-        const url = this._graphs + "/" + graphName;
+    public deleteNamespaceGraph(userName: string, namespaceName: string, graphName: string): Promise<IResponse> {
+        const url = this._namespaces + "/" + namespaceName + this._graphs + "/" + graphName;
         return this.callApi("delete", url, userName, undefined);
     }
 
-    public async awaitGraphDeployment(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
+    public async awaitGraphDeployment(userName: string, namespaceName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
         const startTime = new Date().getTime();
         while (new Date().getTime() - startTime < timeoutMilliseconds) {
-            const deploymentStatus: string | undefined = await this.getGraph(userName, graphName).then(
+            const deploymentStatus: string | undefined = await this.getNamespaceGraph(userName, namespaceName, graphName).then(
                 (response: IResponse) => {
                     console.log("Awaiting graph deployment, received response: " + JSON.stringify(response.data));
                     if (response.data["currentState"]) {
@@ -89,10 +89,10 @@ export class RestApiClient {
     }
 
 
-    public async awaitGraphDeletion(userName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
+    public async awaitGraphDeletion(userName: string, namespaceName: string, graphName: string, timeoutMilliseconds: number): Promise<boolean> {
         const startTime = new Date().getTime();
         while (new Date().getTime() - startTime < timeoutMilliseconds) {
-            const deleted: boolean | undefined = await this.getGraph(userName, graphName).then(
+            const deleted: boolean | undefined = await this.getNamespaceGraph(userName, namespaceName, graphName).then(
                 (response: IResponse) => {
                     console.log("Awaiting graph deletion, received response: " + JSON.stringify(response));
                     return (response.status == 404);

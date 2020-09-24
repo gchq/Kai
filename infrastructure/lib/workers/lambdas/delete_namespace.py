@@ -1,7 +1,8 @@
 import json
-from kubernetes import KubernetesClient
 import logging
 import os
+
+from kubernetes import KubernetesClient
 from table import TableItem
 
 logger = logging.getLogger()
@@ -21,7 +22,10 @@ def delete_namespace(kubernetes_client, body):
     expected_status = body["expectedStatus"]
 
     # Create a TableItem object to track the namespace deletion
-    namespace = TableItem(namespace_table_name, "namespaceName", namespace_name)
+    index_key = {
+        "namespaceName": namespace_name
+    }
+    namespace = TableItem(namespace_table_name, index_key)
 
     if not namespace.check_status(expected_status):
         logger.warn("Namespace %s had unexpected status. Abandoning delete", namespace_name)

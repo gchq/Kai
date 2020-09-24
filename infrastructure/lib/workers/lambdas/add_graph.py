@@ -1,11 +1,11 @@
+import boto3
 import json
+import kubernetes
 import logging
 import os
 import random
 import string
 
-import boto3
-import kubernetes
 from table import TableItem
 
 logger = logging.getLogger()
@@ -104,11 +104,16 @@ def deploy_graph(helm_client, body, security_groups):
     # Extract values from body
     graph_name = body["graphName"]
     release_name = body["releaseName"]
+    namespace_name = body["namespaceName"]
     schema = body["schema"]
     expected_status = body["expectedStatus"]
 
     # Create TableItem to log progress of deployment
-    graph = TableItem(graph_table_name, "releaseName", release_name)
+    index_key = {
+        "releaseName": release_name,
+        "namespaceName": namespace_name
+    }
+    graph = TableItem(graph_table_name, index_key)
 
     if not graph.check_status(expected_status):
         logger.warn("Deployment of %s abandoned as graph had unexpected status", graph_name)
@@ -125,7 +130,7 @@ def deploy_graph(helm_client, body, security_groups):
         f.write(json.dumps(values, indent=2))
         
     # Deploy Graph
-    success = helm_client.install_chart(release_name, values=values_file)
+    success = helm_client.install_chart(release_name, namespace_name, values=values_file)
 
     if success:
         logger.info("Deployment of " + graph_name + " Succeeded")

@@ -16,6 +16,7 @@ def handler(event, context):
 
     # Check request is valid
     graph_name = params["graphName"]
+    namespace_name = params["namespaceName"]
 
     # Convert graph name to lowercase
     release_name = graph.format_graph_name(graph_name)    
@@ -26,30 +27,36 @@ def handler(event, context):
             "body": "graphName is a required field"
         }
 
+    if namespace_name is None:
+        return {
+            "statusCode": 400,
+            "body": "namespaceName is a required field"
+        }
+
     try:
-        graph_record = graph.get_graph(release_name)
+        graph_record = graph.get_graph(release_name, namespace_name)
         requesting_user = user.get_requesting_cognito_user(event)
         if requesting_user and not requesting_user in graph_record["administrators"]:
             return {
                 "statusCode": 403,
-                "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_name)
+                "body": "User: {} is not authorized to delete graph: {} in namespace: {}".format(requesting_user, graph_name, namespace_name)
             }
     except:
         return {
             "statusCode": 400,
-            "body": "Graph " + graph_name + " does not exist. It may have already been deleted"
+            "body": "Graph: {} in namespace: {} does not exist. It may have already been deleted".format(graph_name, namespace_name)
         }
 
     initial_status = "DELETION_QUEUED"
 
     # Add Entry to table
     try:
-        graph.update_graph(release_name, initial_status)
+        graph.update_graph(release_name, namespace_name, initial_status)
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Graph " + graph_name + " does not exist. It may have already have been deleted"
+                "body": "Graph: {} in namespace: {} does not exist. It may have already been deleted".format(graph_name, namespace_name)
             }
         else:
             return {
@@ -61,6 +68,7 @@ def handler(event, context):
     message = {
         "graphName": graph_name,
         "releaseName": release_name,
+        "namespaceName": namespace_name,
         "expectedStatus": initial_status
     }
 

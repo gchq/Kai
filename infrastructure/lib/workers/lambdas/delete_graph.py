@@ -1,7 +1,8 @@
-import os
 import json
 import logging
+import os
 import time
+
 from table import TableItem
 from kubernetes import HelmClient, KubernetesClient
 
@@ -19,10 +20,15 @@ def uninstall_release(helm_client, kubernetes_client, body):
     Uninstalls a release from the Kubernetes Cluster
     """
     release_name = body["releaseName"]
+    namespace_name = body["namespaceName"]
     expected_status = body["expectedStatus"]
 
     # Create a TableItem object to track the deletion
-    graph = TableItem(graph_table_name, "releaseName", release_name)
+    index_key = {
+        "releaseName": release_name,
+        "namespaceName": namespace_name
+    }
+    graph = TableItem(graph_table_name, index_key)
 
     if not graph.check_status(expected_status):
         logger.warn("Graph %s had unexpected status. Abandoning delete", release_name)
@@ -30,9 +36,9 @@ def uninstall_release(helm_client, kubernetes_client, body):
 
     graph.update_status("DELETION_IN_PROGRESS")
 
-    uninstalled = helm_client.uninstall_chart(release_name)
+    uninstalled = helm_client.uninstall_chart(release_name, namespace_name)
     if uninstalled:
-        kubernetes_client.delete_volumes(release_name);
+        kubernetes_client.delete_volumes(release_name, namespace_name);
         graph.delete()
     else:
         graph.update_status("DELETION_FAILED")

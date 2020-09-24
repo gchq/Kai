@@ -48,16 +48,7 @@ test("should create a database containing 2 tables", () => {
     expectCDK(stack).to(countResourcesLike("AWS::DynamoDB::Table", 2, {}));
 });
 
-test("should use the releaseName as a primary key for the graph table", () => {
-    shouldConfigureExpectedPrimaryKey("releaseName");
-
-});
-
-test("should use the namespaceName as a primary key for the namespace table", () => {
-    shouldConfigureExpectedPrimaryKey("namespaceName");
-});
-
-function shouldConfigureExpectedPrimaryKey(primaryKeyName: string): void {
+test("should use the releaseName as primary key and namespace name as sort key for the graph table", () => {
     // Given
     const stack = new Stack();
 
@@ -68,18 +59,50 @@ function shouldConfigureExpectedPrimaryKey(primaryKeyName: string): void {
     expectCDK(stack).to(haveResource("AWS::DynamoDB::Table", {
         "KeySchema": [
             {
-                "AttributeName": primaryKeyName,
+                "AttributeName": "releaseName",
+                "KeyType": "HASH"
+            },
+            {
+                "AttributeName": "namespaceName",
+                "KeyType": "RANGE"
+            }
+        ],
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "releaseName",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "namespaceName",
+                "AttributeType": "S"
+            }
+        ]
+    }));
+});
+
+test("should use the namespaceName as a primary key for the namespace table", () => {
+    // Given
+    const stack = new Stack();
+
+    // When
+    createDB(stack);
+
+    // Then
+    expectCDK(stack).to(haveResource("AWS::DynamoDB::Table", {
+        "KeySchema": [
+            {
+                "AttributeName": "namespaceName",
                 "KeyType": "HASH"
             }
         ],
         "AttributeDefinitions": [
             {
-                "AttributeName": primaryKeyName,
+                "AttributeName": "namespaceName",
                 "AttributeType": "S"
             }
         ]
     }));
-}
+});
 
 test("should be able to pass in the autoscaling properties", () => {
     // Given

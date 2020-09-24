@@ -6,12 +6,11 @@ logger.setLevel(logging.INFO)
 
 class TableItem:
     """
-    Represents an item in a DynamoDB table indexed on the property "index_name" with a value of "index_key" and having status defined by the "currentState" property
+    Represents an item in a DynamoDB table keyed on the value "index_key" and having status defined by the "currentState" property
     """
-    def __init__(self, table_name, index_name, index_key):
+    def __init__(self, table_name, index_key):
         dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
-        self.index_name = index_name
         self.index_key = index_key
 
     def check_status(self, expected_status):
@@ -19,9 +18,7 @@ class TableItem:
         Checks whether the item in the table has an expected status
         """
         response = self.table.get_item(
-            Key={
-                self.index_name: self.index_key
-            }
+            Key=self.index_key
         )
         logger.info(response)
 
@@ -39,9 +36,7 @@ class TableItem:
         Updates the status of the item
         """
         self.table.update_item(
-            Key={
-                self.index_name: self.index_key
-            },
+            Key=self.index_key,
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
                 ":state": status
@@ -53,7 +48,5 @@ class TableItem:
         Deletes the item from the Table
         """
         self.table.delete_item(
-        Key={
-            self.index_name: self.index_key
-        }
-    )
+            Key=self.index_key
+        )
