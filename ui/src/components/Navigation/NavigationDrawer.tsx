@@ -8,18 +8,15 @@ import MenuIcon from '@material-ui/icons/Menu';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            //flexGrow: 1,
         },
         menuButton: {
             marginRight: theme.spacing(2),
         },
         title: {
-            //flexGrow: 1,
-            marginRight:20,
+            marginRight: 20,
         },
         drawer: {
             width: 240,
-            //flexShrink: 0,
         },
         drawerHeader: {
             display: 'flex',
@@ -38,13 +35,10 @@ const useStyles = makeStyles((theme: Theme) =>
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
-
         },
         listItem: {
-            //width: 240,
         },
         listItemText: {
-
             '& span, & svg': {
                 fontSize: '20px',
             }
@@ -55,6 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const NavigationDrawer: React.FC = (props: any) => {
     const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
+
     const toggleDrawer = (open: boolean) => (
         event: React.KeyboardEvent | React.MouseEvent,
     ) => {
@@ -65,7 +60,6 @@ const NavigationDrawer: React.FC = (props: any) => {
         ) {
             return;
         }
-
         setIsOpen(open);
     };
 
@@ -84,7 +78,6 @@ const NavigationDrawer: React.FC = (props: any) => {
                         <Typography variant="h4" className={classes.title}  >
                             Kai
                         </Typography>
-
                     </Toolbar>
                 </AppBar>
             </div>
@@ -99,13 +92,10 @@ const NavigationDrawer: React.FC = (props: any) => {
                         {Routes.map((prop, key) => {
                             return (
                                 <NavLink to={prop.path}
-                                         style={{ color: 'inherit', textDecoration: 'inherit'}}
-                                         key={key}>
-
+                                    style={{ color: 'inherit', textDecoration: 'inherit' }}
+                                    key={key}>
                                     <MenuItem className={classes.listItem} selected={activeRoute(prop.path)}>
-
-                                        <ListItemText classes={{primary: classes.listItemText}} primary={prop.sidebarName}/>
-
+                                        <ListItemText classes={{ primary: classes.listItemText }} primary={prop.sidebarName} />
                                     </MenuItem>
                                 </NavLink>
                             );

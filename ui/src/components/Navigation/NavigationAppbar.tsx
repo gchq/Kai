@@ -71,7 +71,7 @@ const NavigationAppbar: React.FC = (props: any) => {
     const classes = useStyles();
 
     const activeRoute = (routeName: any) => {
-        return props.location.pathname === routeName ? true : false;
+        return props.location.pathname === routeName;
     }
 
     const getSideNavIcon = (sidebarName: any) => {
@@ -86,11 +86,11 @@ const NavigationAppbar: React.FC = (props: any) => {
                 return null;
         }
     }
-    
+
     return (
         <div className={classes.root}>
-            <CssBaseline/>
-        
+            <CssBaseline />
+
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}  >
@@ -98,13 +98,13 @@ const NavigationAppbar: React.FC = (props: any) => {
                     </Typography>
                 </Toolbar>
             </AppBar>
-         
+
             <nav className={classes.drawer}>
                 <Drawer
-                variant="permanent"
-                classes={{
-                    paper: classes.drawerPaper,
-                }}>
+                    variant="permanent"
+                    classes={{
+                        paper: classes.drawerPaper,
+                    }}>
                     <Toolbar />
                     <div className={classes.drawerContainer}>
                         <List>
@@ -138,7 +138,7 @@ const NavigationAppbar: React.FC = (props: any) => {
                         <Divider />
                     </div>
                 </Drawer>
-            </nav>  
+            </nav>
         </div>
     );
 };
