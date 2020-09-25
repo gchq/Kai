@@ -122,6 +122,8 @@ describe('When ExampleTable mounts', () => {
 
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsDELETION IN PROGRESS')
     })
+
+    // TODO: test for refresh table after delete request
 });
 
 function mockDeleteGraphRepoToThrowError(errorMessage: string) {

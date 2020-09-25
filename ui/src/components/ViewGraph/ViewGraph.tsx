@@ -59,13 +59,6 @@ export default class ViewGraph extends React.Component<{}, IState> {
         }
     }
 
-    private async updateGraph(graphName: string) {
-        const oldGraphs = this.state.graphs;
-        const newGraph = [new Graph(graphName, "DELETION IN PROGRESS")];
-        const updatedGraphs = oldGraphs.map(obj => newGraph.find(o => o.getId() === obj.getId()) || obj);
-        this.setState({graphs: updatedGraphs})
-    }
-
     private classes: any = makeStyles({
         root: {
             width: '100%',
@@ -109,7 +102,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                                         onClick={
                                                             async () => {
                                                                 await this.deleteGraph(graph.getId());
-                                                                this.updateGraph(graph.getId())
+                                                                await this.getGraphs();
                                                             }
                                                         }
                                                     >
