@@ -1,5 +1,5 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
     Button,
     Container,
@@ -15,12 +15,12 @@ import {
     Tooltip,
     Zoom,
 } from '@material-ui/core';
-import {Graph} from '../../domain/graph';
-import {GetAllGraphsRepo} from '../../rest/repositories/get-all-graphs-repo';
+import { Graph } from '../../domain/graph';
+import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
-import {AlertType, NotificationAlert} from '../Errors/NotificationAlert';
-import {DeleteGraphRepo} from '../../rest/repositories/delete-graph-repo';
+import { AlertType, NotificationAlert } from '../Errors/NotificationAlert';
+import { DeleteGraphRepo } from '../../rest/repositories/delete-graph-repo';
 
 interface IState {
     graphs: Graph[];
@@ -45,17 +45,18 @@ export default class ViewGraph extends React.Component<{}, IState> {
     private async getGraphs() {
         try {
             const graphs: Graph[] = await new GetAllGraphsRepo().getAll();
-            this.setState({graphs});
+            this.setState({ graphs });
         } catch (e) {
-            this.setState({errorMessage: `Failed to get all graphs: ${e.message}`});
+            this.setState({ errorMessage: `Failed to get all graphs: ${e.message}` });
         }
     }
 
     private async deleteGraph(graphName: string) {
         try {
             await new DeleteGraphRepo().delete(graphName);
+            await this.getGraphs();
         } catch (e) {
-            this.setState({errorMessage: `Failed to get all graphs: ${e.message}`});
+            this.setState({ errorMessage: `Failed to delete graph "${graphName}": ${e.message}` });
         }
     }
 
@@ -73,15 +74,15 @@ export default class ViewGraph extends React.Component<{}, IState> {
         const { graphs, errorMessage } = this.state;
 
         return (
-            <main style={{marginTop: 30}}>
-                <Toolbar/>
+            <main style={{ marginTop: 30 }}>
+                <Toolbar />
                 <Grid container justify="center">
                     <Container component="main" maxWidth="sm">
-                        {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage}/>}
+                        {errorMessage && <NotificationAlert alertType={AlertType.FAILED} message={errorMessage} />}
                         <TableContainer>
                             <Table size="medium" className={this.classes.table} aria-label="Graphs Table">
                                 <TableHead>
-                                    <TableRow style={{background: '#F4F2F2'}}>
+                                    <TableRow style={{ background: '#F4F2F2' }}>
                                         <TableCell>Graph Name</TableCell>
                                         <TableCell align="right">Current State</TableCell>
                                         <TableCell align="right">Actions</TableCell>
@@ -102,11 +103,10 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                                         onClick={
                                                             async () => {
                                                                 await this.deleteGraph(graph.getId());
-                                                                await this.getGraphs();
                                                             }
                                                         }
                                                     >
-                                                        <DeleteOutlineOutlinedIcon/>
+                                                        <DeleteOutlineOutlinedIcon />
                                                     </IconButton>
                                                 </Tooltip>
                                             </TableCell>
@@ -116,11 +116,11 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                 {graphs.length === 0 && <caption>No Graphs.</caption>}
                             </Table>
                         </TableContainer>
-                        <Grid container style={{margin: 10}} direction="row" justify="center" alignItems="center">
+                        <Grid container style={{ margin: 10 }} direction="row" justify="center" alignItems="center">
                             <Button
                                 id="view-graphs-refresh-button"
                                 onClick={async () => await this.getGraphs()}
-                                startIcon={<RefreshOutlinedIcon/>}
+                                startIcon={<RefreshOutlinedIcon />}
                                 variant="outlined"
                                 color="primary"
                                 className={this.classes.submit}

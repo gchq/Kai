@@ -74,7 +74,9 @@ describe('When ExampleTable mounts', () => {
         await component.update();
         expect(component.find('tbody').text()).toBe('peachesACTIVE');
 
+        mockGetGraphsToReturn([new Graph('peaches', 'DELETED')]);
         component.find('tbody').find('button#view-graphs-delete-button-0').simulate('click');
+        await component.update();
         await component.update();
 
         expect(DeleteGraphRepo.prototype.delete).toHaveBeenLastCalledWith('peaches');
@@ -88,12 +90,14 @@ describe('When ExampleTable mounts', () => {
         await component.update();
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
 
+        mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'DELETED')]);
         component.find('tbody').find('button#view-graphs-delete-button-1').simulate('click');
+        await component.update();
         await component.update();
 
         expect(DeleteGraphRepo.prototype.delete).toHaveBeenLastCalledWith('pears');
     });
-    it('should ... when delete request returns server error', async () => {
+    fit('should notify error and not refresh graphs when delete request returns server error', async () => {
         mockDeleteGraphRepoToThrowError('500 Server Error');
         mockGetGraphsToReturn([new Graph('bananas', 'INACTIVE')]);
 
@@ -101,11 +105,13 @@ describe('When ExampleTable mounts', () => {
         await component.update();
         await component.update();
         expect(component.find('tbody').text()).toBe('bananasINACTIVE');
-
+        
         component.find('tbody').find('button#view-graphs-delete-button-0').simulate('click');
         await component.update();
 
-        expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 500 Server Error');
+        // Only call GetGraphsRepo on mount and not 2nd time when delete graph is unsuccessful
+        expect(GetAllGraphsRepo).toBeCalledTimes(1);
+        expect(component.find('#notification-alert').text()).toBe('Failed to delete graph "bananas": 500 Server Error');
     });
     it('should change the current status of the graph when the delete button is clicked', async () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
@@ -124,8 +130,6 @@ describe('When ExampleTable mounts', () => {
         
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsDELETION IN PROGRESS');
     })
-    
-    // TODO: Fix undefined graphs in one of the tests
 });
 
 function mockDeleteGraphRepoToThrowError(errorMessage: string) {
