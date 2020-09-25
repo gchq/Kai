@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
+/**
+ * @group unit
+ */
+import { expect as expectCDK, haveOutput, haveResource } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import { KaiUserPool} from "../../lib/authentication/user-pool";
 
@@ -38,6 +41,18 @@ test("Should create default UserPool and UserPoolClient", () => {
         "SupportedIdentityProviders": [
             "COGNITO"
         ]
+    }));
+    expectCDK(stack).to(haveOutput({
+        outputName: "TestUserPoolKaiUserPoolIdD24CB492",
+        outputValue: {
+            "Ref": "TestUserPoolKaiUserPool8F9565E7"
+        }
+    }));
+    expectCDK(stack).to(haveOutput({
+        outputName: "TestUserPoolKaiUserPoolClientIdF193B1DA",
+        outputValue: {
+            "Ref": "TestUserPoolKaiUserPoolKaiUserPoolClient7CAC572E"
+        }
     }));
 });
 

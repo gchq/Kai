@@ -22,15 +22,22 @@ def handler(event, context):
 
     if graph_name is None:
         return {
-            statusCode: 400,
-            body: "graphName is a required field"
+            "statusCode": 400,
+            "body": "graphName is a required field"
         }
 
-    requesting_user = user.get_requesting_cognito_user(event)
-    if not user.is_authorized(requesting_user, graph_name):
+    try:
+        graph_record = graph.get_graph(release_name)
+        requesting_user = user.get_requesting_cognito_user(event)
+        if requesting_user and not requesting_user in graph_record["administrators"]:
+            return {
+                "statusCode": 403,
+                "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_name)
+            }
+    except:
         return {
-            "statusCode": 403,
-            "body": "User: {} is not authorized to delete graph: {}".format(requesting_user, graph_name)
+            "statusCode": 400,
+            "body": "Graph " + graph_name + " does not exist. It may have already been deleted"
         }
 
     initial_status = "DELETION_QUEUED"

@@ -26,10 +26,15 @@ const dev = {
     region: process.env.CDK_DEFAULT_REGION 
 };
 
+let stackName: string = app.node.tryGetContext("stackName");
+if (!stackName) {
+    stackName = "KaiStack";
+}
+
 // Main Stack
-new AppStack(app, "KaiStack", {
+new AppStack(app, stackName, {
     env: dev,
-    stackName: "KaiStack"
+    stackName: stackName
 });
 
 // Tags

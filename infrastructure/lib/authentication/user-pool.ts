@@ -62,6 +62,16 @@ export class KaiUserPool extends cdk.Construct {
 
             this._userPoolClient = this._userPool.addClient(KaiUserPool._userPoolClientId, userPoolClientProps);
         }
+
+        /* Add a custom output containing the User Pool Id */
+        new cdk.CfnOutput(this, "KaiUserPoolId", {
+            value: this.userPoolId
+        });
+
+        /* Add a custom output containing the User Pool Client Id */
+        new cdk.CfnOutput(this, "KaiUserPoolClientId", {
+            value: this.userPoolClientId
+        });
     }
 
     public get userPoolArn(): string {

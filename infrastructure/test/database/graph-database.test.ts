@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * @group unit
+ */
+
 import { Stack } from "@aws-cdk/core";
 import { GraphDatabase } from "../../lib/database/graph-database";
 import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
