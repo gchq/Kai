@@ -70,7 +70,7 @@ export default class ViewGraph extends React.Component<{}, IState> {
     });
 
     public render() {
-        const {graphs, errorMessage} = this.state;
+        const { graphs, errorMessage } = this.state;
 
         return (
             <main style={{marginTop: 30}}>
