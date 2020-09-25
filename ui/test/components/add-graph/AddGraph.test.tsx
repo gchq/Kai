@@ -173,6 +173,7 @@ function clickSubmit(): void {
 }
 
 function mockAddGraphRepoWithFunction(f: () => void): void {
+    // @ts-ignore
     CreateGraphRepo.mockImplementationOnce(() => {
         return {
             create: f,
