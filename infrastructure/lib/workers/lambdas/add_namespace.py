@@ -35,7 +35,7 @@ def deploy_namespace(kubernetes_client, body):
     namespace.update_status("DEPLOYMENT_IN_PROGRESS")
 
     if kubernetes_client.create_namespace(namespace_name):
-        logger.info("Deployment of " + namespace_name + " Succeeded")
+        logger.info("Deployment of %s Succeeded", namespace_name)
         namespace.update_status("DEPLOYED")
     else:
         namespace.update_status("DEPLOYMENT_FAILED")

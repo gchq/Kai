@@ -70,4 +70,3 @@ class Graph:
             },
             ConditionExpression=Attr("releaseName").not_exists() | Attr("namespaceName").not_exists()
         )
-

@@ -133,7 +133,7 @@ def deploy_graph(helm_client, body, security_groups):
     success = helm_client.install_chart(release_name, namespace_name, values=values_file)
 
     if success:
-        logger.info("Deployment of " + graph_name + " Succeeded")
+        logger.info("Deployment of %s Succeeded", graph_name)
         graph.update_status("DEPLOYED")
     else:
         graph.update_status("DEPLOYMENT_FAILED")
@@ -156,7 +156,7 @@ def handler(event, context):
     if extra_security_groups is not None:
         security_groups = security_groups + ", " + extra_security_groups
 
-    logger.info("Using security groups: " + security_groups)
+    logger.info("Using security groups: %s", security_groups)
 
     # Run Deployments
     for record in event["Records"]:

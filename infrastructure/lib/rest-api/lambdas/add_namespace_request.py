@@ -50,7 +50,7 @@ def handler(event, context):
         if e.response['Error']['Code']=='ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Namespace " + namespace_name + " already exists, Namespace names must be unique."
+                "body": "Namespace {} already exists, Namespace names must be unique.".format(namespace_name)
             }
         else:
             return {

@@ -1,8 +1,9 @@
 import boto3
-from botocore.exceptions import ClientError
-from graph import Graph
 import json
 import os
+
+from botocore.exceptions import ClientError
+from graph import Graph
 from user import User
 
 # Get variables from env

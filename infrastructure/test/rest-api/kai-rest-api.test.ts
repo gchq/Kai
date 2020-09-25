@@ -23,7 +23,7 @@ import * as cdk from "@aws-cdk/core";
 import * as api from "@aws-cdk/aws-apigateway";
 import * as rest from "../../lib/rest-api/kai-rest-api";
 import { Table, AttributeType } from "@aws-cdk/aws-dynamodb";
-import { ADD_GRAPH_TIMEOUT, DELETE_GRAPH_TIMEOUT } from "../../lib/constants";
+import { ADD_GRAPH_TIMEOUT, ADD_NAMESPACE_TIMEOUT, DELETE_GRAPH_TIMEOUT, DELETE_NAMESPACE_TIMEOUT } from "../../lib/constants";
 
 function createRestAPI(stack: cdk.Stack, id = "Test"): rest.KaiRestApi {
     const table = new Table(stack, "test", {
@@ -190,6 +190,17 @@ describe("/namespaces resource", () => {
 
         test("Should create a lambda function to serve DELETE namespace requests", () => {
             expectStackContainsLambda("delete_namespace_request.handler");
+        });
+    });
+
+    describe("stack contains expected queues", () => {
+
+        test("should create a queue for DeleteNamespace messages to be sent to workers", () => {
+            expectStackContainsQueueWithTimeout(DELETE_NAMESPACE_TIMEOUT.toSeconds());
+        });
+
+        test("should create a queue for AddNamespace messages to be sent to workers", () => {
+            expectStackContainsQueueWithTimeout(ADD_NAMESPACE_TIMEOUT.toSeconds());
         });
     });
 

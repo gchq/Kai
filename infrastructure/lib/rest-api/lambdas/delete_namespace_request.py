@@ -54,7 +54,7 @@ def handler(event, context):
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Namespace " + namespace_name + " does not exist. It may have already have been deleted"
+                "body": "Namespace {} does not exist. It may have already have been deleted".format(namespace_name)
             }
         else:
             return {

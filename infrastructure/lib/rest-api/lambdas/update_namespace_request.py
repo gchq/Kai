@@ -64,7 +64,7 @@ def handler(event, context):
             if e.response['Error']['Code']=='ConditionalCheckFailedException':
                 return {
                     "statusCode": 400,
-                    "body": "Namespace " + namespace_name + " already exists" + graph_name + ". Graph names must be unique"
+                    "body": "Namespace {} does not exist. It may have been deleted".format(namespace_name)
                 }
             else:
                 return {
@@ -76,5 +76,5 @@ def handler(event, context):
     except Exception as e:
         return {
             "statusCode": 404,
-            "body": namespace_name + " was not found"
+            "body": "{} was not found".format(namespace_name)
         }

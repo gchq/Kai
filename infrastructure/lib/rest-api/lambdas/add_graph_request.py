@@ -1,10 +1,11 @@
 import boto3
-from botocore.exceptions import ClientError
-from graph import Graph
 import json
-from namespace import Namespace
 import os
 import re
+
+from botocore.exceptions import ClientError
+from graph import Graph
+from namespace import Namespace
 from user import User
 
 graph = Graph()
@@ -72,7 +73,7 @@ def handler(event, context):
     except Exception as e:
         return {
             "statusCode": 400,
-            "body": "Could not create graph, namespace: " + namespace_name + " was not found"
+            "body": "Could not create graph, namespace: {} was not found".format(namespace_name)
         }
 
 

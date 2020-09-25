@@ -40,5 +40,5 @@ def handler(event, context):
         except Exception as e:
             return {
                 "statusCode": 404,
-                "body": namespace_name + " was not found"
+                "body": "{} was not found".format(namespace_name)
             }
