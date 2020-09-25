@@ -107,7 +107,7 @@ describe('When ExampleTable mounts', () => {
 
         expect(component.find('#notification-alert').text()).toBe('Failed to get all graphs: 500 Server Error');
     });
-    xit('should change the current status of the graph when the delete button is clicked', async () => {
+    it('should change the current status of the graph when the delete button is clicked', async () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
         mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'INACTIVE')]);
 
@@ -116,14 +116,16 @@ describe('When ExampleTable mounts', () => {
         await component.update();
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsINACTIVE');
 
-        // TODO: Fix this test & undefined graphs in one of the tests
         mockGetGraphsToReturn([new Graph('apples', 'ACTIVE'), new Graph('pears', 'DELETION IN PROGRESS')]);
         component.find('tbody').find('button#view-graphs-delete-button-1').simulate('click');
         await component.update();
         await component.update();
-
+        await component.update();
+        
         expect(component.find('tbody').text()).toBe('applesACTIVEpearsDELETION IN PROGRESS');
     })
+    
+    // TODO: Fix undefined graphs in one of the tests
 });
 
 function mockDeleteGraphRepoToThrowError(errorMessage: string) {
