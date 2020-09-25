@@ -95,7 +95,7 @@ const NavigationDrawer: React.FC = (props: any) => {
                                     style={{ color: 'inherit', textDecoration: 'inherit' }}
                                     key={key}
                                 >
-                                    <MenuItem className={classes.listItem} selected={activeRoute(prop.path)}>
+                                    <MenuItem selected={activeRoute(prop.path)}>
                                         <ListItemText
                                             classes={{ primary: classes.listItemText }}
                                             primary={prop.sidebarName}

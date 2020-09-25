@@ -6,8 +6,8 @@ import { CreateGraphRepo } from '../../../src/rest/repositories/create-graph-rep
 jest.mock('../../../src/rest/repositories/create-graph-repo');
 
 let wrapper: ReactWrapper;
-beforeEach(() => wrapper = mount(<AddGraph />));
-afterEach(() => wrapper.unmount())
+beforeEach(() => (wrapper = mount(<AddGraph />)));
+afterEach(() => wrapper.unmount());
 
 const exampleJSON = {
     elements: {
@@ -92,7 +92,7 @@ describe('Dropzone behaviour', () => {
         expect(dropZone.props().accept).toBe('application/json');
     });
     it('should show and hide when AttachFile icon is clicked', () => {
-        const component = mount(<AddGraph />)
+        const component = mount(<AddGraph />);
         expect(component.find('div#dropzone').props().style?.visibility).toBe('hidden');
 
         clickAttachFile(component);
@@ -112,14 +112,15 @@ describe('Schema validation integration', () => {
 
         clickSubmit();
 
-        const expectedMessage = 'Error(s): Elements is missing from schema, ' +
-            'Types is missing from schema, [\"blah\"] are invalid schema root properties';
+        const expectedMessage =
+            'Error(s): Elements is missing from schema, ' +
+            'Types is missing from schema, ["blah"] are invalid schema root properties';
         expect(wrapper.find('#notification-alert').text()).toBe(expectedMessage);
     });
-})
+});
 describe('On Submit Request', () => {
     it('should display success message in the NotificationAlert', async () => {
-        mockAddGraphRepoWithFunction(() => { });
+        mockAddGraphRepoWithFunction(() => {});
 
         inputGraphName('OK Graph');
         inputSchema(exampleJSON);
@@ -131,23 +132,23 @@ describe('On Submit Request', () => {
         expect(wrapper.find('#notification-alert').text()).toBe('OK Graph was successfully added');
     });
     it('should display an error message with server error in the NotificationAlert when Request fails', async () => {
-        mockAddGraphRepoWithFunction(() => { throw new Error('500 Server Error'); });
+        mockAddGraphRepoWithFunction(() => {
+            throw new Error('500 Server Error');
+        });
 
         inputGraphName('Break Server');
         inputSchema(exampleJSON);
 
         clickSubmit();
 
-        expect(wrapper.find('#notification-alert').text()).toBe('Failed to Add \'Break Server\' Graph: 500 Server Error');
+        expect(wrapper.find('#notification-alert').text()).toBe("Failed to Add 'Break Server' Graph: 500 Server Error");
     });
 });
 
 function inputGraphName(graphName: string): void {
-    wrapper
-        .find('input#graph-name')
-        .simulate('change', {
-            target: { value: graphName },
-        });
+    wrapper.find('input#graph-name').simulate('change', {
+        target: { value: graphName },
+    });
 }
 
 function inputSchema(schema: object): void {
