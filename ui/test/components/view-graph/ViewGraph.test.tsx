@@ -35,7 +35,7 @@ describe('When ExampleTable mounts', () => {
 
         const wrapper = mount(<ViewGraph />);
 
-        expect(wrapper.find('#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
+        expect(wrapper.find('div#notification-alert').text()).toBe('Failed to get all graphs: 404 Not Found');
     });
     it('should not display Error AlertNotification when GetGraphs request successful', async () => {
         mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYED')]);
@@ -46,7 +46,7 @@ describe('When ExampleTable mounts', () => {
         const table = wrapper.find('table');
         expect(table).toHaveLength(1);
         expect(table.find('tbody').text()).toBe('roadTrafficDEPLOYED');
-        expect(wrapper.find('#notification-alert').length).toBe(0);
+        expect(wrapper.find('div#notification-alert').length).toBe(0);
     });
     it('should call GetGraphs again when refresh button clicked', async () => {
         mockGetGraphsToReturn([new Graph('roadTraffic', 'DEPLOYING')]);

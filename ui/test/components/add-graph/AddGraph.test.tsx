@@ -115,7 +115,7 @@ describe('Schema validation integration', () => {
         const expectedMessage =
             'Error(s): Elements is missing from schema, ' +
             'Types is missing from schema, ["blah"] are invalid schema root properties';
-        expect(wrapper.find('#notification-alert').text()).toBe(expectedMessage);
+        expect(wrapper.find('div#notification-alert').text()).toBe(expectedMessage);
     });
 });
 describe('On Submit Request', () => {
@@ -129,7 +129,7 @@ describe('On Submit Request', () => {
         await wrapper.update();
         await wrapper.update();
 
-        expect(wrapper.find('#notification-alert').text()).toBe('OK Graph was successfully added');
+        expect(wrapper.find('div#notification-alert').text()).toBe('OK Graph was successfully added');
     });
     it('should display an error message with server error in the NotificationAlert when Request fails', async () => {
         mockAddGraphRepoWithFunction(() => {
@@ -141,7 +141,9 @@ describe('On Submit Request', () => {
 
         clickSubmit();
 
-        expect(wrapper.find('#notification-alert').text()).toBe("Failed to Add 'Break Server' Graph: 500 Server Error");
+        expect(wrapper.find('div#notification-alert').text()).toBe(
+            "Failed to Add 'Break Server' Graph: 500 Server Error"
+        );
     });
 });
 
