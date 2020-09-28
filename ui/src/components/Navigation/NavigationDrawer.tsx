@@ -64,7 +64,7 @@ const NavigationDrawer: React.FC = (props: any) => {
     };
 
     const activeRoute = (routeName: any) => {
-        return props.location.pathname === routeName ? true : false;
+        return props.location.pathname === routeName;
     }
 
     return (
