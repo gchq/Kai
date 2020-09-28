@@ -113,7 +113,7 @@ describe('When ExampleTable mounts', () => {
 
         // Only call GetGraphsRepo on mount and not 2nd time when delete graph is unsuccessful
         expect(GetAllGraphsRepo).toBeCalledTimes(1);
-        expect(component.find('#notification-alert').text()).toBe('Failed to delete graph "bananas": 500 Server Error');
+        expect(component.find('div#notification-alert').text()).toBe('Failed to delete graph "bananas": 500 Server Error');
     });
     it('should change the current status of the graph when the delete button is clicked', async () => {
         DeleteGraphRepo.prototype.delete = jest.fn();
