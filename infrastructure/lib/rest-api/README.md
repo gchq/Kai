@@ -179,7 +179,7 @@ Example response:
 ```
 
 #### POST /namespaces/{namespaceName}
-Updates a namespace in the database. This endpoint can be used to update the list of administrators or change the visibility of the namespace. If the namespaceName is not found, a 404 response is sent. If the namespace is private and the requesting user is not a configured administrator of the graph a 403 response is returned.
+Updates a namespace in the database. This endpoint can be used to update the list of administrators or change the visibility of the namespace. If the namespaceName is not found, a 404 response is sent. If the requesting user is not a configured administrator of the graph a 403 response is returned.
 
 Example request body:
 ```json
@@ -190,7 +190,7 @@ Example request body:
 ```
 
 #### DELETE /namespaces/{namespaceName}
-Deletes a namespace in the database. This endpoint is asynchronous meaning that it will respond before the namespace is removed. Once the namespace is removed, the namespace will be removed from the backend database. If the namespaceName is not found, a 404 response is sent. If the namespace is private and the requesting user is not a configured administrator of the graph a 403 response is returned. It is not possible to delete a namespace which contains graph deployments, if the namespace contains any graphs then a 400 response is returned. Otherwise a 202 status code is returned.
+Deletes a namespace in the database. This endpoint is asynchronous meaning that it will respond before the namespace is removed. Once the namespace is removed, the namespace will be removed from the backend database. If the namespaceName is not found, a 404 response is sent. If the requesting user is not a configured administrator of the graph a 403 response is returned. It is not possible to delete a namespace which contains graph deployments, if the namespace contains any graphs then a 400 response is returned. Otherwise a 202 status code is returned.
 
 ### The Namespace Graphs resource
 The Namespaces Graphs resource enables updating, deletion and retrieval of graphs deployed to a Kubernetes namespace.
