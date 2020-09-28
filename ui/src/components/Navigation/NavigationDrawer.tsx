@@ -7,6 +7,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        root: {
+        },
         menuButton: {
             marginRight: theme.spacing(2),
         },
@@ -33,6 +35,8 @@ const useStyles = makeStyles((theme: Theme) =>
                 duration: theme.transitions.duration.leavingScreen,
             }),
         },
+        listItem: {
+        },
         listItemText: {
             '& span, & svg': {
                 fontSize: '20px',
@@ -51,13 +55,12 @@ const NavigationDrawer: React.FC = (props: any) => {
         ) {
             return;
         }
-
         setIsOpen(open);
     };
 
     const activeRoute = (routeName: any) => {
-        return props.location.pathname === routeName ? true : false;
-    };
+        return props.location.pathname === routeName;
+    }
 
     return (
         <div>
@@ -90,16 +93,11 @@ const NavigationDrawer: React.FC = (props: any) => {
                     <MenuList>
                         {Routes.map((prop, key) => {
                             return (
-                                <NavLink
-                                    to={prop.path}
+                                <NavLink to={prop.path}
                                     style={{ color: 'inherit', textDecoration: 'inherit' }}
-                                    key={key}
-                                >
-                                    <MenuItem selected={activeRoute(prop.path)}>
-                                        <ListItemText
-                                            classes={{ primary: classes.listItemText }}
-                                            primary={prop.sidebarName}
-                                        />
+                                    key={key}>
+                                    <MenuItem className={classes.listItem} selected={activeRoute(prop.path)}>
+                                        <ListItemText classes={{ primary: classes.listItemText }} primary={prop.sidebarName} />
                                     </MenuItem>
                                 </NavLink>
                             );

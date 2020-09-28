@@ -2,20 +2,7 @@ import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import Routes from './Routes';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    AppBar,
-    Toolbar,
-    Typography,
-    ListItemText,
-    Drawer,
-    Divider,
-    ListItem,
-    List,
-    ListItemIcon,
-    Avatar,
-    ListItemAvatar,
-    CssBaseline,
-} from '@material-ui/core';
+import { AppBar, Toolbar, Typography, ListItemText, Drawer, Divider, ListItem, List, ListItemIcon, Avatar, ListItemAvatar, CssBaseline } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
@@ -83,8 +70,8 @@ const NavigationAppbar: React.FC = (props: any) => {
     const classes = useStyles();
 
     const activeRoute = (routeName: any) => {
-        return props.location.pathname === routeName ? true : false;
-    };
+        return props.location.pathname === routeName;
+    }
 
     const getSideNavIcon = (sidebarName: any) => {
         switch (sidebarName) {
@@ -116,8 +103,7 @@ const NavigationAppbar: React.FC = (props: any) => {
                     variant="permanent"
                     classes={{
                         paper: classes.drawerPaper,
-                    }}
-                >
+                    }}>
                     <Toolbar />
                     <div className={classes.drawerContainer}>
                         <List>
@@ -138,8 +124,7 @@ const NavigationAppbar: React.FC = (props: any) => {
                                     <NavLink
                                         to={prop.path}
                                         style={{ color: 'inherit', textDecoration: 'inherit' }}
-                                        key={key}
-                                    >
+                                        key={key}>
                                         <ListItem className={classes.listItem} selected={activeRoute(prop.path)}>
                                             <ListItemIcon>{getSideNavIcon(prop.sidebarName)}</ListItemIcon>
                                             <ListItemText

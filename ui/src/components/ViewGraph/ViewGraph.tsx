@@ -4,22 +4,22 @@ import {
     Button,
     Container,
     Grid,
-    Table,
+   IconButton, Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Tooltip,
-    IconButton,
+
     Toolbar,
-    Zoom,
+   Tooltip, Zoom,
 } from '@material-ui/core';
 import { Graph } from '../../domain/graph';
 import { GetAllGraphsRepo } from '../../rest/repositories/get-all-graphs-repo';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
-import { NotificationAlert, AlertType } from '../Errors/NotificationAlert';
+import { AlertType, NotificationAlert } from '../Errors/NotificationAlert';
+import { DeleteGraphRepo } from '../../rest/repositories/delete-graph-repo';
 
 interface IState {
     graphs: Graph[];
@@ -47,6 +47,15 @@ export default class ViewGraph extends React.Component<{}, IState> {
             this.setState({ graphs });
         } catch (e) {
             this.setState({ errorMessage: `Failed to get all graphs: ${e.message}` });
+        }
+    }
+
+    private async deleteGraph(graphName: string) {
+        try {
+            await new DeleteGraphRepo().delete(graphName);
+            await this.getGraphs();
+        } catch (e) {
+            this.setState({ errorMessage: `Failed to delete graph "${graphName}": ${e.message}` });
         }
     }
 
@@ -88,7 +97,14 @@ export default class ViewGraph extends React.Component<{}, IState> {
                                             <TableCell align="right">{graph.getStatus()}</TableCell>
                                             <TableCell align="right">
                                                 <Tooltip TransitionComponent={Zoom} title={`Delete ${graph.getId()}`}>
-                                                    <IconButton>
+                                                    <IconButton
+                                                        id={'view-graphs-delete-button-' + index}
+                                                        onClick={
+                                                            async () => {
+                                                                await this.deleteGraph(graph.getId());
+                                                            }
+                                                        }
+                                                    >
                                                         <DeleteOutlineOutlinedIcon />
                                                     </IconButton>
                                                 </Tooltip>
