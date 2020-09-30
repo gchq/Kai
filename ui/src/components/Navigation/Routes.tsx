@@ -1,8 +1,14 @@
 import ViewGraph from '../ViewGraph/ViewGraph';
 import AddGraph from '../AddGraph/AddGraph';
 import UserGuide from '../UserGuide/UserGuide';
+import UserLogin from "../UserLogin/UserLogin";
 
 const Routes = [
+    {
+        path: '/UserLogin',
+        sidebarName: 'User Login',
+        component: UserLogin,
+    },
     {
         path: '/AddGraph',
         sidebarName: 'Add Graph',
