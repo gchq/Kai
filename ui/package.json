@@ -37,8 +37,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
-    "react-testing-library": "latest",
-    "webpack": "4.42.0"
+    "react-testing-library": "latest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
@@ -76,8 +75,7 @@
     "ts-jest": "26.1.3",
     "ts-node": "^8.10.2",
     "tslint": "^6.1.3",
-    "typescript": "^3.9.5",
-    "webpack": "4.42.0"
+    "typescript": "^3.9.5"
   },
   "eslintConfig": {
     "extends": "react-app"
