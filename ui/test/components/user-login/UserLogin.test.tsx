@@ -1,6 +1,6 @@
 import { mount, ReactWrapper } from 'enzyme';
 import React from 'react';
-import UserLogin from '../../../src/components/UserLogin/UserLogin'
+import UserLogin from '../../../src/components/UserLogin/UserLogin';
 
 let wrapper: ReactWrapper;
 beforeEach(() => (wrapper = mount(<UserLogin />)));
@@ -20,3 +20,34 @@ describe('On Render', () => {
         expect(submitButton).toBe('Sign In');
     });
 });
+describe('Sign in Button', () => {
+    it('should be disabled when Username and Password fields are empty', () => {
+        expect(wrapper.find('button#sign-in-button').props().disabled).toBe(true);
+    });
+    it('should be disabled when Username field is empty', () => {
+        inputPassword('testPassword');
+        expect(wrapper.find('button#sign-in-button').props().disabled).toBe(true);
+    });
+    it('should be disabled when Password field is empty', () => {
+        inputUsername('testUsername');
+        expect(wrapper.find('button#sign-in-button').props().disabled).toBe(true);
+    });
+    it('should be enabled when Username and Password is inputted', () => {
+        inputUsername('testUsername');
+        inputPassword('testPassword');
+        expect(wrapper.find('button#sign-in-button').props().disabled).toBe(false);
+    });
+});
+
+function inputUsername(username: string): void {
+    wrapper.find('input#username').simulate('change', {
+        target: { value: username },
+    });
+    expect(wrapper.find('input#username').props().value).toBe(username);
+}
+function inputPassword(password: string): void {
+    wrapper.find('input#password').simulate('change', {
+        target: { value: password },
+    });
+    expect(wrapper.find('input#password').props().value).toBe(password);
+}

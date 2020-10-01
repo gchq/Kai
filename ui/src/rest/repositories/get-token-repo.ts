@@ -1,27 +1,38 @@
 import { RestClient } from '../rest-client';
+import AWS from 'aws-sdk';
+import { CognitoUserPool, CognitoUserAttribute, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
+import { KaiUserPool } from '../../../../infrastructure/lib/authentication/user-pool';
 
 export class LoginRepo {
-    public isAuthorised(username: string, password: string): boolean {
+    public isAuthorised(username: string, password: string) {
+        const authenticationData = {
+            Username: username,
+            Password: password,
+        };
+        const authenticationDetails = new AuthenticationDetails(authenticationData);
+        const poolData = {
+            UserPoolId: KaiUserPool.prototype.userPoolId,
+            ClientId: KaiUserPool.prototype.userPoolClientId,
+        };
+        const userPool = new CognitoUserPool(poolData);
+        const userData = {
+            Username: username,
+            Pool: userPool,
+        };
+        const cognitoUser = new CognitoUser(userData);
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                const accessToken = result.getAccessToken().getJwtToken();
 
-        // Handle the Cognito calls in here and let the React presentation layer know if a user has successfully logged
-        // by returning a boolean true/false
+                /* Use the idToken for Logins Map when Federating User Pools with identity pools or when passing through an Authorization Header to an API Gateway Authorizer */
+                const idToken = result.getIdToken().getJwtToken();
+                return true;
+            },
 
-        // You can call the COGNITO service directly in here, then we can refactor it 
-
-        // build the request to login
-        const requestBody = {
-            username: username,
-            password: password,
-        }
-
-        // Send the request
-        const response = RestClient.post(URL.COGNITO, requestBody);
-
-
-        if (response.isOK) { // Get token successfully and response says User is valid
-            return true;
-        } else {
-            return false;
-        }
+            onFailure: function (err) {
+                alert(err);
+                return false;
+            },
+        });
     }
 }
