@@ -7,6 +7,7 @@ import Container from '@material-ui/core/Container';
 import { AlertType, NotificationAlert } from '../Errors/NotificationAlert';
 import { Notifications } from '../../domain/notifications';
 import Toolbar from '@material-ui/core/Toolbar';
+import { LoginRepo } from '../../rest/repositories/get-token-repo';
 
 interface IState {
     username: string;
@@ -100,10 +101,6 @@ export default class UserLogin extends React.Component<{}, IState> {
                                     });
                                 }}
                             />
-                            <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
-                                label="Remember me"
-                            />
                             <Button
                                 type="submit"
                                 fullWidth
@@ -111,7 +108,10 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 variant="contained"
                                 color="primary"
                                 style={{ margin: '10px' }}
-                                disabled={this.disableSignInButton()}
+                                // disabled={this.disableSignInButton()}
+                                onClick={()=> {
+                                    const r = new LoginRepo().isAuthorised('ashleyf2','Password456!')
+                                }}
                             >
                                 Sign In
                             </Button>
