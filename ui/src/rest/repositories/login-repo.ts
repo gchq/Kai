@@ -1,8 +1,8 @@
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import { RestClient } from '../rest-client';
 
-export class ResetTempPasswordRepo {
-    public setPassword(username: string, password: string) {
+export class LoginRepo {
+    public login(username: string, password: string) {
         const authenticationData = {
             Username: username,
             Password: password,
@@ -31,7 +31,7 @@ export class ResetTempPasswordRepo {
             },
 
             onFailure: function (err) {
-                alert(JSON.stringify(err));
+                console.log(JSON.stringify(err));
                 return err;
             },
         });

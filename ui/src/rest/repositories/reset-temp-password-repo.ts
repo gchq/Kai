@@ -2,7 +2,7 @@ import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cogn
 import { RestClient } from '../rest-client';
 
 export class ResetTempPasswordRepo {
-    public setPassword(username: string, tempPassword: string, newPassword: string) {
+    public setNewPassword(username: string, tempPassword: string, newPassword: string) {
         const authenticationData = {
             Username: username,
             Password: tempPassword,
@@ -28,8 +28,14 @@ export class ResetTempPasswordRepo {
                 // passing through an Authorization Header to an API Gateway Authorizer
                 const idToken = result.getIdToken().getJwtToken();
                 RestClient.setJwtToken(idToken);
+                console.log(idToken);
             },
 
+            onFailure: function (err) {
+                console.log(JSON.stringify(err));
+                return err;
+            },
+            
             newPasswordRequired: function (userAttributes, requiredAttributes) {
                 // User was signed up by an admin and must provide new
                 // password and required attributes, if any, to complete
@@ -40,11 +46,6 @@ export class ResetTempPasswordRepo {
 
                 // Get these details and call
                 cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, this);
-            },
-
-            onFailure: function (err) {
-                alert(JSON.stringify(err));
-                return err;
             },
         });
     }
