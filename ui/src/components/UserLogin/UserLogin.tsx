@@ -7,11 +7,15 @@ import Container from '@material-ui/core/Container';
 import { AlertType, NotificationAlert } from '../Errors/NotificationAlert';
 import { Notifications } from '../../domain/notifications';
 import Toolbar from '@material-ui/core/Toolbar';
-import { LoginRepo } from '../../rest/repositories/get-token-repo';
+import { LoginRepo } from '../../rest/repositories/login-repo';
+import { ResetTempPasswordRepo } from '../../rest/repositories/reset-temp-password-repo';
+
 
 interface IState {
     username: string;
     password: string;
+    temppassword: string;
+    newpassword: string;
     outcome: AlertType | undefined;
     outcomeMessage: string;
     errors: Notifications;
@@ -23,15 +27,12 @@ export default class UserLogin extends React.Component<{}, IState> {
         this.state = {
             username: '',
             password: '',
+            temppassword: '',
+            newpassword: '',
             outcome: undefined,
             outcomeMessage: '',
             errors: new Notifications(),
         };
-    }
-    private disableSignInButton(): boolean {
-        const username = this.state.username;
-        const password = this.state.password;
-        return !username || !password;
     }
 
     public render() {
@@ -46,6 +47,96 @@ export default class UserLogin extends React.Component<{}, IState> {
                         message={`Error(s): ${this.state.errors.errorMessage()}`}
                     />
                 )}
+                <Toolbar />
+                <Container component="main" maxWidth="xs">
+                    <CssBaseline />
+                    <div
+                        style={{
+                            marginTop: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Typography component="h1" variant="h5">
+                            Update User Password
+                        </Typography>
+                        <form
+                            style={{
+                                width: '100%',
+                                marginTop: '30px',
+                            }}
+                            noValidate
+                        >
+                            <TextField
+                                variant="outlined"
+                                value={this.state.username}
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="username"
+                                label="Username"
+                                name="username"
+                                autoComplete="username"
+                                autoFocus
+                                onChange={(event) => {
+                                    this.setState({
+                                        username: event.target.value,
+                                    });
+                                }}
+                            />
+                            <TextField
+                                variant="outlined"
+                                value={this.state.password}
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="temppassword"
+                                label="Temp Password"
+                                type="password"
+                                id="temppassword"
+                                autoComplete="current-password"
+                                onChange={(event) => {
+                                    this.setState({
+                                        temppassword: event.target.value,
+                                    });
+                                }}
+                            />
+                             <TextField
+                                variant="outlined"
+                                value={this.state.password}
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="newpassword"
+                                label="New Password"
+                                type="password"
+                                id="newpassword"
+                                autoComplete="current-password"
+                                onChange={(event) => {
+                                    this.setState({
+                                        newpassword: event.target.value,
+                                    });
+                                }}
+                            />
+                            <Button
+                                fullWidth
+                                id="sign-in-button"
+                                variant="contained"
+                                color="primary"
+                                style={{ marginTop: '10px' }}
+                                // disabled={this.disableSignInButton()}
+                                onClick={()=> {
+                                    const resetPassword = new ResetTempPasswordRepo();
+                                    const {username,temppassword,newpassword}  = this.state;
+                                    resetPassword.setNewPassword(username, temppassword, newpassword);
+                                }}
+                            >
+                                Update Password
+                            </Button>
+                        </form>
+                    </div>
+                </Container>
                 <Toolbar />
                 <Container component="main" maxWidth="xs">
                     <CssBaseline />
@@ -107,10 +198,11 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 id="sign-in-button"
                                 variant="contained"
                                 color="primary"
-                                style={{ margin: '10px' }}
-                                // disabled={this.disableSignInButton()}
+                                style={{ marginTop: '10px' }}
                                 onClick={()=> {
-                                    const r = new LoginRepo().isAuthorised('ashleyf2','Password456!')
+                                    const userLogin = new LoginRepo();
+                                    const {username, password} = this.state;
+                                    userLogin.login(username, password);
                                 }}
                             >
                                 Sign In

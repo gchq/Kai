@@ -7,6 +7,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 import PersonIcon from '@material-ui/icons/Person';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
@@ -81,6 +82,8 @@ const NavigationAppbar: React.FC = (props: any) => {
                 return <VisibilityIcon />;
             case 'User Guide':
                 return <LocalLibraryIcon />;
+            case 'User Login':
+                return <LockOpenIcon />;   
             default:
                 return null;
         }
