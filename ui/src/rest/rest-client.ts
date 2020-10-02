@@ -3,6 +3,13 @@ import axios, { AxiosResponse } from 'axios';
 import { ApiError } from '../domain/errors/api-error';
 
 export class RestClient {
+
+    private static jwtToken: string;
+
+    public static setJwtToken(jwtToken: string) {
+        this.jwtToken = jwtToken;
+    }
+
     public static async get(pathVariable?: string): Promise<IApiResponse> {
         const path = pathVariable ? `/${pathVariable}` : ``;
 
