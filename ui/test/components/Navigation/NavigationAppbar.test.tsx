@@ -13,7 +13,7 @@ describe('Navigation Appbar Component', () => {
     it('should display appbar ', () => {
         const appbar = wrapper.find('h6');
         expect(appbar).toHaveLength(1);
-        expect(appbar.text()).toEqual('Graph As Service');
+        expect(appbar.text()).toEqual('Kai: Graph As A Service');
     });
 
     it('should show user id and email in Navbar', () => {
