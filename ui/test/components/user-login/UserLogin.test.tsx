@@ -18,8 +18,8 @@ describe('Updating User Password input fields', () => {
     it('should have a new password input field', () => {
         const inputField = wrapper.find('input#new-password');
         expect(inputField.props().name).toBe('new-password');
-    })
-})
+    });
+});
 describe('Sign In input fields', () => {
     it('should have a username input field', () => {
         const inputField = wrapper.find('input#username2');
@@ -33,7 +33,7 @@ describe('Sign In input fields', () => {
 
 describe('Update Password Button', () => {
     it('should have an Update Password button', () => {
-        expect(wrapper.find('button#update-button')).toHaveLength(1)
+        expect(wrapper.find('button#update-button')).toHaveLength(1);
     });
     it('should be disabled when the Username, Temp Password and New Password fields are empty', () => {
         expect(wrapper.find('button#update-button').props().disabled).toBe(true);
@@ -42,28 +42,28 @@ describe('Update Password Button', () => {
         inputTempPassword('testTempPassword');
         inputNewPassword('testNewPassword');
         expect(wrapper.find('button#update-button').props().disabled).toBe(true);
-    })
+    });
     it('should be disabled when the Temp password field is empty', () => {
         inputUsername('testUsername');
         inputNewPassword('testNewPassword');
         expect(wrapper.find('button#update-button').props().disabled).toBe(true);
-    })
+    });
     it('should be disabled when the New password field is empty', () => {
         inputUsername('testUsername');
         inputTempPassword('testTempPassword');
         expect(wrapper.find('button#update-button').props().disabled).toBe(true);
-    })
+    });
     it('should be enabled when Username, Temp Password and New Password is inputted', () => {
         inputUsername('testUsername');
         inputTempPassword('testTempPassword');
         inputNewPassword('testNewPassword');
         expect(wrapper.find('button#update-button').props().disabled).toBe(false);
-    })
+    });
 });
 
 describe('Sign in Button', () => {
     it('should have a Sign In button', () => {
-        expect(wrapper.find('button#sign-in-button')).toHaveLength(1)
+        expect(wrapper.find('button#sign-in-button')).toHaveLength(1);
     });
     it('should be disabled when Username and Password fields are empty', () => {
         expect(wrapper.find('button#sign-in-button').props().disabled).toBe(true);
