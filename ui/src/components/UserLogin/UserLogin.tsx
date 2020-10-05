@@ -13,6 +13,7 @@ import { ResetTempPasswordRepo } from '../../rest/repositories/reset-temp-passwo
 
 interface IState {
     username: string;
+    username2: string;
     password: string;
     temppassword: string;
     newpassword: string;
@@ -26,6 +27,7 @@ export default class UserLogin extends React.Component<{}, IState> {
         super(props);
         this.state = {
             username: '',
+            username2: '',
             password: '',
             temppassword: '',
             newpassword: '',
@@ -87,7 +89,7 @@ export default class UserLogin extends React.Component<{}, IState> {
                             />
                             <TextField
                                 variant="outlined"
-                                value={this.state.password}
+                                value={this.state.temppassword}
                                 margin="normal"
                                 required
                                 fullWidth
@@ -102,9 +104,9 @@ export default class UserLogin extends React.Component<{}, IState> {
                                     });
                                 }}
                             />
-                             <TextField
+                            <TextField
                                 variant="outlined"
-                                value={this.state.password}
+                                value={this.state.newpassword}
                                 margin="normal"
                                 required
                                 fullWidth
@@ -126,9 +128,9 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 color="primary"
                                 style={{ marginTop: '10px' }}
                                 // disabled={this.disableSignInButton()}
-                                onClick={()=> {
+                                onClick={() => {
                                     const resetPassword = new ResetTempPasswordRepo();
-                                    const {username,temppassword,newpassword}  = this.state;
+                                    const { username, temppassword, newpassword } = this.state;
                                     resetPassword.setNewPassword(username, temppassword, newpassword);
                                 }}
                             >
@@ -160,7 +162,7 @@ export default class UserLogin extends React.Component<{}, IState> {
                         >
                             <TextField
                                 variant="outlined"
-                                value={this.state.username}
+                                value={this.state.username2}
                                 margin="normal"
                                 required
                                 fullWidth
@@ -171,7 +173,7 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 autoFocus
                                 onChange={(event) => {
                                     this.setState({
-                                        username: event.target.value,
+                                        username2: event.target.value,
                                     });
                                 }}
                             />
@@ -193,16 +195,19 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 }}
                             />
                             <Button
-                                type="submit"
                                 fullWidth
                                 id="sign-in-button"
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
-                                onClick={()=> {
+                                onClick={async () => {
                                     const userLogin = new LoginRepo();
-                                    const {username, password} = this.state;
-                                    userLogin.login(username, password);
+                                    const { username2, password } = this.state;
+                                    try {
+                                        const blah = userLogin.login(username2, password);
+                                    } catch (e) {
+                                        console.log(JSON.stringify(e))
+                                    }
                                 }}
                             >
                                 Sign In

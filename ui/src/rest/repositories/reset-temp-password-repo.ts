@@ -1,5 +1,6 @@
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import { RestClient } from '../rest-client';
+import { poolData } from './pool-data';
 
 export class ResetTempPasswordRepo {
     public setNewPassword(username: string, tempPassword: string, newPassword: string) {
@@ -8,11 +9,6 @@ export class ResetTempPasswordRepo {
             Password: tempPassword,
         };
         const authenticationDetails = new AuthenticationDetails(authenticationData);
-
-        const poolData = {
-            UserPoolId: 'eu-west-2_fHebUkQCI',
-            ClientId: '2rfhe1vn13858riolrtnv2vakl',
-        };
 
         const userPool = new CognitoUserPool(poolData);
         const userData = {
@@ -28,11 +24,9 @@ export class ResetTempPasswordRepo {
                 // passing through an Authorization Header to an API Gateway Authorizer
                 const idToken = result.getIdToken().getJwtToken();
                 RestClient.setJwtToken(idToken);
-                console.log(idToken);
             },
 
             onFailure: function (err) {
-                console.log(JSON.stringify(err));
                 return err;
             },
             
