@@ -1,15 +1,12 @@
 import React from 'react';
 import { Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { AlertType, NotificationAlert } from '../Errors/NotificationAlert';
 import { Notifications } from '../../domain/notifications';
 import Toolbar from '@material-ui/core/Toolbar';
 import { LoginRepo } from '../../rest/repositories/login-repo';
 import { ResetTempPasswordRepo } from '../../rest/repositories/reset-temp-password-repo';
-
 
 interface IState {
     username: string;
@@ -19,7 +16,6 @@ interface IState {
     newpassword: string;
     outcome: AlertType | undefined;
     outcomeMessage: string;
-    errors: Notifications;
 }
 
 export default class UserLogin extends React.Component<{}, IState> {
@@ -33,7 +29,6 @@ export default class UserLogin extends React.Component<{}, IState> {
             newpassword: '',
             outcome: undefined,
             outcomeMessage: '',
-            errors: new Notifications(),
         };
     }
 
@@ -41,13 +36,7 @@ export default class UserLogin extends React.Component<{}, IState> {
         return (
             <main>
                 {this.state.outcome && (
-                    <NotificationAlert alertType={this.state.outcome} message={this.state.outcomeMessage} />
-                )}
-                {!this.state.errors.isEmpty() && (
-                    <NotificationAlert
-                        alertType={AlertType.FAILED}
-                        message={`Error(s): ${this.state.errors.errorMessage()}`}
-                    />
+                    <NotificationAlert alertType={AlertType.FAILED} message={this.state.outcomeMessage} />
                 )}
                 <Toolbar />
                 <Container component="main" maxWidth="xs">
@@ -127,10 +116,16 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
-                                onClick={()=> {
+                                onClick={() => {
                                     const resetPassword = new ResetTempPasswordRepo();
                                     const { username, temppassword, newpassword } = this.state;
-                                    resetPassword.setNewPassword(username, temppassword, newpassword);
+                                    const onSuccess = () => {
+                                        this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `Login successful: Hi ${username}`})
+                                    }
+                                    const onError = (err: any) => {
+                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${err.message}` });
+                                    };
+                                    resetPassword.setNewPassword(username, temppassword, newpassword, onSuccess, onError);
                                 }}
                             >
                                 Update Password
@@ -199,14 +194,16 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
-                                onClick={async () => {
+                                onClick={() => {
                                     const userLogin = new LoginRepo();
                                     const { username2, password } = this.state;
-                                    try {
-                                        const blah = userLogin.login(username2, password);
-                                    } catch (e) {
-                                        console.log(JSON.stringify(e))
+                                    const onSuccess = () => {
+                                        this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `Login successful: Hi ${username2}`})
                                     }
+                                    const onError = (err: any) => {
+                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${err.message}` });
+                                    };
+                                    userLogin.login(username2, password, onSuccess, onError);
                                 }}
                             >
                                 Sign In
