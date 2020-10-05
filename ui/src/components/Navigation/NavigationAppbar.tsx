@@ -96,7 +96,7 @@ const NavigationAppbar: React.FC = (props: any) => {
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
-                        Graph As Service
+                        Kai: Graph As A Service
                     </Typography>
                 </Toolbar>
             </AppBar>
