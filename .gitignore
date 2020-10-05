@@ -6,7 +6,7 @@
 node_modules
 __pycache__/
 *.pyc
-
+package-lock.json
 # CDK temporary file
 cdk.context.json
 
