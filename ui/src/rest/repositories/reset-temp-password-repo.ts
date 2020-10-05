@@ -1,6 +1,6 @@
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import { RestClient } from '../rest-client';
-import { poolData } from './pool-data';
+import { poolData } from '../../../cognito-config';
 
 export class ResetTempPasswordRepo {
     public setNewPassword(username: string, tempPassword: string, newPassword: string, onSuccess: Function, onError: Function) {
