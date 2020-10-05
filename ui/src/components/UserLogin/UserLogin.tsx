@@ -10,13 +10,12 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { LoginRepo } from '../../rest/repositories/login-repo';
 import { ResetTempPasswordRepo } from '../../rest/repositories/reset-temp-password-repo';
 
-
 interface IState {
     username: string;
     username2: string;
     password: string;
-    temppassword: string;
-    newpassword: string;
+    tempPassword: string;
+    newPassword: string;
     outcome: AlertType | undefined;
     outcomeMessage: string;
     errors: Notifications;
@@ -29,12 +28,23 @@ export default class UserLogin extends React.Component<{}, IState> {
             username: '',
             username2: '',
             password: '',
-            temppassword: '',
-            newpassword: '',
+            tempPassword: '',
+            newPassword: '',
             outcome: undefined,
             outcomeMessage: '',
             errors: new Notifications(),
         };
+    }
+    private disableSignInButton(): boolean {
+        const username2 = this.state.username2;
+        const password = this.state.password;
+        return !username2 || !password;
+    }
+    private disableUpdateButton(): boolean {
+        const username = this.state.username;
+        const tempPassword = this.state.tempPassword;
+        const newPassword = this.state.newPassword;
+        return !username || !tempPassword || !newPassword;
     }
 
     public render() {
@@ -89,35 +99,35 @@ export default class UserLogin extends React.Component<{}, IState> {
                             />
                             <TextField
                                 variant="outlined"
-                                value={this.state.temppassword}
+                                value={this.state.tempPassword}
                                 margin="normal"
                                 required
                                 fullWidth
-                                name="temppassword"
+                                name="temp-password"
                                 label="Temp Password"
                                 type="password"
-                                id="temppassword"
+                                id="temp-password"
                                 autoComplete="current-password"
                                 onChange={(event) => {
                                     this.setState({
-                                        temppassword: event.target.value,
+                                        tempPassword: event.target.value,
                                     });
                                 }}
                             />
                             <TextField
                                 variant="outlined"
-                                value={this.state.newpassword}
+                                value={this.state.newPassword}
                                 margin="normal"
                                 required
                                 fullWidth
-                                name="newpassword"
+                                name="new-password"
                                 label="New Password"
                                 type="password"
-                                id="newpassword"
+                                id="new-password"
                                 autoComplete="current-password"
                                 onChange={(event) => {
                                     this.setState({
-                                        newpassword: event.target.value,
+                                        newPassword: event.target.value,
                                     });
                                 }}
                             />
@@ -127,10 +137,11 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
-                                onClick={()=> {
+                                disabled={this.disableUpdateButton()}
+                                onClick={() => {
                                     const resetPassword = new ResetTempPasswordRepo();
-                                    const { username, temppassword, newpassword } = this.state;
-                                    resetPassword.setNewPassword(username, temppassword, newpassword);
+                                    const { username, tempPassword, newPassword } = this.state;
+                                    resetPassword.setNewPassword(username, tempPassword, newPassword);
                                 }}
                             >
                                 Update Password
@@ -165,9 +176,9 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="username"
+                                id="username2"
                                 label="Username"
-                                name="username"
+                                name="username2"
                                 autoComplete="username"
                                 autoFocus
                                 onChange={(event) => {
@@ -199,13 +210,14 @@ export default class UserLogin extends React.Component<{}, IState> {
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
+                                disabled={this.disableSignInButton()}
                                 onClick={async () => {
                                     const userLogin = new LoginRepo();
                                     const { username2, password } = this.state;
                                     try {
                                         const blah = userLogin.login(username2, password);
                                     } catch (e) {
-                                        console.log(JSON.stringify(e))
+                                        console.log(JSON.stringify(e));
                                     }
                                 }}
                             >

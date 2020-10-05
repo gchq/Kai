@@ -6,7 +6,7 @@ describe('ResetTempPasswrod Service', () => {
         const tempPassword = 'Password1';
         const newPassword= 'NewPassword!';
 
-        new ResetTempPasswordRepo().setPassword(username, tempPassword, newPassword);
+        new ResetTempPasswordRepo().setNewPassword(username, tempPassword, newPassword);
 
         // expect not to throw
     });
@@ -15,7 +15,7 @@ describe('ResetTempPasswrod Service', () => {
         const tempPassword = 'Password1';
         const newPassword= 'NewPassword!';
 
-        new ResetTempPasswordRepo().setPassword(username, tempPassword, newPassword);
+        new ResetTempPasswordRepo().setNewPassword(username, tempPassword, newPassword);
 
         // expect throw error
     });
@@ -24,7 +24,7 @@ describe('ResetTempPasswrod Service', () => {
         const tempPassword = 'Password1';
         const newPassword= 'NewPassword!';
 
-        new ResetTempPasswordRepo().setPassword(username, tempPassword, newPassword);
+        new ResetTempPasswordRepo().setNewPassword(username, tempPassword, newPassword);
 
         // expect throw error
     });
@@ -33,7 +33,7 @@ describe('ResetTempPasswrod Service', () => {
         const tempPassword = 'Password1';
         const newPassword= 'NewPassword!';
 
-        new ResetTempPasswordRepo().setPassword(username, tempPassword, newPassword);
+        new ResetTempPasswordRepo().setNewPassword(username, tempPassword, newPassword);
 
         // expect throw error
     });
