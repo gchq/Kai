@@ -82,7 +82,7 @@ const NavigationAppbar: React.FC = (props: any) => {
                 return <VisibilityIcon />;
             case 'User Guide':
                 return <LocalLibraryIcon />;
-            case 'User Login':
+            case 'Sign In':
                 return <LockOpenIcon />;   
             default:
                 return null;

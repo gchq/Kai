@@ -1,6 +1,6 @@
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import { RestClient } from '../rest-client';
-import { poolData } from '../../../cognito-config';
+import { poolData } from '../cognito-config';
 
 export class LoginRepo {
     public login(username: string, password: string, onSuccess: Function, onError: Function) {
@@ -28,7 +28,7 @@ export class LoginRepo {
             },
 
             onFailure: function (error) {
-                onError(error);
+                onError(error.message);
             },
         });
     }

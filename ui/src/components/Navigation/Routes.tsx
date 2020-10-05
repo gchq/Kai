@@ -6,7 +6,7 @@ import UserLogin from '../UserLogin/UserLogin';
 const Routes = [
     {
         path: '/UserLogin',
-        sidebarName: 'User Login',
+        sidebarName: 'Sign In',
         component: UserLogin,
     },
     {

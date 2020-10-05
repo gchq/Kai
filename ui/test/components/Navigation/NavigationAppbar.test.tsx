@@ -26,7 +26,7 @@ describe('Navigation Appbar Component', () => {
     });
 
     it('should display menu in Navbar', () => {
-        const cols = [{ name: 'User Login' }, { name: 'Add Graph' }, { name: 'View Graphs' }, { name: 'User Guide' }];
+        const cols = [{ name: 'Sign In' }, { name: 'Add Graph' }, { name: 'View Graphs' }, { name: 'User Guide' }];
         const NavLi = wrapper.find('li').at(1);
         NavLi.forEach((li, idx) => {
             const NavIcon = li.find('svg');

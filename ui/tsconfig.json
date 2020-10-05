@@ -28,7 +28,7 @@
     "./src/**/*.tsx", 
     "./src/**/*.ts",
     "./test/**/*.tsx",
-    "./test/**/*.ts", "test/setupTests.ts", "cognito-config.ts"
+    "./test/**/*.ts", "test/setupTests.ts"
   ],
   "exclude": [
     "node_modules",

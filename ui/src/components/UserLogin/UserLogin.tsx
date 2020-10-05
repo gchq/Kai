@@ -36,7 +36,7 @@ export default class UserLogin extends React.Component<{}, IState> {
         const password = this.state.password;
         return !username2 || !password;
     }
-    
+
     private disableUpdateButton(): boolean {
         const username = this.state.username;
         const tempPassword = this.state.tempPassword;
@@ -135,8 +135,8 @@ export default class UserLogin extends React.Component<{}, IState> {
                                     const onSuccess = () => {
                                         this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `Login successful: Hi ${username}`})
                                     }
-                                    const onError = (err: any) => {
-                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${err.message}` });
+                                    const onError = (errorMessage: string) => {
+                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${errorMessage}` });
                                     };
                                     resetPassword.setNewPassword(username, tempPassword, newPassword, onSuccess, onError);
                                 }}
@@ -214,8 +214,8 @@ export default class UserLogin extends React.Component<{}, IState> {
                                     const onSuccess = () => {
                                         this.setState({ outcome: AlertType.SUCCESS, outcomeMessage: `Login successful: Hi ${username2}`})
                                     }
-                                    const onError = (err: any) => {
-                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${err.message}` });
+                                    const onError = (errorMessage: string) => {
+                                        this.setState({ outcome: AlertType.FAILED ,outcomeMessage: `Login failed: ${errorMessage}` });
                                     };
                                     userLogin.login(username2, password, onSuccess, onError);
                                 }}
