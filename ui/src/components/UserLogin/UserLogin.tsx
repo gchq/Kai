@@ -123,12 +123,11 @@ export default class UserLogin extends React.Component<{}, IState> {
                             />
                             <Button
                                 fullWidth
-                                id="sign-in-button"
+                                id="update-button"
                                 variant="contained"
                                 color="primary"
                                 style={{ marginTop: '10px' }}
-                                // disabled={this.disableSignInButton()}
-                                onClick={() => {
+                                onClick={()=> {
                                     const resetPassword = new ResetTempPasswordRepo();
                                     const { username, temppassword, newpassword } = this.state;
                                     resetPassword.setNewPassword(username, temppassword, newpassword);
