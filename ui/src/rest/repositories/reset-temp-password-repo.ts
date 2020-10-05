@@ -3,7 +3,7 @@ import { RestClient } from '../rest-client';
 import { poolData } from './pool-data';
 
 export class ResetTempPasswordRepo {
-    public setNewPassword(username: string, tempPassword: string, newPassword: string) {
+    public setNewPassword(username: string, tempPassword: string, newPassword: string, onSuccess: Function, onError: Function) {
         const authenticationData = {
             Username: username,
             Password: tempPassword,
@@ -24,10 +24,11 @@ export class ResetTempPasswordRepo {
                 // passing through an Authorization Header to an API Gateway Authorizer
                 const idToken = result.getIdToken().getJwtToken();
                 RestClient.setJwtToken(idToken);
+                onSuccess();
             },
 
-            onFailure: function (err) {
-                return err;
+            onFailure: function (error) {
+                onError(error);
             },
             
             newPasswordRequired: function (userAttributes, requiredAttributes) {

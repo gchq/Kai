@@ -3,7 +3,7 @@ import { RestClient } from '../rest-client';
 import { poolData } from './pool-data';
 
 export class LoginRepo {
-    public login(username: string, password: string) {
+    public login(username: string, password: string, onSuccess: Function, onError: Function) {
         const authenticationData = {
             Username: username,
             Password: password,
@@ -18,21 +18,18 @@ export class LoginRepo {
 
         const cognitoUser = new CognitoUser(userData);
 
-        return new Promise(() =>
-            cognitoUser.authenticateUser(authenticationDetails, {
-                onSuccess: function (result) {
-                    // Use the idToken for Logins Map when Federating User Pools with identity pools or when
-                    // passing through an Authorization Header to an API Gateway Authorizer
-                    const idToken = result.getIdToken().getJwtToken();
-                    RestClient.setJwtToken(idToken);
-                },
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                // Use the idToken for Logins Map when Federating User Pools with identity pools or when
+                // passing through an Authorization Header to an API Gateway Authorizer
+                const idToken = result.getIdToken().getJwtToken();
+                RestClient.setJwtToken(idToken);
+                onSuccess();
+            },
 
-                onFailure: function (err) {
-                    throw new Error(err.message);
-                },
-            })
-        ).catch((e) => {
-            throw new Error(e.message);
+            onFailure: function (error) {
+                onError(error);
+            },
         });
     }
 }
