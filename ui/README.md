@@ -13,11 +13,15 @@ It also uses [Concurrently](https://www.npmjs.com/package/concurrently) to run a
 UI to send requests to. You can edit the example HTTP Responses for each endpoint in [middleware.js](./server/middleware.js).
 It runs on an Express server so here are the support [Response docs](http://expressjs.com/en/5x/api.html#res).
 
+#### `npm client`
+
+Runs only the UI app in development without a dev backend and therefore will make via proxy.
+
 #### `npm test`
 
 Runs all tests with a coverage report. 
 
-#### `npm testwatch`
+#### `npm watch`
 
 Jest will launch all tests in watch mode. Every time you save a file, it will re-run the tests.<br />
 
@@ -42,7 +46,23 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## API Integration
+## AWS Integration
+
+The .env file must be configured for the following values for the deployed API and it's User Pool that you want to interface with:
+
+```
+REACT_APP_KAI_REST_API_HOST=https://my-example-api-gateway.amazonaws.com 
+REACT_APP_COGNITO_USERPOOLID=eu-west-2_example123
+REACT_APP_COGNITO_CLIENTID=abc123
+```
+
+#### Cognito Integration
+
+The UI App must be authorise a User by retreiving a JWT (JSON Web Token) from Cognito and setting this in the API's request headers as `Authorisation` so that the API returns a successful response. It is configured by supplying the User Pool ID and Client ID created after deployment.
+
+For dev mode it is configured by entering these values in [cognito-config.js](./src/rest/cognito-config.ts) and if production mode it can be configured as in [.env](./.env) file.
+
+#### API Integration
 
 To point this UI app to an Kai's API endpoint, assign the base endpoint for the environment variable `REACT_APP_KAI_REST_API_HOST`
 in the [.env](./.env) file. 
