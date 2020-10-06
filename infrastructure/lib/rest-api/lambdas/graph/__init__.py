@@ -61,4 +61,3 @@ class Graph:
             },
             ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
         )
-

@@ -6,7 +6,7 @@
 node_modules
 __pycache__/
 *.pyc
-
+package-lock.json
 # CDK temporary file
 cdk.context.json
 
@@ -17,3 +17,7 @@ cdk.out
 # Parcel build directories
 .cache
 .build
+
+# IntelliJ settings
+.idea
+Kai.iml
