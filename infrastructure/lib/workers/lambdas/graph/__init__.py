@@ -33,6 +33,26 @@ class Graph:
 
         return status == expected_status
 
+                  
+    def update_endpoints(self, resource_name, resource_address):
+        """
+        Update graph with endpoints that get created by the application load balancer
+        """
+        self.table.update_item(
+            Key={
+                "releaseName": self.release_name
+            },
+            UpdateExpression = "SET endpoints.#resourceName = :resourceAddress",
+            ExpressionAttributeNames = { 
+                "#resourceName" : resource_name 
+                },
+            ExpressionAttributeValues = {
+                ":resourceAddress": resource_address
+            },
+            ConditionExpression = "attribute_not_exists(endpoints.#resourceName)"
+        )
+
+
     def update_status(self, status):
         """
         Updates the status of a Graph

@@ -91,6 +91,11 @@ describe("GET /graphs tests", () => {
                 clusterHelper.userTokens[user1].user.userName,
                 clusterHelper.userTokens[user3].user.userName
             ],
+            endpoints:{
+                "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+            },
             currentState: "DEPLOYED",
             releaseName: testGraph1.toLowerCase()
         });
@@ -107,6 +112,11 @@ describe("GET /graphs tests", () => {
                 clusterHelper.userTokens[user1].user.userName,
                 clusterHelper.userTokens[user3].user.userName
             ],
+            endpoints:{
+                "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+            },
             currentState: "DEPLOYED",
             releaseName: testGraph1.toLowerCase()
         });
@@ -125,6 +135,11 @@ describe("GET /graphs/{graphName} tests", () => {
                 clusterHelper.userTokens[user1].user.userName,
                 clusterHelper.userTokens[user3].user.userName
             ],
+            endpoints:{
+                "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+            },
             currentState: "DEPLOYED",
             releaseName: testGraph1.toLowerCase()
         });
@@ -140,6 +155,11 @@ describe("GET /graphs/{graphName} tests", () => {
                 clusterHelper.userTokens[user1].user.userName,
                 clusterHelper.userTokens[user3].user.userName
             ],
+            endpoints:{
+                "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+            },
             currentState: "DEPLOYED",
             releaseName: testGraph1.toLowerCase()
         });
