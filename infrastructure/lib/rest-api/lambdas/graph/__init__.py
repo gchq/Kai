@@ -1,6 +1,8 @@
 import boto3
 import os
 
+from boto3.dynamodb.conditions import Attr
+
 
 class Graph:
 
@@ -12,26 +14,31 @@ class Graph:
 
     def format_graph_name(self, graph_name):
         return graph_name.lower()
-        
 
-    def get_all_graphs(self, requesting_user):
+
+    def get_all_graphs(self, requesting_user, namespace_name):
         """
         Gets all graphs from Dynamodb table
         """
         graphs = self.table.scan()["Items"]
-        if requesting_user is None:
-            return graphs
-        else:
-            return list(filter(lambda graph: requesting_user in graph["administrators"], graphs))
+
+        if requesting_user is not None:
+            graphs = list(filter(lambda graph: requesting_user in graph["administrators"], graphs))
+
+        if namespace_name is not None:
+            graphs = list(filter(lambda graph: namespace_name == graph["namespaceName"], graphs))
+
+        return graphs
 
 
-    def get_graph(self, graph_name):
+    def get_graph(self, graph_name, namespace_name):
         """
         Gets a specific graph from Dynamodb table
         """
         response = self.table.get_item(
             Key={
-                "releaseName": self.format_graph_name(graph_name)
+                "releaseName": self.format_graph_name(graph_name),
+                "namespaceName": namespace_name
             }
         )
         if "Item" in response:
@@ -39,28 +46,28 @@ class Graph:
         raise Exception
 
 
-    def update_graph(self, release_name, status): 
+    def update_graph(self, release_name, namespace_name, status):
         self.table.update_item(
             Key={
-                "releaseName": release_name
+                "releaseName": release_name,
+                "namespaceName": namespace_name
             },
             UpdateExpression="SET currentState = :state",
             ExpressionAttributeValues={
                 ":state": status
             },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").exists()
+            ConditionExpression=Attr("releaseName").exists() & Attr("namespaceName").exists()
         )
 
-
-    def create_graph(self, release_name, graph_name, status, administrators):      
+    def create_graph(self, release_name, graph_name, status, administrators, namespace_name):
         self.table.put_item(
             Item={
                 "graphName": graph_name,
                 "releaseName": release_name,
+                "namespaceName": namespace_name,
                 "currentState": status,
                 "administrators": administrators,
-                "endpoints":{}
+                "endpoints": {}
             },
-            ConditionExpression=boto3.dynamodb.conditions.Attr("releaseName").not_exists()
+            ConditionExpression=Attr("releaseName").not_exists() | Attr("namespaceName").not_exists()
         )
-

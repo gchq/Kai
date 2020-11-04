@@ -35,7 +35,7 @@ export class Worker extends Construct {
         // Build environment for Lambda
         const environment: { [id: string] : string; } = {
             "cluster_name": props.cluster.clusterName,
-            "graph_table_name": props.graphTable.tableName
+            "table_name": props.table.tableName
         };
         if (extraSecurityGroups) {
             environment["extra_security_groups"] = extraSecurityGroups;
@@ -60,7 +60,7 @@ export class Worker extends Construct {
             this._function.addToRolePolicy(policyStatement);
         }
 
-        props.graphTable.grantReadWriteData(this._function);
+        props.table.grantReadWriteData(this._function);
     
         const workerRole = this._function.role;
 

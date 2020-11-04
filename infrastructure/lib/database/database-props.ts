@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-export interface GraphDatabaseProps {
+export interface DatabaseProps {
+    graphTableScalingProps: ScalingProps;
+    namespaceTableScalingProps: ScalingProps;
+}
+
+export interface ScalingProps {
     minCapacity: number;
     maxCapacity: number;
     targetUtilizationPercent: number

@@ -1,12 +1,15 @@
 import boto3
-from botocore.exceptions import ClientError
-from graph import Graph
 import json
 import os
 import re
+
+from botocore.exceptions import ClientError
+from graph import Graph
+from namespace import Namespace
 from user import User
 
 graph = Graph()
+namespace = Namespace()
 user = User()
 
 def is_graph_name_valid(graph_name):
@@ -30,17 +33,15 @@ def handler(event, context):
             "statusCode": 400,
             "body": "schema is a required field"
         }
+    if "namespaceName" not in request_body or not namespace.is_namespace_name_valid(request_body["namespaceName"]):
+        return {
+            "statusCode": 400,
+            "body": "namespaceName is a required field which must be a valid DNS label"
+        }
 
     graph_name = request_body["graphName"]
     schema = request_body["schema"]
-
-    # Get variables from env
-    queue_url = os.getenv("sqs_queue_url")
-
-    # Convert graph name to lowercase
-    release_name = graph.format_graph_name(graph_name)
-
-    initial_status = "DEPLOYMENT_QUEUED"
+    namespace_name = request_body["namespaceName"]
 
     administrators = []
     requesting_user = user.get_requesting_cognito_user(event)
@@ -57,12 +58,40 @@ def handler(event, context):
         }
 
     try:
-        graph.create_graph(release_name, graph_name, initial_status, administrators)
+        namespace_record = namespace.get_namespace(namespace_name)
+        if not namespace_record["currentState"] == "DEPLOYED":
+            return {
+                "statusCode": 400,
+                "body": "Graph: {} can not be added to Namespace {} as the namespace is not in a DEPLOYED state".format(graph_name, namespace_name)
+            }
+        if requesting_user is not None and not namespace_record["isPublic"] and not requesting_user in namespace_record["administrators"]:
+            return {
+                "statusCode": 403,
+                "body": "User {} is not permitted to deploy a graph into namespace: {}".format(requesting_user, namespace_name)
+            }
+
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "body": "Could not create graph, namespace: {} was not found".format(namespace_name)
+        }
+
+
+    # Get variables from env
+    queue_url = os.getenv("sqs_queue_url")
+
+    # Convert graph name to lowercase
+    release_name = graph.format_graph_name(graph_name)
+
+    initial_status = "DEPLOYMENT_QUEUED"
+
+    try:
+        graph.create_graph(release_name, graph_name, initial_status, administrators, namespace_name)
     except ClientError as e:
         if e.response['Error']['Code']=='ConditionalCheckFailedException': 
             return {
                 "statusCode": 400,
-                "body": "Graph release name " + release_name + " already exists as the lowercase conversion of " + graph_name + ". Graph names must be unique"
+                "body": "Graph release name: {} already exists in namespace: {}. Lowercase Graph names must be unique within a namespace.".format(release_name, namespace_name)
             }
         else:
             return {
@@ -74,6 +103,7 @@ def handler(event, context):
     message = {
         "graphName": graph_name,
         "releaseName": release_name,
+        "namespaceName": namespace_name,
         "schema": schema,
         "expectedStatus": initial_status,
         "endpoints":{}

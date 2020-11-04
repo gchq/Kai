@@ -43,7 +43,7 @@ function createWorker(stack: cdk.Stack, extraSGs?: string, handler = "testHandle
         queue: donorQueue,
         cluster: donorCluster,
         kubectlLayer: layer,
-        graphTable: table,
+        table: table,
         handler: handler,
         timeout: timeout,
         batchSize: batchSize,
@@ -135,7 +135,7 @@ function expectLambdaEnvironmentContainsNoExtraSecurityGroups(stack: cdk.Stack) 
                 "cluster_name": {
                     "Ref": "testClusterFF806018"
                 },
-                "graph_table_name": {
+                "table_name": {
                     "Ref": "testAF53AC38"
                 }
             }

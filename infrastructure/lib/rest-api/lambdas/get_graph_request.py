@@ -1,7 +1,8 @@
-import os
 import boto3
-from graph import Graph
 import json
+import os
+
+from graph import Graph
 from user import User
 
 graph = Graph()
@@ -21,20 +22,24 @@ def handler(event, context):
     else:
         graph_name = path_params["graphName"]
 
+    namespace_name = None
+    if path_params is not None and "namespaceName" in path_params:
+        namespace_name = path_params["namespaceName"]
+
     requesting_user = user.get_requesting_cognito_user(event)
 
     if return_all:
         return {
             "statusCode": 200,
-            "body": json.dumps(graph.get_all_graphs(requesting_user))
+            "body": json.dumps(graph.get_all_graphs(requesting_user, namespace_name))
         }
     else:
         try:
-            graph_record = graph.get_graph(graph_name)
+            graph_record = graph.get_graph(graph_name, namespace_name)
             if requesting_user and not requesting_user in graph_record["administrators"]:
                 return {
                     "statusCode": 403,
-                    "body": "User: {} is not authorized to retrieve graph: {}".format(requesting_user, graph_name)
+                    "body": "User: {} is not authorized to retrieve graph: {} from namespace: {}".format(requesting_user, graph_name, namespace_name)
                 }
 
             return {
@@ -44,5 +49,5 @@ def handler(event, context):
         except Exception as e:
             return {
                 "statusCode": 404,
-                "body": graph_name + " was not found"
+                "body": "{} was not found in namespace {}".format(graph_name, namespace_name)
             }

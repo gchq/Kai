@@ -16,27 +16,37 @@
 
 import * as cdk from "@aws-cdk/core";
 import * as dynamo from "@aws-cdk/aws-dynamodb";
-import { GraphDatabaseProps } from "./graph-database-props";
+import { DatabaseProps, ScalingProps } from "./database-props";
 
 /**
  * The underlying database for Graphs.
  */
-export class GraphDatabase extends cdk.Construct {
-    private readonly _table: dynamo.Table;
+export class Database extends cdk.Construct {
+    private readonly _graphTable: dynamo.Table;
+    private readonly _namespaceTable: dynamo.Table;
 
-    constructor(scope: cdk.Construct, id: string, props: GraphDatabaseProps) {
+    constructor(scope: cdk.Construct, id: string, props: DatabaseProps) {
         super(scope, id);
-        
-        // Table
 
-        this._table = new dynamo.Table(this, "GraphDynamoTable", {
+        this._graphTable = new dynamo.Table(this, "GraphDynamoTable", {
             partitionKey: { name: "releaseName", type: dynamo.AttributeType.STRING },
+            sortKey: { name: "namespaceName", type: dynamo.AttributeType.STRING },
             billingMode: dynamo.BillingMode.PROVISIONED,
             removalPolicy: cdk.RemovalPolicy.DESTROY
         });
 
-        // Autoscaling
+        this.configureAutoScaling(this._graphTable, props.graphTableScalingProps);
 
+        this._namespaceTable = new dynamo.Table(this, "NamespaceDynamoTable", {
+            partitionKey: { name: "namespaceName", type: dynamo.AttributeType.STRING },
+            billingMode: dynamo.BillingMode.PROVISIONED,
+            removalPolicy: cdk.RemovalPolicy.DESTROY
+        });
+
+        this.configureAutoScaling(this._namespaceTable, props.namespaceTableScalingProps);
+    }
+
+    private configureAutoScaling(table: dynamo.Table, props: ScalingProps): void {
         const scalingProps: dynamo.EnableScalingProps = {
             minCapacity: props.minCapacity,
             maxCapacity: props.maxCapacity
@@ -46,15 +56,18 @@ export class GraphDatabase extends cdk.Construct {
             targetUtilizationPercent: props.targetUtilizationPercent
         };
 
-        const readScaling  = this._table.autoScaleReadCapacity(scalingProps);
+        const readScaling = table.autoScaleReadCapacity(scalingProps);
         readScaling.scaleOnUtilization(utilisationProps);
 
-        const writeScaling = this._table.autoScaleWriteCapacity(scalingProps);
+        const writeScaling = table.autoScaleWriteCapacity(scalingProps);
         writeScaling.scaleOnUtilization(utilisationProps);
-
     }
 
-    public get table(): dynamo.Table {
-        return this._table;
+    public get graphTable(): dynamo.Table {
+        return this._graphTable;
+    }
+
+    public get namespaceTable(): dynamo.Table {
+        return this._namespaceTable;
     }
 }

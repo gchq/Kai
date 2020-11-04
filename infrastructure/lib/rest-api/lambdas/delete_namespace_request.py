@@ -4,60 +4,57 @@ import os
 
 from botocore.exceptions import ClientError
 from graph import Graph
+from namespace import Namespace
 from user import User
 
-# Get variables from env
-queue_url = os.getenv("sqs_queue_url")
-
 graph = Graph()
+namespace = Namespace()
 user = User()
+
 
 def handler(event, context):
     params = event["pathParameters"]
 
     # Check request is valid
-    graph_name = params["graphName"]
     namespace_name = params["namespaceName"]
 
-    # Convert graph name to lowercase
-    release_name = graph.format_graph_name(graph_name)    
-
-    if graph_name is None:
+    if namespace_name is None or not namespace.is_namespace_name_valid(namespace_name):
         return {
             "statusCode": 400,
-            "body": "graphName is a required field"
-        }
-
-    if namespace_name is None:
-        return {
-            "statusCode": 400,
-            "body": "namespaceName is a required field"
+            "body": "namespaceName is a required field which must be a valid DNS label"
         }
 
     try:
-        graph_record = graph.get_graph(release_name, namespace_name)
+        namespace_record = namespace.get_namespace(namespace_name)
         requesting_user = user.get_requesting_cognito_user(event)
-        if requesting_user and not requesting_user in graph_record["administrators"]:
+        if requesting_user and not requesting_user in namespace_record["administrators"]:
             return {
                 "statusCode": 403,
-                "body": "User: {} is not authorized to delete graph: {} in namespace: {}".format(requesting_user, graph_name, namespace_name)
+                "body": "User: {} is not authorized to delete namespace: {}".format(requesting_user, namespace_name)
+            }
+        graphs = graph.get_all_graphs(None, namespace_name);
+        if graphs:
+            namespace_graph_names = list(map(lambda graph: graph["graphName"], graphs));
+            return {
+                "statusCode": 400,
+                "body": "Unable to delete Namespace: {}, the graphs: {} deployed to this namespace and must be deleted first.".format(namespace_name, namespace_graph_names)
             }
     except:
         return {
             "statusCode": 400,
-            "body": "Graph: {} in namespace: {} does not exist. It may have already been deleted".format(graph_name, namespace_name)
+            "body": "Namespace {} does not exist. It may have already have been deleted".format(namespace_name)
         }
 
+    queue_url = os.getenv("sqs_queue_url")
     initial_status = "DELETION_QUEUED"
 
-    # Add Entry to table
     try:
-        graph.update_graph(release_name, namespace_name, initial_status)
+        namespace.update_namespace_status(namespace_name, initial_status)
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 "statusCode": 400,
-                "body": "Graph: {} in namespace: {} does not exist. It may have already been deleted".format(graph_name, namespace_name)
+                "body": "Namespace {} does not exist. It may have already have been deleted".format(namespace_name)
             }
         else:
             return {
@@ -67,8 +64,6 @@ def handler(event, context):
 
     # Set the status so the worker knows what to expect. This also filters out anything else in the body
     message = {
-        "graphName": graph_name,
-        "releaseName": release_name,
         "namespaceName": namespace_name,
         "expectedStatus": initial_status
     }

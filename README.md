@@ -30,7 +30,7 @@ extraIngressSecurityGroups | string        | ""            | Additional vpcs tha
 globalTags                 | object        | {}            | Tags that get added to every taggable resource.
 clusterNodeGroup           | object        | null          | Configuration for the eks cluster nodegroup. See below for details.
 userPoolConfiguration      | object        | null          | Cognito UserPool configuration. See below for details.
-graphDatabaseProps         | object        | see cdk.json  | Configuration for the Dynamodb graph database's autoscaling. 
+databaseProps              | object        | see cdk.json  | Configuration for Dynamodb table autoscaling.
 
 ## Changing the nodegroup properties
 
@@ -46,14 +46,21 @@ By default, Kai ships with a nodegroup with the following parameters:
 
 These properties are changeable through the context variable: "clusterNodeGroup".
 
-## Graph Database Autoscaling
-Depending on your needs, you may want to change the autoscaling properties of the Graph Database. The default properties in the cdk.json file are as follows:
+## Database Autoscaling
+Depending on your needs, you may want to change the autoscaling properties of the Graph and Namespace tables in the Dynamodb Database. The default properties in the cdk.json file are as follows:
 ```json
 {
-    "graphDatabaseProps": {
-      "minCapacity": 1,
-      "maxCapacity": 25,
-      "targetUtilizationPercent": 80
+    "databaseProps": {
+        "graphTableScalingProps": {
+            "minCapacity": 1,
+            "maxCapacity": 25,
+            "targetUtilizationPercent": 80
+        },
+        "namespaceTableScalingProps": {
+            "minCapacity": 1,
+            "maxCapacity": 25,
+            "targetUtilizationPercent": 80
+        }
     }
 }
 ```

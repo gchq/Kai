@@ -17,7 +17,9 @@
 import { Table } from "@aws-cdk/aws-dynamodb";
 
 export interface KaiRestApiProps {
+    clusterName: string;
     graphTable: Table;
+    namespaceTable: Table;
     userPoolArn: string;
     userPoolId: string;
 }
