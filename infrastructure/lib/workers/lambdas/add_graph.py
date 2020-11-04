@@ -16,6 +16,7 @@ os.environ['PATH'] = '/opt/kubectl:/opt/helm:/opt/awscli:' + os.environ['PATH']
 cluster_name = os.getenv("cluster_name")
 graph_table_name = os.getenv("table_name")
 
+
 def generate_password(length=8):
     """
     Generates a random password of a given length
@@ -45,7 +46,7 @@ def create_values(graph_name, schema, security_groups):
         },
         "pathPrefix": "/*"
     }
-    
+
     return {
         "graph": {
             "config": {
@@ -95,6 +96,15 @@ def create_values(graph_name, schema, security_groups):
         }
     }
 
+def update_endpoints(namespace_name, release_name, graph):
+    kubernetes_client = kubernetes.KubernetesClient(cluster_name)
+    alb_endpoint_output = kubernetes_client.get_alb_endpoints(namespace_name, release_name)
+    if (alb_endpoint_output):
+        for line in alb_endpoint_output.splitlines():
+            resource_details = line.split()
+            resource_name = resource_details[0]
+            resource_address = resource_details[1]
+            graph.update_endpoints(resource_name, resource_address)
 
 def deploy_graph(helm_client, body, security_groups):
     """
@@ -124,15 +134,17 @@ def deploy_graph(helm_client, body, security_groups):
 
     # Create values file
     values = create_values(graph_name, schema, security_groups)
-    
+
     values_file = "/tmp/" + graph_name + ".json"
     with open(values_file, "w") as f:
         f.write(json.dumps(values, indent=2))
-        
+
     # Deploy Graph
     success = helm_client.install_chart(release_name, namespace_name, values=values_file)
 
     if success:
+        # capture endpoints
+        update_endpoints(namespace_name, release_name, graph)
         logger.info("Deployment of %s Succeeded", graph_name)
         graph.update_status("DEPLOYED")
     else:
@@ -152,7 +164,7 @@ def handler(event, context):
     cluster = eks.describe_cluster(name=cluster_name)
     security_groups = cluster["cluster"]["resourcesVpcConfig"]["clusterSecurityGroupId"]
     extra_security_groups = os.getenv("extra_security_groups")
-    
+
     if extra_security_groups is not None:
         security_groups = security_groups + ", " + extra_security_groups
 

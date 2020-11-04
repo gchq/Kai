@@ -11,14 +11,19 @@ class CommandHelper:
     @staticmethod
     def run_command(cmd, release_name):
         succeeded=False
+        output=None
         try:
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, cwd="/tmp")
+            cp = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, text=True, cwd="/tmp")
             succeeded=True
+            output=cp.stdout
         except subprocess.CalledProcessError as err:
             logger.error("Error during excution of command: %s against release name: %s", cmd, release_name)
             logger.error(err.output)
 
-        return succeeded
+        return {
+            "success": succeeded,
+            "output": output
+        }
 
 
 class KubeConfigurator:
@@ -59,7 +64,7 @@ class HelmClient:
             cmd.extend(["--values", values])
         cmd.extend(["--kubeconfig", self.kubeconfig])
 
-        return CommandHelper.run_command(cmd, release_name)
+        return CommandHelper.run_command(cmd, release_name)["success"]
 
     def install_chart(self, release_name, namespace_name, values=None, chart="gaffer", repo="https://gchq.github.io/gaffer-docker"):
         """
@@ -101,8 +106,15 @@ class KubernetesClient:
 
     def create_namespace(self, namespace_name):
         cmd = [ self.__KUBECTL_CMD, "create", "namespace", namespace_name, "--kubeconfig", self.kubeconfig ]
-        return CommandHelper.run_command(cmd, namespace_name)
+        return CommandHelper.run_command(cmd, namespace_name)["success"]
 
     def delete_namespace(self, namespace_name):
         cmd = [ self.__KUBECTL_CMD, "delete", "namespace", namespace_name, "--kubeconfig", self.kubeconfig ]
-        return CommandHelper.run_command(cmd, namespace_name)
+        return CommandHelper.run_command(cmd, namespace_name)["success"]
+
+    def get_alb_endpoints(self, namespace_name, release_name):
+        selector = "app.kubernetes.io/instance=" + release_name
+        output_format = "custom-columns=NAME:.metadata.name,ADDRESS:.status.loadBalancer.ingress[0].hostname"
+        cmd = [ self.__KUBECTL_CMD, "get", "ing", "--kubeconfig", self.kubeconfig, "--namespace", namespace_name, "--selector", selector, "--output", output_format, "--no-headers"]
+        result = CommandHelper.run_command(cmd, release_name)
+        return result["output"] if result["success"] else None

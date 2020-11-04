@@ -66,7 +66,8 @@ class Graph:
                 "releaseName": release_name,
                 "namespaceName": namespace_name,
                 "currentState": status,
-                "administrators": administrators
+                "administrators": administrators,
+                "endpoints": {}
             },
             ConditionExpression=Attr("releaseName").not_exists() | Attr("namespaceName").not_exists()
         )

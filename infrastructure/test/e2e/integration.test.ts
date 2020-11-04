@@ -566,6 +566,11 @@ describe("Graphs", () => {
                     clusterHelper.userTokens[user1].user.userName,
                     clusterHelper.userTokens[user3].user.userName
                 ],
+                endpoints: {
+                    "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                    "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                    "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+                },
                 currentState: "DEPLOYED",
                 releaseName: testGraph1.toLowerCase(),
                 namespaceName: testNamespace1
@@ -622,6 +627,11 @@ describe("Graphs", () => {
                     clusterHelper.userTokens[user1].user.userName,
                     clusterHelper.userTokens[user3].user.userName
                 ],
+                endpoints: {
+                    "testgraph1-gaffer-api": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                    "testgraph1-gaffer-monitor": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/),
+                    "testgraph1-hdfs": expect.stringMatching(/.*eu-west-1.elb.amazonaws.com/)
+                },
                 currentState: "DEPLOYED",
                 releaseName: testGraph1.toLowerCase(),
                 namespaceName: testNamespace1

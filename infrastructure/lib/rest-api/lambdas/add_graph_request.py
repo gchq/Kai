@@ -105,7 +105,8 @@ def handler(event, context):
         "releaseName": release_name,
         "namespaceName": namespace_name,
         "schema": schema,
-        "expectedStatus": initial_status
+        "expectedStatus": initial_status,
+        "endpoints":{}
     }
 
     sqs = boto3.client("sqs")
